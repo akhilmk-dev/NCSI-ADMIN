@@ -3,6 +3,9 @@ import { CSVLink } from "react-csv";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import { useReactToPrint } from "react-to-print"; // Importing the hook
+import React, { useState, useEffect } from 'react';
+import { Col } from "reactstrap";
+import { IoIosSearch } from 'react-icons/io';
 
 
 export const addMinutesToTime = (timeString, minutesToAdd) => {
@@ -250,8 +253,8 @@ export const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, 
 
   return (
     <React.Fragment>
-      <Col sm={4}>
-        <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+      <Col sm={12}>
+        <div style={{ position: 'relative', display: 'inline-block', width: '100%' , marginTop: "28px", minWidth: "200px" }}>
           <input
             {...props}
             value={value}

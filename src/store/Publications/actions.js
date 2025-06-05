@@ -15,7 +15,7 @@ import {
   } from './actionTypes'
   
   // Get Publications
-  export const getPublications = () => ({ type: GET_PUBLICATIONS })
+  export const getPublications = (publications) => ({ type: GET_PUBLICATIONS,  payload:publications })
   export const getPublicationsSuccess = (publications) => ({ type: GET_PUBLICATIONS_SUCCESS, payload:publications})
   export const getPublicationsFail = (error) => ({ type: GET_PUBLICATIONS_FAIL, payload: error })
   

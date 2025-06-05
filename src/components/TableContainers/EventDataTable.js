@@ -21,56 +21,10 @@ import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
 import { getEvents } from "store/actions";
 import { useDispatch } from "react-redux";
+import { DebouncedInput } from "helpers/common_helper";
 
 
 // Global Filter (Debounced Input)
-const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, ...props }) => {
-    const [value, setValue] = useState(initialValue);
-
-
-    useEffect(() => {
-        setValue(initialValue);
-    }, [initialValue]);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            onChange(value);
-        }, debounce);
-
-        return () => clearTimeout(timeout);
-    }, [debounce, onChange, value]);
-
-    return (
-        <React.Fragment>
-            <Col sm={4}>
-                <div style={{ position: 'relative', display: 'inline-block', width: '100%', marginTop: "28px", minWidth: "200px" }}>
-                    <input
-                        {...props}
-                        value={value}
-                        type="search"
-                        onChange={(e) => setValue(e.target.value)}
-                        style={{
-                            paddingLeft: '30px',
-                            width: '100%',
-                            boxSizing: 'border-box',
-                        }}
-                    />
-                    <IoIosSearch
-                        style={{
-                            position: 'absolute',
-                            left: '10px',
-                            top: '40%',
-                            transform: 'translateY(-50%)',
-                            color: 'gray',
-                            cursor: 'pointer',
-                        }}
-                        size={16}
-                    />
-                </div>
-            </Col>
-        </React.Fragment>
-    );
-};
 
 const EventDataTable = ({
     columns,
@@ -146,7 +100,6 @@ const EventDataTable = ({
         ...prev,
         columns: [serialNumberColumn, ...columns]
     }));
-
 
     const { getHeaderGroups, getRowModel, getCanPreviousPage, getCanNextPage, getPageOptions, getPageCount, nextPage, previousPage, getState } = table;
 

@@ -19,15 +19,14 @@ import { PiFileArrowDown } from "react-icons/pi";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
-import { getClassifications, getEvents } from "store/actions";
+import { getPublications } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
 
 
 // Global Filter (Debounced Input)
 
-
-const ClassificationDataTable = ({
+const PublicationDataTable = ({
     columns,
     data,
     tableClass,
@@ -280,14 +279,12 @@ const ClassificationDataTable = ({
     const startPage = Math.floor(pageIndex / windowSize) * windowSize;
     const endPage = Math.min(startPage + windowSize, totalPages);
     const sortOptions = [
-        { label: "Name(en)(a-z)", value: "name", direction: "asc" },
-        { label: "Name(en)(z-a)", value: "name", direction: "desc" },
-        {label:"Created At (asc)",value:"created_at",direction:"asc"},
-        {label:"Created At (desc)",value:"created_at",direction:"desc"}
+        { label: "Title(en)(a-z)", value: "title_en", direction: "asc" },
+        { label: "Title(en)(z-a)", value: "title_en", direction: "desc" },
     ]
 
     useEffect(() => {
-        dispatch(getClassifications({
+        dispatch(getPublications({
             "pagesize": pageSize,
             "currentpage": pageIndex,
             "sortorder": selectedSortData?.value && selectedSortData?.direction
@@ -297,7 +294,9 @@ const ClassificationDataTable = ({
                 }
                 : {},
             "searchstring": searchString,
-            "filter":{}
+            "filter": {
+                "from_date": selectedFromDate,
+            }
         }))
     }, [selectedFromDate, selectedSortData, searchString])
 
@@ -383,6 +382,10 @@ const ClassificationDataTable = ({
 
                 </div>
                 <div className="d-flex justify-content-between gap-2">
+                    {/* <div style={{ minWidth: "200px" }}>
+                        <label>From Date</label>
+                        <input className="form-control" style={{ minWidth: "200px", height: "38px" }} type="datetime-local" onChange={(e) => setSelectedFromDate(e.target.value)} />
+                    </div> */}
                     <div>
                         <label>Sort By</label>
                         <Select
@@ -397,6 +400,8 @@ const ClassificationDataTable = ({
                             options={sortOptions}
                             onChange={(option) => setSelectedSortData(option)}
                             isClearable
+                            getOptionValue={(option) => `${option.value}_${option.direction}`}
+                            getOptionLabel={(option) => option.label}
                         />
                     </div>
                 </div>
@@ -506,4 +511,4 @@ const ClassificationDataTable = ({
     );
 };
 
-export default ClassificationDataTable;
+export default PublicationDataTable;

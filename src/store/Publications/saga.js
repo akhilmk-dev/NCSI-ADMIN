@@ -20,15 +20,15 @@ import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
 
 // API calls
-const fetchPublicationsApi = () => axiosInstance.post('V1/publications/list');
+const fetchPublicationsApi = (publications) => axiosInstance.post('V1/publications/list', publications);
 const addPublicationApi = ({publication}) => axiosInstance.post('V1/publications/create', publication);
 const updatePublicationApi = ({publication,id}) => axiosInstance.put(`V1/publications/update/${id}`, publication);
 const deletePublicationApi = (id) => axiosInstance.delete(`V1/publications/${id}`);
 
 // Sagas
-function* getPublicationsSaga() {
+function* getPublicationsSaga(action) {
     try {
-        const { data } = yield call(fetchPublicationsApi);
+        const { data } = yield call(fetchPublicationsApi, action.payload);
         yield put(getPublicationsSuccess(data));
     } catch (error) {
         yield put(getPublicationsFail(error.response?.data || error.message));

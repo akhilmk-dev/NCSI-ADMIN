@@ -4,11 +4,12 @@ import { useDispatch } from "react-redux";
 import { Button } from "reactstrap";
 
 import CreatePublication from "./CreatePublication";
-import TableContainer from "components/Common/DataTableContainer";
+// import TableContainer from "components/Common/DataTableContainer";
 import { deletePublication, updatePublication } from "store/actions";
 
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
+import PublicationDataTable from "components/TableContainers/PublicationDataTable";
 
 const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
     const dispatch = useDispatch();
@@ -159,7 +160,7 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
             />
 
             <div className="container-fluid">
-                <TableContainer
+                <PublicationDataTable
                     loading={loading}
                     columns={columns}
                     data={list || []}
