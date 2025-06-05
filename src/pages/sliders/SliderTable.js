@@ -9,8 +9,9 @@ import { deleteSlider, updateSlider } from "store/actions";
 
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
+import { IMG_URL } from "constants/config";
 
-const SliderTable = ({ List, loading }) => {
+const SliderTable = ({ List, loading,fieldErrors }) => {
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -39,9 +40,16 @@ const SliderTable = ({ List, loading }) => {
   const columns = useMemo(() => [
     {
       header: "Image",
-      accessorKey: "sliderImage",
+      accessorKey: "slider_image_url",
       cell: ({ row }) => (
-        <img src={row.original.sliderImage} alt="slider" height="40" style={{ borderRadius: 5 }} />
+        <img src={row.original.slider_image_url} alt="slider" height="40" style={{ borderRadius: 5 }} />
+      ),
+    },
+    {
+      header: "Image(Ar)",
+      accessorKey: "slider_image_ar",
+      cell: ({ row }) => (
+        <img src={`${IMG_URL}${row.original.slider_image_ar}`} alt="slider" height="40" style={{ borderRadius: 5 }} />
       ),
     },
     {
@@ -55,7 +63,7 @@ const SliderTable = ({ List, loading }) => {
     },
     {
       header: "Alt Text",
-      accessorKey: "altText",
+      accessorKey: "alt_text",
     },
     ...(
       [
@@ -79,7 +87,7 @@ const SliderTable = ({ List, loading }) => {
                     <Button
                       color="danger"
                       onClick={() => {
-                        setDeleteId(row.original.sliderId);
+                        setDeleteId(row.original.id);
                         setOpenModal(true);
                       }}
                     >
@@ -94,8 +102,8 @@ const SliderTable = ({ List, loading }) => {
       ),
   ], [hasEditPermission, hasDeletePermission]);
 
-  const handleSubmit = (formData) => {
-    dispatch(updateSlider(formData));
+  const handleSubmit = (formData,id,resetForm,handleClose) => {
+    dispatch(updateSlider(formData,id,resetForm,handleClose));
   };
 
   const handleClose = () => {
@@ -118,6 +126,7 @@ const SliderTable = ({ List, loading }) => {
       />
 
       <CreateSlider
+        fieldErrors={fieldErrors}
         visible={isOpen}
         initialData={editData}
         onSubmit={handleSubmit}

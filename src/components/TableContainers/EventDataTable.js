@@ -309,7 +309,7 @@ const EventDataTable = ({
                 {isGlobalFilter && (
                     <>
                         {/* Export Buttons */}
-                        <Col sm={12} className="text-end">
+                        {/* <Col sm={12} className="text-end">
                             <Button className="btn btn-primary bg-primary text-white me-2" onClick={exportToExcel}>
                                 <PiMicrosoftExcelLogoFill size={18} /> Excel
                             </Button>
@@ -371,7 +371,7 @@ const EventDataTable = ({
                             <Button className="btn btn-primary bg-primary text-white" onClick={handlePrint}>
                                 <AiOutlinePrinter size={18} /> Print
                             </Button>
-                        </Col>
+                        </Col> */}
                     </>)}
             </Row>
             <div className="d-flex justify-content-between gap-2 mb-2">

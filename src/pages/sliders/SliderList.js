@@ -14,45 +14,18 @@ const SliderList = () => {
 //   const permissions = JSON.parse(localStorage?.getItem('permissions'));
 
   const dispatch = useDispatch();
-//   const sliders = useSelector((state) => state.Slider.sliders);
-//   const loading = useSelector((state) => state.Slider.loading);
-//   const error = useSelector((state) => state.Slider.error);
+  const sliders = useSelector((state) => state.Slider.sliders);
+  const loading = useSelector((state) => state.Slider.loading);
+  const error = useSelector((state) => state.Slider.error);
+  const fieldErrors = useSelector((state) => state.Slider.fieldErrors);
 
-//   useEffect(() => {
-//     if (loading) return;
-//     dispatch(getSliders());
-//   }, [dispatch]);
+  useEffect(() => {
+    if (loading) return;
+    dispatch(getSliders());
+  }, [dispatch]);
 
-const sliders = [
-    {
-      sliderId: 1,
-      sliderImage: "https://via.placeholder.com/600x200.png?text=Slider+1",
-      link: "https://example.com/slider-1",
-      altText: "Slider One Image"
-    },
-    {
-      sliderId: 2,
-      sliderImage: "https://via.placeholder.com/600x200.png?text=Slider+2",
-      link: "https://example.com/slider-2",
-      altText: "Slider Two Image"
-    },
-    {
-      sliderId: 3,
-      sliderImage: "https://via.placeholder.com/600x200.png?text=Slider+3",
-      link: "https://example.com/slider-3",
-      altText: "Slider Three Image"
-    },
-    {
-      sliderId: 4,
-      sliderImage: "https://via.placeholder.com/600x200.png?text=Slider+4",
-      link: "https://example.com/slider-4",
-      altText: "Slider Four Image"
-    },
-  ];
-  
-
-  const handleSubmit = (formData) => {
-    dispatch(addSlider(formData));
+  const handleSubmit = (formData,resetForm,handleClose) => {
+    dispatch(addSlider(formData,resetForm,handleClose));
   };
 
   const handleClose = () => {
@@ -61,7 +34,7 @@ const sliders = [
 
   return (
     <>
-      <CreateSlider visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreateSlider fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
 
       <div className='page-content container-fluid'>
         <div className='d-flex justify-content-between align-items-center mx-3'>
@@ -82,7 +55,7 @@ const sliders = [
           )}
         </div>
 
-        <SliderTable loading={false} List={sliders} />
+        <SliderTable fieldErrors={fieldErrors} loading={loading} List={sliders?.data?.sliders} />
       </div>
     </>
   );

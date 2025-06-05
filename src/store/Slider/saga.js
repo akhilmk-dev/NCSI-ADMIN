@@ -21,14 +21,14 @@ import toast from 'react-hot-toast';
 
 // 🧾 API Calls
 const fetchSlidersApi = () =>
-  axiosInstance.get('', { params: { sp: 'usp_GetSliders' } });
+  axiosInstance.post('V1/sliders/list');
 
-const addSliderApi = (slider) => axiosInstance.post('', slider);
+const addSliderApi = ({sliderData}) => axiosInstance.post('V1/sliders/create', sliderData);
 
-const updateSliderApi = (slider) => axiosInstance.post('', slider);
+const updateSliderApi = ({sliderData,id}) => axiosInstance.put(`V1/sliders/update/${id}`, sliderData);
 
 const deleteSliderApi = (id) =>
-  axiosInstance.post('', { sp: 'usp_DeleteSlider', sliderId: id });
+  axiosInstance.delete(`V1/sliders/${id}`);
 
 // 🚦 Sagas
 
@@ -44,12 +44,14 @@ function* getSlidersSaga() {
 function* addSliderSaga(action) {
   try {
     const { data } = yield call(addSliderApi, action.payload);
+    action.payload.resetForm();
+    action.payload.handleClose();
     yield put(addSliderSuccess(data));
     toast.success('Slider added successfully!');
     yield put({ type: GET_SLIDERS });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setSliderFieldErrors(error.response.data.fieldErrors));
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setSliderFieldErrors(error.response.data.errors));
     } else {
       yield put(addSliderFail(error.response?.data || error.message));
     }
@@ -59,12 +61,14 @@ function* addSliderSaga(action) {
 function* updateSliderSaga(action) {
   try {
     const { data } = yield call(updateSliderApi, action.payload);
+    action.payload.resetForm();
+    action.payload.handleClose();
     yield put(updateSliderSuccess(data));
     toast.success('Slider updated successfully!');
     yield put({ type: GET_SLIDERS });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setSliderFieldErrors(error.response.data.fieldErrors));
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setSliderFieldErrors(error.response.data.errors));
     } else {
       yield put(updateSliderFail(error.response?.data || error.message));
     }

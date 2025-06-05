@@ -3,7 +3,7 @@ import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
+const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldErrors}) => {
   const fileInputRef = useRef();
 
   const toBase64 = (file) =>
@@ -17,32 +17,43 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
   const formik = useFormik({
     initialValues: {
       link: initialData?.link || '',
-      altText: initialData?.altText || '',
-      sliderImage: null, // Will be file object
+      alt_text: initialData?.alt_text || '',
+      slider_image: null,
+      slider_image_ar: null
     },
     validationSchema: Yup.object({
       link: Yup.string().url('Enter a valid URL').required('Link is required'),
-      altText: Yup.string().required('Alt text is required'),
+      alt_text: Yup.string().required('Alt text is required'),
       ...(initialData ? {} : {
-        sliderImage: Yup.mixed().required('Image is required'),
+        slider_image: Yup.mixed().required('Image is required'),
+      }),
+      ...(initialData ? {} : {
+        slider_image_ar: Yup.mixed().required('The slider image ar field is required.'),
       })
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (values,{resetForm}) => {
       let base64Image = null;
+      let sliderImgAr=null
 
-      if (values.sliderImage) {
-        base64Image = await toBase64(values.sliderImage);
+      if (values.slider_image) {
+        base64Image = await toBase64(values.slider_image);
+      }
+      if(values?.slider_image_ar){
+        sliderImgAr= await toBase64(values?.slider_image_ar)
       }
 
       const payload = {
         link: values.link,
-        altText: values.altText,
-        sliderImage: base64Image,
-        id: initialData?.id || null,
+        alt_text: values.alt_text,
+        slider_image: base64Image,
+        slider_image_ar:sliderImgAr
       };
-
-      onSubmit(payload);
-      onClose();
+      if(initialData){
+        onSubmit(payload,initialData?.id,resetForm,handleClose)
+      }else{
+        onSubmit(payload,resetForm,handleClose);
+      }
+      
     },
   });
 
@@ -55,9 +66,15 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
   useEffect(() => {
     if (initialData) {
       formik.setFieldValue('link', initialData?.link || '');
-      formik.setFieldValue('altText', initialData?.altText || '');
+      formik.setFieldValue('alt_text', initialData?.alt_text || '');
     }
   }, [initialData]);
+
+  useEffect(()=>{
+    if(fieldErrors){
+      formik.setErrors(fieldErrors)
+    }
+  },[fieldErrors])
 
   return (
     <Modal
@@ -84,7 +101,7 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
                 value={formik.values.link}
                 onChange={formik.handleChange}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.link}</span>
+              <span style={{ color: 'red' }} role="alert">{formik.errors.link || formik.errors.link?.[0]}</span>
             </div>
 
             <div className="col-md-12">
@@ -93,11 +110,11 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
                 type="text"
                 className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
                 placeholder="Enter alt text"
-                name="altText"
-                value={formik.values.altText}
+                name="alt_text"
+                value={formik.values.alt_text}
                 onChange={formik.handleChange}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.altText}</span>
+              <span style={{ color: 'red' }} role="alert">{formik.errors.alt_text || formik.errors.alt_text?.[0]}</span>
             </div>
 
             <div className="col-md-12">
@@ -106,14 +123,29 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit }) => {
               <input
                 type="file"
                 className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
-                name="sliderImage"
+                name="slider_image"
                 accept="image/*"
                 ref={fileInputRef}
                 onChange={(e) => {
-                  formik.setFieldValue('sliderImage', e.currentTarget.files[0]);
+                  formik.setFieldValue('slider_image', e.currentTarget.files[0]);
                 }}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.sliderImage}</span>
+              <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image || formik.errors.slider_image?.[0]}</span>
+            </div>
+            <div className="col-md-12">
+              <label className="form-label fs-7">Slider Image(Ar)</label>
+              <span className="text-danger">{!initialData && '*'}</span>
+              <input
+                type="file"
+                className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
+                name="slider_image_ar"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={(e) => {
+                  formik.setFieldValue('slider_image_ar', e.currentTarget.files[0]);
+                }}
+              />
+              <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image_ar || formik.errors.slider_image_ar?.[0]}</span>
             </div>
           </div>
 

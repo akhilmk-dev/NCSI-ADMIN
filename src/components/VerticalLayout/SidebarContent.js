@@ -167,7 +167,7 @@ const SidebarContent = ({ t }) => {
       <SimpleBar style={{ maxHeight: "100%" }} ref={ref}>
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
-            {availablePaths.includes("/dashboard") && (
+            { (
               <li>
                 <Link to="/dashboard" className="waves-effect" onClick={() =>{ handleMenuItemClick("/dashboard"); tToggle2();}}>
                   <IoHomeOutline size={20} className="me-2 mb-1" />

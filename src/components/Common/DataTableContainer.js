@@ -375,7 +375,7 @@ const TableContainer = ({
             />
 
             {/* Export Buttons */}
-            <Col sm={8} className="text-end">
+            {/* <Col sm={8} className="text-end">
               <Button className="btn btn-primary bg-primary text-white me-2" onClick={exportToExcel}>
                 <PiMicrosoftExcelLogoFill size={18} /> Excel
               </Button>
@@ -392,8 +392,9 @@ const TableContainer = ({
               <Button className="btn btn-primary bg-primary text-white" onClick={handlePrint}>
                 <AiOutlinePrinter size={18} /> Print
               </Button>
-            </Col>
-          </>)}
+            </Col> */}
+          </>
+        )}
       </Row>
 
       <div className="table-responsive" id="table-to-print" ref={tableRef}>

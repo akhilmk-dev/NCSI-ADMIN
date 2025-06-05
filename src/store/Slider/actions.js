@@ -27,9 +27,9 @@ import {
   });
   
   // Add Slider
-  export const addSlider = (sliderData) => ({
+  export const addSlider = (sliderData,resetForm,handleClose) => ({
     type: ADD_SLIDER,
-    payload: sliderData,
+    payload: {sliderData,resetForm,handleClose},
   });
   export const addSliderSuccess = (slider) => ({
     type: ADD_SLIDER_SUCCESS,
@@ -41,9 +41,9 @@ import {
   });
   
   // Update Slider
-  export const updateSlider = (sliderData) => ({
+  export const updateSlider = (sliderData,id,resetForm,handleClose) => ({
     type: UPDATE_SLIDER,
-    payload: sliderData,
+    payload:{sliderData,id,resetForm,handleClose},
   });
   export const updateSliderSuccess = (slider) => ({
     type: UPDATE_SLIDER_SUCCESS,
