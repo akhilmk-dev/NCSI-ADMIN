@@ -15,8 +15,9 @@ import {
   } from './actionTypes'
   
   // Get Classifications
-  export const getClassifications = () => ({
+  export const getClassifications = (classifications) => ({
     type: GET_CLASSIFICATIONS,
+    payload:classifications
   })
   
   export const getClassificationsSuccess = (classifications) => ({
@@ -30,9 +31,9 @@ import {
   })
   
   // Add Classification
-  export const addClassification = (classification) => ({
+  export const addClassification = (classification,resetForm,handleClose) => ({
     type: ADD_CLASSIFICATIONS,
-    payload: classification,
+    payload: {classification:classification,resetForm:resetForm,handleClose:handleClose},
   })
   
   export const addClassificationSuccess = (classification) => ({
@@ -46,9 +47,9 @@ import {
   })
   
   // Update Classification
-  export const updateClassification = (classification) => ({
+  export const updateClassification = (classification,id,resetForm,handleClose) => ({
     type: UPDATE_CLASSIFICATIONS,
-    payload: classification,
+    payload: {classification:classification,id:id,resetForm,handleClose},
   })
   
   export const updateClassificationSuccess = (classification) => ({

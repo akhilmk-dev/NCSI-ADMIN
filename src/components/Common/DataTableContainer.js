@@ -302,6 +302,54 @@ const TableContainer = ({
     printWindow.print();
   };
 
+  const exportToCsv = () => {
+    const fullData = filteredData?.map((row) => {
+      return columns.reduce((acc, col) => {
+        if (col.accessorKey !== "actions" && col.accessorKey !== "image") {
+          let value = row[col.accessorKey];
+          // Format dates if the accessor key matches
+          if (col.accessorKey === "scheduledStartDateTime" || col.accessorKey === "scheduledEndDateTime") {
+            value = formatDateTimeToAmPm(value);
+          } else if (col.accessorKey === "status") {
+            value = value == true ? "Active" : "Inactive"
+          } else if (col.accessorKey === "isActive") {
+            value = value == true ? "Active" : "Inactive"
+          }else if (col.accessorKey === "requestedOn") {
+            value = formatDateTimeToAmPm(value);
+          }else if (col.accessorKey === "newEndDateTime" || col.accessorKey === "proposedEndDateTime") {
+            value = formatDateTimeToAmPm(value);
+          }else if (col.accessorKey === "createdAt") {
+            value = formatDateTimeToAmPm(value);
+          }else if (col.accessorKey === "date") {
+            value = convertToDateOnly(value);
+          }else if (col.accessorKey === "startTime" || col.accessorKey === "endTime") {
+            value = convertToAMPM(value);
+          }
+          acc[col.header] = value;
+        }
+        return acc;
+      }, {});
+    });
+
+    const csvHeaders = columns
+      .filter((col) => col.header !== "Actions" && col.header !== "Catalogue Image")
+      .map((col) => col.header);
+
+    const csvData = [csvHeaders, ...fullData.map((row) => Object.values(row))];
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      csvData.map((e) => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${docName}.csv`);
+    document.body.appendChild(link);
+
+    link.click();
+    document.body.removeChild(link);
+  }
+
   // const currentPage = getState().pagination.pageIndex;
   // const startIndex = currentPage * 10 + 1;
   // const endIndex = Math.min((currentPage + 1) * 10, data.length);
@@ -336,53 +384,7 @@ const TableContainer = ({
               </Button>
               <Button
                 className="btn btn-primary bg-primary text-white me-2"
-                onClick={() => {
-                  const fullData = filteredData?.map((row) => {
-                    return columns.reduce((acc, col) => {
-                      if (col.accessorKey !== "actions" && col.accessorKey !== "image") {
-                        let value = row[col.accessorKey];
-                        // Format dates if the accessor key matches
-                        if (col.accessorKey === "scheduledStartDateTime" || col.accessorKey === "scheduledEndDateTime") {
-                          value = formatDateTimeToAmPm(value);
-                        } else if (col.accessorKey === "status") {
-                          value = value == true ? "Active" : "Inactive"
-                        } else if (col.accessorKey === "isActive") {
-                          value = value == true ? "Active" : "Inactive"
-                        }else if (col.accessorKey === "requestedOn") {
-                          value = formatDateTimeToAmPm(value);
-                        }else if (col.accessorKey === "newEndDateTime" || col.accessorKey === "proposedEndDateTime") {
-                          value = formatDateTimeToAmPm(value);
-                        }else if (col.accessorKey === "createdAt") {
-                          value = formatDateTimeToAmPm(value);
-                        }else if (col.accessorKey === "date") {
-                          value = convertToDateOnly(value);
-                        }else if (col.accessorKey === "startTime" || col.accessorKey === "endTime") {
-                          value = convertToAMPM(value);
-                        }
-                        acc[col.header] = value;
-                      }
-                      return acc;
-                    }, {});
-                  });
-
-                  const csvHeaders = columns
-                    .filter((col) => col.header !== "Actions" && col.header !== "Catalogue Image")
-                    .map((col) => col.header);
-
-                  const csvData = [csvHeaders, ...fullData.map((row) => Object.values(row))];
-                  const csvContent =
-                    "data:text/csv;charset=utf-8," +
-                    csvData.map((e) => e.join(",")).join("\n");
-
-                  const encodedUri = encodeURI(csvContent);
-                  const link = document.createElement("a");
-                  link.setAttribute("href", encodedUri);
-                  link.setAttribute("download", `${docName}.csv`);
-                  document.body.appendChild(link);
-
-                  link.click();
-                  document.body.removeChild(link);
-                }}
+                onClick={exportToCsv}
               >
                 <PiFileArrowDown size={19} /> CSV
               </Button>

@@ -29,7 +29,6 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
         ...values,
         populationId: initialData?.populationId || undefined,
       };
-    console.log(payload)
       onSubmit(payload);
       onClose();
     },
@@ -73,6 +72,7 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
               name="omanis"
               value={formik.values.omanis}
               onChange={formik.handleChange}
+              placeholder='Enter Omanis count'
             />
             <div className="text-danger">{formik.errors.omanis}</div>
           </div>
@@ -86,6 +86,7 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
               name="expatriates"
               value={formik.values.expatriates}
               onChange={formik.handleChange}
+              placeholder="Enter Expatriates count"
             />
             <div className="text-danger">{formik.errors.expatriates}</div>
           </div>

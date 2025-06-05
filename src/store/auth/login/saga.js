@@ -15,18 +15,17 @@ import toast from 'react-hot-toast'
 import Cookies from 'js-cookie'
 
 // API calls
-const loginApi = (credentials) => axiosInstance.post('', credentials)
+const loginApi = (credentials) => axiosInstance.post('V1/user/login', credentials)
 const logoutApi = () => axiosInstance.post('/logout')
 
 // Sagas
 function* loginSaga(action) {
   try {
     const { data } = yield call(loginApi, action.payload.credentials)
-    action.payload.navigate(`/otp/${data?.Data?.[0]?.otpKey}`)
+    Cookies.set('access_token', data?.data?.token);
+    action.payload.navigate(`/dashboard`);
     yield put(loginSuccess(data))
-    localStorage.removeItem('otpSentTime')
-    localStorage.removeItem('otpExpiryTime')
-    toast.success('OTP sent successfully! ')
+    toast.success(data?.message)
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
       yield put(setLoginFieldErrors(error.response.data.fieldErrors))

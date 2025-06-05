@@ -25,7 +25,7 @@ const ProfileMenu = props => {
   const [username, setusername] = useState("Admin");
   const navigate = useNavigate()
 
-  const userId = JSON.parse(Cookies.get('authUser'))?.userId
+  const userId = 2
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {

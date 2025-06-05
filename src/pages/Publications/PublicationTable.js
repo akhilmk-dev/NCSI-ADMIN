@@ -10,7 +10,7 @@ import { deletePublication, updatePublication } from "store/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 
-const PublicationTable = ({ list, loading }) => {
+const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
     const dispatch = useDispatch();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -39,25 +39,25 @@ const PublicationTable = ({ list, loading }) => {
     const columns = useMemo(() => [
         {
             header: "Title (EN)",
-            accessorKey: "title",
+            accessorKey: "title_en",
         },
         {
             header: "Title (AR)",
-            accessorKey: "titleAr",
+            accessorKey: "title_ar",
             cell: ({ row }) => (
-                <div dir="rtl" style={{ whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'right' }}>
-                    {row.original.titleAr}
+                <div style={{ whiteSpace: 'normal', wordBreak: 'break-word',}}>
+                    {row.original.title_ar}
                 </div>
             ),
         },
         {
             header: "Cover Image",
-            accessorKey: "coverImage",
+            accessorKey: "cover_image_url",
             cell: ({ row }) => (
-                row.original.coverImage ? (
+                row.original.cover_image_url ? (
                     <img
-                        src={row.original.coverImage}
-                        alt={row.original.title}
+                        src={row.original.cover_image_url}
+                        alt={row.original.title_en}
                         style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }}
                     />
                 ) : 'No Image'
@@ -65,10 +65,10 @@ const PublicationTable = ({ list, loading }) => {
         },
         {
             header: "PDF",
-            accessorKey: "pdf",
+            accessorKey: "pdf_file_url",
             cell: ({ row }) => (
-                row.original.pdf ? (
-                    <a href={row.original.pdf} target="_blank" rel="noopener noreferrer">
+                row.original.pdf_file_url ? (
+                    <a href={row.original.pdf_file_url} target="_blank" rel="noopener noreferrer">
                         View PDF
                     </a>
                 ) : 'No PDF'
@@ -76,9 +76,9 @@ const PublicationTable = ({ list, loading }) => {
         },
         {
             header: "Show in Home",
-            accessorKey: "showInHome",
+            accessorKey: "show_in_home",
             cell: ({ row }) => (
-                row.original.showInHome ? 'Yes' : 'No'
+                row.original.show_in_home ? 'Yes' : 'No'
             ),
         },
         {
@@ -90,7 +90,7 @@ const PublicationTable = ({ list, loading }) => {
         },
         {
             header: "Classification",
-            accessorKey: "classification",
+            accessorKey: "classification_id",
         },
 
         ...([{
@@ -113,7 +113,7 @@ const PublicationTable = ({ list, loading }) => {
                             <Button
                                 color="danger"
                                 onClick={() => {
-                                    setDeleteId(row.original.publicationId);
+                                    setDeleteId(row.original.id);
                                     setOpenModal(true);
                                 }}
                             >
@@ -126,10 +126,8 @@ const PublicationTable = ({ list, loading }) => {
         }]),
     ], [hasEditPermission, hasDeletePermission]);
 
-    const handleSubmit = (formData) => {
-        dispatch(updatePublication(formData));
-        setIsOpen(false);
-        setEditData(null);
+    const handleSubmit = (formData,id,resetForm,handleClose) => {
+        dispatch(updatePublication(formData,id,resetForm,handleClose));
     };
 
     const handleClose = () => {
@@ -152,6 +150,8 @@ const PublicationTable = ({ list, loading }) => {
             />
 
             <CreatePublication
+                fieldErrors={fieldErrors}
+                classifications={classifications}
                 visible={isOpen}
                 initialData={editData}
                 onSubmit={handleSubmit}

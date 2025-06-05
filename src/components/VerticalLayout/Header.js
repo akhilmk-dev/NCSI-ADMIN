@@ -73,7 +73,7 @@ const Header = props => {
 
   const dispatch = useDispatch()
   const notifications = useSelector(state=>state?.Notification?.notifications)
-  const id = JSON?.parse(Cookies.get('authUser'))?.userId;
+  const id = 2
 
   useEffect(()=>{
     dispatch(getNotifications(id))

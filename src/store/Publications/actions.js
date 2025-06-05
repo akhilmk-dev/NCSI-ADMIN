@@ -16,16 +16,16 @@ import {
   
   // Get Publications
   export const getPublications = () => ({ type: GET_PUBLICATIONS })
-  export const getPublicationsSuccess = (publications) => ({ type: GET_PUBLICATIONS_SUCCESS, payload: publications })
+  export const getPublicationsSuccess = (publications) => ({ type: GET_PUBLICATIONS_SUCCESS, payload:publications})
   export const getPublicationsFail = (error) => ({ type: GET_PUBLICATIONS_FAIL, payload: error })
   
   // Add Publication
-  export const addPublication = (publication) => ({ type: ADD_PUBLICATION, payload: publication })
+  export const addPublication = (publication,resetForm,handleClose) => ({ type: ADD_PUBLICATION, payload: {publication,resetForm,handleClose} })
   export const addPublicationSuccess = (publication) => ({ type: ADD_PUBLICATION_SUCCESS, payload: publication })
   export const addPublicationFail = (error) => ({ type: ADD_PUBLICATION_FAIL, payload: error })
   
   // Update Publication
-  export const updatePublication = (publication) => ({ type: UPDATE_PUBLICATION, payload: publication })
+  export const updatePublication = (publication,id,resetForm,handleClose) => ({ type: UPDATE_PUBLICATION, payload: {publication,id,resetForm,handleClose}})
   export const updatePublicationSuccess = (publication) => ({ type: UPDATE_PUBLICATION_SUCCESS, payload: publication })
   export const updatePublicationFail = (error) => ({ type: UPDATE_PUBLICATION_FAIL, payload: error })
   

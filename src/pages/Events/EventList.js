@@ -14,70 +14,13 @@ const EventList = () => {
 
 //   const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
 
-//   const events = useSelector((state) => state.Event.events)
-//   const loading = useSelector((state) => state.Event.loading)
-//   const error = useSelector((state) => state.Event.error)
+  const events = useSelector((state) => state.Event.events)
+  const loading = useSelector((state) => state.Event.loading)
+  const error = useSelector((state) => state.Event.error)
+  const fieldErrors = useSelector((state)=>state?.Event?.fieldErrors);
 
-const events = [
-    {
-      eventId: 1,
-      title: "Tech Conference 2025",
-      titleAr: "مؤتمر التكنولوجيا 2025",
-      shortDescription: "An annual tech conference focusing on AI and robotics.",
-      shortDescriptionAr: "مؤتمر تقني سنوي يركز على الذكاء الاصطناعي والروبوتات.",
-      fromDate: "2025-09-15T09:00:00Z",
-      toDate: "2025-09-17T17:00:00Z",
-      location: "New York Convention Center",
-      locationAr: "مركز مؤتمرات نيويورك",
-      eventType: "Conference",
-      eventTypeAr: "مؤتمر",
-      eventSpeaker: "Dr. John Smith",
-      eventSpeakerAr: "د. جون سميث",
-      eventPdf: "https://example.com/tech-conference-2025.pdf",
-    },
-    {
-      eventId: 2,
-      title: "Marketing Summit",
-      titleAr: "قمة التسويق",
-      shortDescription: "A gathering of marketing professionals from around the globe.",
-      shortDescriptionAr: "تجمع لمحترفي التسويق من جميع أنحاء العالم.",
-      fromDate: "2025-10-05T10:00:00Z",
-      toDate: "2025-10-06T16:00:00Z",
-      location: "Dubai Expo Center",
-      locationAr: "مركز دبي إكسبو",
-      eventType: "Summit",
-      eventTypeAr: "قمة",
-      eventSpeaker: "Ms. Sarah Lee",
-      eventSpeakerAr: "السيدة سارة لي",
-      eventPdf: null,
-    },
-    {
-      eventId: 3,
-      title: "Health & Wellness Fair",
-      titleAr: "معرض الصحة والعافية",
-      shortDescription: "Explore new trends and innovations in health and wellness.",
-      shortDescriptionAr: "استكشاف الاتجاهات والابتكارات الجديدة في الصحة والعافية.",
-      fromDate: "2025-11-10T08:30:00Z",
-      toDate: "2025-11-12T15:30:00Z",
-      location: "Los Angeles Convention Center",
-      locationAr: "مركز مؤتمرات لوس أنجلوس",
-      eventType: "Fair",
-      eventTypeAr: "معرض",
-      eventSpeaker: "Dr. Ahmed Khalil",
-      eventSpeakerAr: "د. أحمد خليل",
-      eventPdf: "https://example.com/health-fair.pdf",
-    },
-  ];
-  
-  
-
-//   useEffect(() => {
-//     if (loading) return
-//     dispatch(getEvents())
-//   }, [dispatch, loading])
-
-  const handleSubmit = (data) => {
-    dispatch(addEvent(data))
+  const handleSubmit = (data,resetForm,handleClose) => {
+    dispatch(addEvent(data,resetForm,handleClose))
   }
 
   const handleClose = () => {
@@ -86,7 +29,7 @@ const events = [
 
   return (
     <>
-      <CreateEvent visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreateEvent fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="page-content container-fluid">
         <div className="d-flex justify-content-between align-items-center mx-3">
           <Breadcrumb
@@ -105,8 +48,8 @@ const events = [
             </Button>
           )}
         </div>
-
-        <EventTable loading={false} List={events} />
+         
+        <EventTable  totalrows={events?.data?.total} fieldErrors={fieldErrors} loading={loading} List={events?.data?.events} />
       </div>
     </>
   )

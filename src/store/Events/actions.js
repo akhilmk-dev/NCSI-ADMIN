@@ -15,17 +15,17 @@ import {
   } from './actionTypes'
   
   // Get Events
-  export const getEvents = () => ({ type: GET_EVENTS })
+  export const getEvents = (event) => ({ type: GET_EVENTS ,payload:event})
   export const getEventsSuccess = (events) => ({ type: GET_EVENTS_SUCCESS, payload: events })
   export const getEventsFail = (error) => ({ type: GET_EVENTS_FAIL, payload: error })
   
   // Add Event
-  export const addEvent = (event) => ({ type: ADD_EVENT, payload: event })
+  export const addEvent = (event,resetForm,handleClose) => ({ type: ADD_EVENT, payload: {data:event,resetForm:resetForm,handleClose:handleClose}})
   export const addEventSuccess = (event) => ({ type: ADD_EVENT_SUCCESS, payload: event })
   export const addEventFail = (error) => ({ type: ADD_EVENT_FAIL, payload: error })
   
   // Update Event
-  export const updateEvent = (event) => ({ type: UPDATE_EVENT, payload: event })
+  export const updateEvent = (event,id,resetForm,handleClose) => ({ type: UPDATE_EVENT, payload: {data:event,id:id,resetForm:resetForm,handleClose:handleClose} })
   export const updateEventSuccess = (event) => ({ type: UPDATE_EVENT_SUCCESS, payload: event })
   export const updateEventFail = (error) => ({ type: UPDATE_EVENT_FAIL, payload: error })
   

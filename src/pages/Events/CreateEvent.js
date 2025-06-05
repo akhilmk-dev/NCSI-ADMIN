@@ -3,7 +3,7 @@ import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
+const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit ,fieldErrors}) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -20,38 +20,38 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
 
   const formik = useFormik({
     initialValues: {
-      title: initialData?.title || '',
-      titleAr: initialData?.titleAr || '',
-      shortDescription: initialData?.shortDescription || '',
-      shortDescriptionAr: initialData?.shortDescriptionAr || '',
-      fromDate: initialData?.fromDate || '',
-      toDate: initialData?.toDate || '',
-      location: initialData?.location || '',
-      locationAr: initialData?.locationAr || '',
-      eventType: initialData?.eventType || '',
-      eventTypeAr: initialData?.eventTypeAr || '',
-      eventSpeaker: initialData?.eventSpeaker || '',
-      eventSpeakerAr: initialData?.eventSpeakerAr || '',
-      eventPdf: null,
+      title_en: initialData?.title_en || '',
+      title_ar: initialData?.title_ar|| '',
+      short_description_en: initialData?.short_description_en || '',
+      short_description_ar: initialData?.short_description_ar || '',
+      from_date: initialData?.from_date || '',
+      to_date: initialData?.to_date || '',
+      location_en: initialData?.location_en || '',
+      location_ar: initialData?.location_ar || '',
+      event_type_en: initialData?.event_type_en || '',
+      event_type_ar: initialData?.event_type_ar || '',
+      event_speaker_en: initialData?.event_speaker_en|| '',
+      event_speaker_ar: initialData?.event_speaker_ar || '',
+      event_pdf: null,
     },
     validationSchema: Yup.object({
-      title: Yup.string().required('Title is required'),
-      titleAr: Yup.string().required('Title in arabic is required'),
-      shortDescription: Yup.string().required('Short description is required'),
-      shortDescriptionAr: Yup.string().required('Short description in arabic is required'),
-      fromDate: Yup.date()
+      title_en: Yup.string().required('Title is required'),
+      title_ar: Yup.string().required('Title in arabic is required'),
+      short_description_en: Yup.string().required('Short description is required'),
+      short_description_ar: Yup.string().required('Short description in arabic is required'),
+      from_date: Yup.date()
         .required('From Date is required')
         .min(today, 'From Date cannot be in the past'),
-      toDate: Yup.date()
+      to_date: Yup.date()
         .required('To Date is required')
-        .min(Yup.ref('fromDate'), 'To Date must be after From Date'),
-      location: Yup.string().required('Location is required'),
-      locationAr: Yup.string().required('Location in arabic is required'),
-      eventType: Yup.string().required('Event Type is required'),
-      eventTypeAr: Yup.string().required('Event Type arabic is required'),
-      eventSpeaker: Yup.string().required('Event Speaker is required'),
-      eventSpeakerAr: Yup.string().required('Event speaker arabic is required'),
-      eventPdf: initialData ?Yup.mixed().nullable()
+        .min(Yup.ref('from_date'), 'To Date must be after From Date'),
+      location_en: Yup.string().required('Location is required'),
+      location_ar: Yup.string().required('Location in arabic is required'),
+      event_type_en: Yup.string().required('Event Type is required'),
+      event_type_ar: Yup.string().required('Event Type arabic is required'),
+      event_speaker_en: Yup.string().required('Event Speaker is required'),
+      event_speaker_ar: Yup.string().required('Event speaker arabic is required'),
+      event_pdf: initialData ? Yup.mixed().nullable()
       .test(
         'fileSize',
         'File size is too large, max 5MB',
@@ -73,56 +73,65 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
           value => !value || (value && SUPPORTED_FORMATS.includes(value.type))
         ).required("Event pdf is required"),
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       let base64Pdf = null;
-
-      if (values.eventPdf) {
-        base64Pdf = await toBase64(values.eventPdf);
+    
+      if (values.event_pdf) {
+        base64Pdf = await toBase64(values.event_pdf);
       }
-
+    
       const payload = {
-        eventId: initialData?.eventId || null,
-        title: values.title,
-        titleAr: values.titleAr,
-        shortDescription: values.shortDescription,
-        shortDescriptionAr: values.shortDescriptionAr,
-        fromDate: values.fromDate,
-        toDate: values.toDate,
-        location: values.location,
-        locationAr: values.locationAr,
-        eventType: values.eventType,
-        eventTypeAr: values.eventTypeAr,
-        eventSpeaker: values.eventSpeaker,
-        eventSpeakerAr: values.eventSpeakerAr,
-        eventPdfBase64: base64Pdf,
+        title_en: values.title_en,
+        title_ar: values.title_ar,
+        short_description_en: values.short_description_en,
+        short_description_ar: values.short_description_ar,
+        from_date: values.from_date,
+        to_date: values.to_date,
+        location_en: values.location_en,
+        location_ar: values.location_ar,
+        event_type_en: values.event_type_en,
+        event_type_ar: values.event_type_ar,
+        event_speaker_en: values.event_speaker_en,
+        event_speaker_ar: values.event_speaker_ar,
+        event_pdf: base64Pdf,
       };
-
-      onSubmit(payload);
-      onClose();
-    },
+    
+      if (initialData) {
+        onSubmit(payload, initialData.id, resetForm, handleClose);
+      } else {
+        onSubmit(payload, resetForm, handleClose);
+      }
+    }
+    
   });
-
+  
   const onClose = () => {
     formik.resetForm();
     handleClose();
   };
 
+  useEffect(()=>{
+    if(fieldErrors){
+      formik.setErrors(fieldErrors)
+    }
+  },[fieldErrors])
+
   useEffect(() => {
     if (visible && initialData) {
       formik.setValues({
-        title: initialData.title || '',
-        titleAr: initialData.titleAr || '',
-        shortDescription: initialData.shortDescription || '',
-        shortDescriptionAr: initialData.shortDescriptionAr || '',
-        fromDate: initialData.fromDate || '',
-        toDate: initialData.toDate || '',
-        location: initialData.location || '',
-        locationAr: initialData.locationAr || '',
-        eventType: initialData.eventType || '',
-        eventTypeAr: initialData.eventTypeAr || '',
-        eventSpeaker: initialData.eventSpeaker || '',
-        eventSpeakerAr: initialData.eventSpeakerAr || '',
-        eventPdf: null,
+        title_en: initialData?.title_en || '',
+        title_ar: initialData?.title_ar|| '',
+        short_description_en: initialData?.short_description_en || '',
+        short_description_ar: initialData?.short_description_ar || '',
+        from_date: initialData?.from_date || '',
+        to_date: initialData?.to_date || '',
+        location_en: initialData?.location_en || '',
+        location_ar: initialData?.location_ar || '',
+        event_type_en: initialData?.event_type_en || '',
+        event_type_ar: initialData?.event_type_ar || '',
+        event_speaker_en: initialData?.event_speaker_en|| '',
+        event_speaker_ar: initialData?.event_speaker_ar || '',
+        event_pdf: null,
       });
     }
   }, [visible]);
@@ -142,19 +151,19 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
       <form onSubmit={formik.handleSubmit}>
         <div className="row g-3">
           {[
-            { name: 'title', label: 'Title' },
-            { name: 'titleAr', label: 'Title(Ar)'},
-            { name: 'shortDescription', label: 'Short Description', isTextarea: true },
-            { name: 'shortDescriptionAr', label: 'Short Description(Ar)', isTextarea: true},
-            { name: 'fromDate', label: 'From Date', type: 'datetime-local' },
-            { name: 'toDate', label: 'To Date', type: 'datetime-local' },
-            { name: 'location', label: 'Location' },
-            { name: 'locationAr', label: 'Location(Ar)'},
-            { name: 'eventType', label: 'Event Type' },
-            { name: 'eventTypeAr', label: 'Event Type(Ar)'},
-            { name: 'eventSpeaker', label: 'Event Speaker' },
-            { name: 'eventSpeakerAr', label: 'Event Speaker(Ar)'}
-          ].map(({ name, label, type = 'text', dir, isTextarea }) => (
+            { name: 'title_en', label: 'Title',placeholder:"Enter the title" },
+            { name: 'title_ar', label: 'Title(Ar)', placeholder:"Enter title in arabic"},
+            { name: 'short_description_en', label: 'Short Description', isTextarea: true ,placeholder:"Enter short description"},
+            { name: 'short_description_ar', label: 'Short Description(Ar)', isTextarea: true, placeholder:"Enter short description in arabic"},
+            { name: 'from_date', label: 'From Date', type: 'datetime-local' },
+            { name: 'to_date', label: 'To Date', type: 'datetime-local' },
+            { name: 'location_en', label: 'Location',placeholder:"Enter the location" },
+            { name: 'location_ar', label: 'Location(Ar)', placeholder:"Enter the location in arabic"},
+            { name: 'event_type_en', label: 'Event Type',placeholder:"Enter event type" },
+            { name: 'event_type_ar', label: 'Event Type(Ar)',placeholder:"Enter event type in arabic"},
+            { name: 'event_speaker_en', label: 'Event Speaker',placeholder:"Enter speaker name" },
+            { name: 'event_speaker_ar', label: 'Event Speaker(Ar)', placeholder:"Enter speaker name in arabic"}
+          ].map(({ name, label, type = 'text', dir, isTextarea ,placeholder}) => (
             <div className="col-md-6" key={name}>
               <label className="form-label fs-7">
                 {label} <span className="text-danger">*</span>
@@ -167,6 +176,7 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
                   rows={3}
                   value={formik.values[name]}
                   onChange={formik.handleChange}
+                  placeholder={placeholder}
                 />
               ) : (
                 <input
@@ -176,9 +186,10 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
                   className="form-control"
                   value={formik.values[name]}
                   onChange={formik.handleChange}
+                  placeholder={placeholder}
                 />
               )}
-              <div className="text-danger">{formik.errors[name]}</div>
+              <div className="text-danger">{formik.errors[name]||formik.errors[name]?.[0]}</div>
             </div>
           ))}
 
@@ -187,14 +198,14 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit }) => {
             <label className="form-label fs-7">Event PDF</label> {!initialData && <span className="text-danger">*</span>}
             <input
               type="file"
-              name="eventPdf"
+              name="event_pdf"
               className="form-control"
               accept="application/pdf"
               onChange={(e) => {
-                formik.setFieldValue('eventPdf', e.currentTarget.files[0]);
+                formik.setFieldValue('event_pdf', e.currentTarget.files[0]);
               }}
             />
-            <div className="text-danger">{formik.errors.eventPdf}</div>
+            <div className="text-danger">{formik.errors.event_pdf || formik.errors.event_pdf?.[0]}</div>
           </div>
         </div>
 

@@ -4,32 +4,31 @@ import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit }) => {
+const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit,fieldErrors }) => {
 
     const formik = useFormik({
         initialValues: {
-            classificationName: initialData?.classificationName || '',
+            name: initialData?.name || '',
+            name_ar:initialData?.name_ar || ""
         },
         validationSchema: Yup.object({
-            classificationName: Yup.string()
-                .required('Classification Name is required'),
+            name: Yup.string()
+                .required('Name is required'),
+            name_ar:Yup.string()
+            .required('Name in arabic is required')
         }),
         onSubmit: (values, { resetForm }) => {
-            if (initialData?.classificationName) {
-                onSubmit({ 
-                    sp: "usp_UpdateClassification", 
-                    solutionId: 1, 
-                    classificationName: values?.classificationName, 
-                    classificationId: initialData?.classificationId 
-                });
-                onClose();
+            if (initialData?.name) {
+                onSubmit({  
+                    name: values?.name, 
+                    name_ar:values?.name_ar
+                },initialData?.id,resetForm,handleClose);
+               
             } else {
                 onSubmit({ 
-                    sp: "usp_InsertClassification", 
-                    solutionId: 1, 
-                    classificationName: values?.classificationName 
-                });
-                onClose();
+                    name: values?.name ,
+                    name_ar:values?.name_ar
+                },resetForm,handleClose);
             }
         },
     });
@@ -40,10 +39,17 @@ const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit
     };
 
     useEffect(() => {
-        if (initialData?.classificationName) {
-            formik.setFieldValue('classificationName', initialData?.classificationName);
+        if (initialData?.name) {
+            formik.setFieldValue('name', initialData?.name);
+            formik.setFieldValue('name_ar',initialData?.name_ar)
         }
     }, [initialData]);
+
+    useEffect(()=>{
+        if(fieldErrors){
+            formik.setErrors(fieldErrors)
+        }
+    },[fieldErrors])
 
     return (
         <Modal
@@ -67,11 +73,25 @@ const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit
                                     type="text"
                                     className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
                                     placeholder="Enter classification name"
-                                    name="classificationName"
-                                    value={formik.values.classificationName}
+                                    name="name"
+                                    value={formik.values.name}
                                     onChange={formik.handleChange}
                                 />
-                                <span style={{ color: 'red' }} role="alert">{formik.errors.classificationName}</span>
+                                <span style={{ color: 'red' }} role="alert">{formik.errors.name || formik.errors.name?.[0]}</span>
+                            </div>
+                        </div>
+                        <div className="row g-3">
+                            <div className="col-md-12">
+                                <label className="form-label fs-7">Classification Name(Ar)</label><span className='text-danger'>*</span>
+                                <input
+                                    type="text"
+                                    className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
+                                    placeholder="Enter classification name in arabic"
+                                    name="name_ar"
+                                    value={formik.values.name_ar}
+                                    onChange={formik.handleChange}
+                                />
+                                <span style={{ color: 'red' }} role="alert">{formik.errors.name_ar || formik.errors.name_ar?.[0]}</span>
                             </div>
                         </div>
                         <div className="modal-footer mt-3">

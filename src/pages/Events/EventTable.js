@@ -4,20 +4,20 @@ import { useDispatch } from "react-redux";
 import { Button } from "reactstrap";
 
 import CreateEvent from "./CreateEvent";
-import TableContainer from "components/Common/DataTableContainer";
 import { deleteEvent, updateEvent } from "store/actions";
 
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
+import EventDataTable from "components/TableContainers/EventDataTable";
 
-const EventTable = ({ List, loading }) => {
+const EventTable = ({ List, loading,fieldErrors ,totalrows}) => {
   const dispatch = useDispatch();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState();
   const [deleteId, setDeleteId] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  
 
   const permissions = JSON.parse(localStorage?.getItem('permissions')) || [];
   const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Events");
@@ -39,90 +39,90 @@ const EventTable = ({ List, loading }) => {
   const columns = useMemo(() => [
     {
       header: "Title (EN)",
-      accessorKey: "title",
+      accessorKey: "title_en",
     },
     {
       header: "Title (AR)",
-      accessorKey: "titleAr",
+      accessorKey: "title_ar",
       cell: ({ row }) => (
-        <div dir="rtl" style={{ whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'right' }}>
-          {row.original.titleAr}
+        <div style={{ whiteSpace: 'normal', wordBreak: 'break-word',}}>
+          {row.original.title_ar}
         </div>
       ),
     },
     {
       header: "Short Description (EN)",
-      accessorKey: "shortDescription",
+      accessorKey: "short_description_en",
       cell: ({ row }) => (
         <div style={{ maxWidth: 300, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-          {row.original.shortDescription}
+          {row.original.short_description_en}
         </div>
       ),
     },
     {
       header: "Short Description (AR)",
-      accessorKey: "shortDescriptionAr",
+      accessorKey: "short_description_ar",
       cell: ({ row }) => (
-        <div dir="rtl" style={{ maxWidth: 300, whiteSpace: 'normal', wordBreak: 'break-word', textAlign: 'right' }}>
-          {row.original.shortDescriptionAr}
+        <div style={{ maxWidth: 300, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+          {row.original.short_description_ar}
         </div>
       ),
     },
     {
       header: "From Date",
-      accessorKey: "fromDate",
-      cell: ({ row }) => new Date(row.original.fromDate).toLocaleString(),
+      accessorKey: "from_date",
+      cell: ({ row }) =>new Date(row.original.from_date).toLocaleString(),
     },
     {
       header: "To Date",
-      accessorKey: "toDate",
-      cell: ({ row }) => new Date(row.original.toDate).toLocaleString(),
+      accessorKey: "to_date",
+      cell: ({ row }) => new Date(row.original.to_date).toLocaleString(),
     },
     {
       header: "Location (EN)",
-      accessorKey: "location",
+      accessorKey: "location_en",
     },
     {
       header: "Location (AR)",
-      accessorKey: "locationAr",
+      accessorKey: "location_ar",
       cell: ({ row }) => (
-        <div dir="rtl" style={{ textAlign: 'right' }}>
-          {row.original.locationAr}
+        <div >
+          {row.original.location_ar}
         </div>
       ),
     },
     {
       header: "Event Type (EN)",
-      accessorKey: "eventType",
+      accessorKey: "event_type_en",
     },
     {
       header: "Event Type (AR)",
-      accessorKey: "eventTypeAr",
+      accessorKey: "event_type_ar",
       cell: ({ row }) => (
-        <div dir="rtl" style={{ textAlign: 'right' }}>
-          {row.original.eventTypeAr}
+        <div >
+          {row.original.event_type_ar}
         </div>
       ),
     },
     {
       header: "Speaker (EN)",
-      accessorKey: "eventSpeaker",
+      accessorKey: "event_speaker_en",
     },
     {
       header: "Speaker (AR)",
-      accessorKey: "eventSpeakerAr",
+      accessorKey: "event_speaker_ar",
       cell: ({ row }) => (
-        <div dir="rtl" style={{ textAlign: 'right' }}>
-          {row.original.eventSpeakerAr}
+        <div >
+          {row.original.event_speaker_ar}
         </div>
       ),
     },
     {
       header: "Event PDF",
-      accessorKey: "eventPdf",
+      accessorKey: "pdf_url",
       cell: ({ row }) => (
-        row.original.eventPdf ? (
-          <a href={row.original.eventPdf} target="_blank" rel="noopener noreferrer">
+        row.original.event_pdf ? (
+          <a href={row.original.pdf_url} target="_blank" rel="noopener noreferrer">
             View PDF
           </a>
         ) : 'No PDF'
@@ -148,7 +148,7 @@ const EventTable = ({ List, loading }) => {
               <Button
                 color="danger"
                 onClick={() => {
-                  setDeleteId(row.original.eventId);
+                  setDeleteId(row.original.id);
                   setOpenModal(true);
                 }}
               >
@@ -161,10 +161,9 @@ const EventTable = ({ List, loading }) => {
     }]),
   ], [hasEditPermission, hasDeletePermission]);
 
-  const handleSubmit = (formData) => {
-    dispatch(updateEvent(formData));
-    setIsOpen(false);
-    setEditData(null);
+  const handleSubmit = (formData,id,resetForm,handleClose) => {
+    dispatch(updateEvent(formData,id,resetForm,handleClose));
+    // setIsOpen(false);
   };
 
   const handleClose = () => {
@@ -191,10 +190,12 @@ const EventTable = ({ List, loading }) => {
         initialData={editData}
         onSubmit={handleSubmit}
         handleClose={handleClose}
+        fieldErrors={fieldErrors}
       />
 
       <div className="container-fluid">
-        <TableContainer
+        <EventDataTable
+          totalrows={totalrows}
           loading={loading}
           columns={columns}
           data={List || []}

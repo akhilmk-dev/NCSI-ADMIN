@@ -62,7 +62,7 @@ const PopulationTable = ({ List, loading }) => {
 
           return (
             <div className="d-flex gap-2">
-              {(
+              { (
                 <Button color="primary" onClick={handleEdit}>
                   <FaRegEdit size={18} />
                 </Button>
@@ -83,7 +83,7 @@ const PopulationTable = ({ List, loading }) => {
         }
       }
     ])
-  ], [hasEditPermission, hasDeletePermission]);
+  ], []);
 
   const handleSubmit = (data) => {
     dispatch(updatePopulation(data));

@@ -20,15 +20,15 @@ import axiosInstance from 'pages/Utility/axiosInstance'
 import toast from 'react-hot-toast'
 
 // API calls
-const fetchClassificationsApi = () => axiosInstance.get('', { params: { sp: 'usp_GetCatalogueClassifications' } })
-const addClassificationApi = (classification) => axiosInstance.post('', classification)
-const updateClassificationApi = (classification) => axiosInstance.post('', classification)
-const deleteClassificationApi = (id) => axiosInstance.post('', { sp: 'usp_DeleteCatalogueClassification', classificationId: id })
+const fetchClassificationsApi = (classifications) => axiosInstance.post('V1/classifications/list',classifications )
+const addClassificationApi = ({classification}) => axiosInstance.post('V1/classifications/create', classification)
+const updateClassificationApi = ({classification,id}) => axiosInstance.put(`V1/classifications/update/${id}`, classification)
+const deleteClassificationApi = (id) => axiosInstance.delete(`V1/classifications/${id}`)
 
 // Sagas
-function* getClassificationsSaga() {
+function* getClassificationsSaga(action) {
   try {
-    const { data } = yield call(fetchClassificationsApi)
+    const { data } = yield call(fetchClassificationsApi,action.payload)
     yield put(getClassificationsSuccess(data))
   } catch (error) {
     yield put(getClassificationsFail(error.response?.data || error.message))
@@ -40,11 +40,13 @@ function* addClassificationSaga(action) {
   try {
     const { data } = yield call(addClassificationApi, action.payload)
     yield put(addClassificationSuccess(data))
+    action.payload.resetForm();
+    action.payload.handleClose();
     toast.success('Classification added successfully!')
     yield put({ type: GET_CLASSIFICATIONS })
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setClassificationFieldErrors(error.response.data.fieldErrors))
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setClassificationFieldErrors(error.response.data.errors))
     } else {
       yield put(addClassificationFail(error.response?.data || error.message))
     }
@@ -55,11 +57,13 @@ function* updateClassificationSaga(action) {
   try {
     const { data } = yield call(updateClassificationApi, action.payload)
     yield put(updateClassificationSuccess(data))
+    action.payload.resetForm();
+    action.payload.handleClose();
     toast.success('Classification updated successfully!')
     yield put({ type: GET_CLASSIFICATIONS })
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setClassificationFieldErrors(error.response.data.fieldErrors))
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setClassificationFieldErrors(error.response.data.errors))
     } else {
       yield put(updateClassificationFail(error.response?.data || error.message))
     }

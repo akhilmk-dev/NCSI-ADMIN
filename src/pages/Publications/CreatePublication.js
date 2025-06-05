@@ -5,13 +5,6 @@ import * as Yup from "yup";
 import Switch from "react-switch";
 import Select from "react-select";
 
-const dummyClassifications = [
-    { value: "fiction", label: "Fiction" },
-    { value: "non-fiction", label: "Non-Fiction" },
-    { value: "science", label: "Science" },
-    { value: "technology", label: "Technology" },
-];
-
 const FILE_SIZE = 5 * 1024 * 1024; // 5MB max
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 const SUPPORTED_PDF_FORMAT = "application/pdf";
@@ -26,23 +19,23 @@ const fileToBase64 = (file) => {
     });
 };
 
-const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit }) => {
-    const [type, setType] = useState(initialData?.type || "book");
+const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,classifications,fieldErrors}) => {
+    const [type, setType] = useState(initialData?.type || "");
 
     const formik = useFormik({
         initialValues: {
-            title: initialData?.title || "",
-            titleAr: initialData?.titleAr || "",
-            coverImage: initialData?.coverImage || null, // base64 string or null
-            pdf: initialData?.pdf || null, // base64 string or null
-            showInHome: initialData?.showInHome || false,
-            classifications: initialData?.classifications || "",
-            type: initialData?.type || "book",
+            title_en: initialData?.title_en || "",
+                title_ar: initialData?.title_ar || "",
+                cover_image: null,
+                pdf_file:  null,
+                show_in_home: initialData?.show_in_home || false,
+                classification_id: initialData?.classification_id || "",
+                type: initialData?.type || "",
         },
         validationSchema: Yup.object({
-            title: Yup.string().required("Title is required"),
-            titleAr: Yup.string().required("Title in Arabic is required"),
-            coverImage: initialData ? Yup.mixed()
+            title_en: Yup.string().required("Title is required"),
+            title_ar: Yup.string().required("Title in Arabic is required"),
+            cover_image: initialData ? Yup.mixed()
                 .nullable()
                 .test("fileSize", "File size is too large, max 5MB", (value) => {
                     if (!value || typeof value === "string") return true;
@@ -61,7 +54,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         if (!value || typeof value === "string") return true;
                         return SUPPORTED_IMAGE_FORMATS.includes(value.type);
                     }).required("Cover image is required"),
-            pdf: initialData ? Yup.mixed()
+            pdf_file: initialData ? Yup.mixed()
                 .nullable()
                 .test("fileSize", "File size is too large, max 5MB", (value) => {
                     if (!value || typeof value === "string") return true;
@@ -80,22 +73,32 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         if (!value || typeof value === "string") return true;
                         return value.type === SUPPORTED_PDF_FORMAT;
                     }).required("Pdf is required"),
-            classifications: Yup.string().required("Select a classification"),
+            classification_id: Yup.string().required("Select a classification"),
             type: Yup.string().required("Please select one type"),
         }),
-        onSubmit: (values) => {
-            onSubmit({
-                title: values.title,
-                titleAr: values.titleAr,
-                coverImage: values.coverImage,
-                pdf: values.pdf,
-                showInHome: values.showInHome,
-                classifications: values.classifications,
+        onSubmit: (values,{resetForm}) => {
+            const payload = {
+                title_en: values?.title_en,
+                title_ar: values.title_ar,
+                cover_image: values.cover_image,
+                pdf_file: values.pdf_file,
+                show_in_home: values.show_in_home,
+                classification_id: values.classification_id,
                 type: values.type,
-            });
-            onClose();
+            }
+            if(initialData){
+                onSubmit(payload,initialData?.id,resetForm,handleClose);
+            }else{
+                onSubmit(payload,resetForm,handleClose);
+            }
         },
     });
+
+    useEffect(()=>{
+        if(fieldErrors){
+            formik.setErrors(fieldErrors);
+        }
+    },[fieldErrors])
 
     const onClose = () => {
         formik.resetForm();
@@ -108,12 +111,12 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
         if (file) {
             try {
                 const base64 = await fileToBase64(file);
-                formik.setFieldValue("coverImage", base64);
+                formik.setFieldValue("cover_image", base64);
             } catch (err) {
                 console.error(err);
             }
         } else {
-            formik.setFieldValue("coverImage", null);
+            formik.setFieldValue("cover_image", null);
         }
     };
 
@@ -123,34 +126,34 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
         if (file) {
             try {
                 const base64 = await fileToBase64(file);
-                formik.setFieldValue("pdf", base64);
+                formik.setFieldValue("pdf_file", base64);
             } catch (err) {
                 console.error(err);
             }
         } else {
-            formik.setFieldValue("pdf", null);
+            formik.setFieldValue("pdf_file", null);
         }
     };
 
     // Update form values if initialData changes
     useEffect(() => {
-        if (initialData?.title) {
+        if (initialData?.title_en) {
             formik.setValues({
-                title: initialData.title || "",
-                titleAr: initialData.titleAr || "",
-                coverImage: initialData.coverImage || null,
-                pdf: initialData.pdf || null,
-                showInHome: initialData.showInHome || false,
-                classifications: initialData.classifications || "",
-                type: initialData.type || "book",
+                title_en: initialData?.title_en || "",
+                title_ar: initialData?.title_ar || "",
+                cover_image:  null,
+                pdf_file: null,
+                show_in_home: initialData?.show_in_home || false,
+                classification_id: initialData?.classification_id || "",
+                type: initialData?.type || "",
             });
-            setType(initialData.type || "book");
+            setType(initialData?.type || "");
         }
     }, [initialData]);
 
     return (
         <Modal
-            title={initialData?.title ? "Edit Publication" : "Create New Publication"}
+            title={initialData?.title_en ? "Edit Publication" : "Create New Publication"}
             visible={visible}
             onCancel={onClose}
             footer={null}
@@ -169,14 +172,15 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         </label>
                         <input
                             type="text"
-                            name="title"
+                            name="title_en"
                             className="form-control"
-                            value={formik.values.title}
+                            value={formik.values.title_en}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
+                            placeholder="Enter the title"
                         />
-                        {formik.touched.title && formik.errors.title && (
-                            <div className="text-danger">{formik.errors.title}</div>
+                        {(
+                            <div className="text-danger">{formik.errors?.title_en||formik.errors?.title_en?.[0]}</div>
                         )}
                     </div>
 
@@ -187,14 +191,15 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         </label>
                         <input
                             type="text"
-                            name="titleAr"
+                            name="title_ar"
                             className="form-control"
-                            value={formik.values.titleAr}
+                            value={formik.values.title_ar}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
+                            placeholder="Enter title in arabic"
                         />
-                        {formik.touched.titleAr && formik.errors.titleAr && (
-                            <div className="text-danger">{formik.errors.titleAr}</div>
+                        {(
+                            <div className="text-danger">{formik.errors.title_ar || formik.errors?.title_ar?.[0]}</div>
                         )}
                     </div>
 
@@ -203,14 +208,14 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         <label className="form-label fs-7">Cover Image</label> {!initialData && <span className="text-danger">*</span>}
                         <input
                             type="file"
-                            name="coverImage"
+                            name="cover_image"
                             accept="image/jpeg,image/png,image/jpg"
                             className="form-control"
                             onChange={handleCoverImageChange}
                             onBlur={formik.handleBlur}
                         />
-                        {formik.touched.coverImage && formik.errors.coverImage && (
-                            <div className="text-danger">{formik.errors.coverImage}</div>
+                        {(
+                            <div className="text-danger">{formik.errors.cover_image || formik.errors?.cover_image?.[0]}</div>
                         )}
                     </div>
 
@@ -219,14 +224,14 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         <label className="form-label fs-7">PDF</label>{!initialData && <span className="text-danger">*</span>}
                         <input
                             type="file"
-                            name="pdf"
+                            name="pdf_file"
                             accept="application/pdf"
                             className="form-control"
                             onChange={handlePdfChange}
                             onBlur={formik.handleBlur}
                         />
-                        {formik.touched.pdf && formik.errors.pdf && (
-                            <div className="text-danger">{formik.errors.pdf}</div>
+                        {(
+                            <div className="text-danger">{formik.errors.pdf_file || formik.errors.pdf_file?.[0]}</div>
                         )}
                     </div>
 
@@ -265,8 +270,8 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                                 URL
                             </label>
                         </div>
-                        {formik.touched.type && formik.errors.type && (
-                            <div className="text-danger">{formik.errors.type}</div>
+                        {(
+                            <div className="text-danger">{formik.errors.type || formik.errors.type?.[0]}</div>
                         )}
                     </div>
 
@@ -276,18 +281,18 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                             Classifications <span className="text-danger">*</span>
                         </label>
                         <Select
-                            options={dummyClassifications}
-                            value={dummyClassifications.find(
-                                (option) => option.value === formik.values.classifications
+                            options={classifications}
+                            value={classifications?.find(
+                                (option) => option.value === formik.values.classification_id
                             ) || null}
                             onChange={(selectedOption) =>
-                                formik.setFieldValue("classifications", selectedOption?.value || "")
+                                formik.setFieldValue("classification_id", selectedOption?.value || "")
                             }
                             classNamePrefix="select"
                             isClearable={true}
                         />
-                        {formik.touched.classifications && formik.errors.classifications && (
-                            <div className="text-danger">{formik.errors.classifications}</div>
+                        {formik.touched.classification_id && formik.errors.classification_id && (
+                            <div className="text-danger">{formik.errors.classification_id}</div>
                         )}
                     </div>
 
@@ -295,8 +300,8 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                     <div className="col-md-6 d-flex align-items-center">
                         <label className="form-label me-3 fs-7">Show in Home</label>
                         <Switch
-                            onChange={(checked) => formik.setFieldValue("showInHome", checked)}
-                            checked={formik.values.showInHome}
+                            onChange={(checked) => formik.setFieldValue("show_in_home", checked)}
+                            checked={formik.values.show_in_home}
                             uncheckedIcon={false}
                             checkedIcon={false}
                             height={20}
@@ -313,7 +318,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit })
                         Close
                     </button>
                     <button type="submit" className="btn btn-primary ms-3">
-                        {initialData?.title ? "Update" : "Add"}
+                        {initialData?.title_en ? "Update" : "Add"}
                     </button>
                 </div>
             </form>

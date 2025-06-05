@@ -14,23 +14,13 @@ const ClassificationList = () => {
     const permissions = JSON.parse(localStorage?.getItem('permissions'));
 
     const dispatch = useDispatch();
-    // const classifications = useSelector((state) => state.Classification.classifications);
-    // const loading = useSelector((state) => state.Classification.loading);
-    // const error = useSelector((state) => state.Classification.error);
-    const classifications =[
-        { classificationId: 1, classificationName: "Electronics" },
-        { classificationId: 2, classificationName: "Furniture" },
-        { classificationId: 3, classificationName: "Clothing" },
-        { classificationId: 4, classificationName: "Books" },
-        { classificationId: 5, classificationName: "Toys" },
-      ];
-    // useEffect(() => {
-    //     if (loading) return;
-    //     dispatch(getClassifications());
-    // }, [dispatch, loading]);
+    const classifications = useSelector((state) => state.Classification.classifications);
+    const loading = useSelector((state) => state.Classification.loading);
+    const error = useSelector((state) => state.Classification.error);
+    const fieldErrors = useSelector((state) => state.Classification.fieldErrors);
 
-    const handleSubmit = (data) => {
-        dispatch(addClassification(data));
+    const handleSubmit = (data,resetForm,handleClose) => {
+        dispatch(addClassification(data,resetForm,handleClose));
     };
 
     const handleClose = () => {
@@ -40,7 +30,7 @@ const ClassificationList = () => {
     return (
         <>
         {console.log("kiue")}
-            <CreateClassification visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+            <CreateClassification fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
             <div className='page-content container-fluid'>
                 <div className='d-flex justify-content-between align-items-center mx-3'>
                     <Breadcrumb 
@@ -60,7 +50,7 @@ const ClassificationList = () => {
                     )}
                 </div>
 
-                <ClassificationTable loading={false} List={classifications} />
+                <ClassificationTable totalrows={classifications?.data?.total} fieldErrors={fieldErrors} loading={loading} List={classifications?.data?.classifications} />
             </div>
         </>
     );

@@ -48,42 +48,40 @@ const Dashboard = props => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [data,setData]= useState()
-  const id = JSON.parse(Cookies.get('authUser'))?.userId
-
-  const permissions = JSON?.parse(localStorage?.getItem('permissions'));
+  // const id = JSON.parse(Cookies.get('authUser'))?.userId
+  const permissions = [];
 
   // Selectors to access Redux state
   const workOrders = [];
 
-  const user = JSON.parse(Cookies.get('authUser'))
 
   const toggle = () => {
     setMenu(!menu);
   };
 
-  const fetchDashboardDetails = async () => {
-    try {
-      const response = await axiosInstance('', { params: { sp: "usp_GetAdminDashboard",userId:user?.userId, multiple: true } });
-      setDashboard(response?.data?.Data)
-      setDashboardDetails(response?.data?.Data?.result1?.[0])
-    } catch (error) {
+  // const fetchDashboardDetails = async () => {
+  //   try {
+  //     const response = await axiosInstance('', { params: { sp: "usp_GetAdminDashboard",userId:user?.userId, multiple: true } });
+  //     setDashboard(response?.data?.Data)
+  //     setDashboardDetails(response?.data?.Data?.result1?.[0])
+  //   } catch (error) {
 
-    }
-  }
+  //   }
+  // }
 
-  const fetchLatestPendingWorkOrders = async()=>{
-    try {
-      const response = await axiosInstance('', { params: { sp: 'usp_GetWorkorderReport', workOrderStatus: "WorkOrder Pending", scheduledFromDate:  null, scheduledToDate:  null, TeamID: null, createdBy: null } })
-      setPendingWorkOrders(response?.data?.Data);
-    } catch (error) {
+  // const fetchLatestPendingWorkOrders = async()=>{
+  //   try {
+  //     const response = await axiosInstance('', { params: { sp: 'usp_GetWorkorderReport', workOrderStatus: "WorkOrder Pending", scheduledFromDate:  null, scheduledToDate:  null, TeamID: null, createdBy: null } })
+  //     setPendingWorkOrders(response?.data?.Data);
+  //   } catch (error) {
       
-    }
-  }
+  //   }
+  // }
 
-  useEffect(() => {
-    fetchDashboardDetails()
-    fetchLatestPendingWorkOrders();
-  }, [])
+  // useEffect(() => {
+  //   fetchDashboardDetails()
+  //   fetchLatestPendingWorkOrders();
+  // }, [])
 
   useEffect(()=>{
     if(dashboard?.result2?.[0]?.MonthlyWiseTotalCount){
@@ -97,7 +95,7 @@ const Dashboard = props => {
             borderWidth: 1,
             hoverBackgroundColor: "#02a499",
             hoverBorderColor: "#02a499",
-            data:JSON.parse(dashboard?.result2?.[0]?.MonthlyWiseTotalCount)?.map(item=>item?.totalWorkOrders),
+            data:[],
           },
         ],
       })
@@ -113,9 +111,9 @@ const Dashboard = props => {
           <div className="page-title-box">
             <Row className="align-items-center">
               <Col md={8}>
-                <h6 className="page-title">Hey, {user?.userName}</h6>
+                {/* <h6 className="page-title">Hey, {user?.userName}</h6> */}
                 <ol className="breadcrumb m-0">
-                  <li className="breadcrumb-item active">Welcome Back</li>
+                  <li className="breadcrumb-item active text-xl font-bold">Welcome Back</li>
                 </ol>
               </Col>
             </Row>
@@ -136,7 +134,7 @@ const Dashboard = props => {
                       
                     </h4>
                   </div>
-                 {permissions?.map(item=>item?.permissionName)?.includes("List Work Orders") && <div className="pt-2" style={{cursor:"pointer"}} onClick={() => permissions?.map(item=>item?.permissionName)?.includes("List Work Orders") ? navigate(`/workorders`):""}>
+                 {<div className="pt-2" style={{cursor:"pointer"}}>
                     <div className="float-end">
                       <Link to="#" className="text-white-50">
                         <i className="mdi mdi-arrow-right h5"></i>
@@ -162,7 +160,7 @@ const Dashboard = props => {
                       
                     </h4>
                   </div>
-                  {permissions?.map(item=>item?.permissionName)?.includes("Pending Workorders") && <div className="pt-2" style={{cursor:"pointer"}} onClick={() => permissions?.map(item=>item?.permissionName)?.includes("Pending Workorders") ? navigate(`/pendingWorkOrders`):""}>
+                  { <div className="pt-2" style={{cursor:"pointer"}} >
                     <div className="float-end">
                       <Link to="#" className="text-white-50">
                         <i className="mdi mdi-arrow-right h5"></i>
@@ -189,7 +187,7 @@ const Dashboard = props => {
                      
                     </h4>
                   </div>
-                  {permissions?.map(item=>item?.permissionName)?.includes("List Users") && <div className="pt-2" style={{cursor:"pointer"}} onClick={() => permissions?.map(item=>item?.permissionName)?.includes("List Users") ? navigate(`/users`):""}>
+                  { <div className="pt-2" style={{cursor:"pointer"}}>
                     <div className="float-end">
                       <Link to="#" className="text-white-50">
                         <i className="mdi mdi-arrow-right h5"></i>
@@ -216,7 +214,7 @@ const Dashboard = props => {
                       
                     </h4>
                   </div>
-                  {permissions?.map(item=>item?.permissionName)?.includes("List Teams") && <div className="pt-2" style={{cursor:"pointer"}} onClick={() => permissions?.map(item=>item?.permissionName)?.includes("List Teams") ? navigate(`/teams`):""}>
+                  {<div className="pt-2" style={{cursor:"pointer"}} >
                     <div className="float-end">
                       <Link to="#" className="text-white-50">
                         <i className="mdi mdi-arrow-right h5"></i>
@@ -254,7 +252,7 @@ const Dashboard = props => {
             </Col>
           </Row>
 
-          <Row>
+          {/* <Row>
             <Col xl={12}>
               {<Card>
                 <CardBody>
@@ -288,7 +286,7 @@ const Dashboard = props => {
                           </td>
                         </tr>))}
                       </tbody>}
-                      {workOrders?.length <0 && <tbody >
+                      {workOrders?.length <=0 && <tbody >
                         <tr>
                           <td colSpan={5} className='text-center'>
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
@@ -298,7 +296,7 @@ const Dashboard = props => {
                         </tr>
                       </tbody>}
                       {
-                        (workOrders?.length <=0 && workOrders?.Data?.length <= 0) && <tbody>
+                        (!workOrders?.length <=0 && workOrders?.Data?.length <= 0) && <tbody>
                           <tr>
                             <td colSpan={5} className="text-center">No Data Found</td>
                           </tr>
@@ -311,7 +309,7 @@ const Dashboard = props => {
 
             </Col>
             
-          </Row>
+          </Row> */}
         </Container>
       </div>
 

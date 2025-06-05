@@ -20,10 +20,10 @@ import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
 
 // API calls
-const fetchPublicationsApi = () => axiosInstance.get('', { params: { sp: 'usp_GetPublication' } });
-const addPublicationApi = (publication) => axiosInstance.post('', publication);
-const updatePublicationApi = (publication) => axiosInstance.post('', publication);
-const deletePublicationApi = (id) => axiosInstance.post('', { sp: 'usp_DeletePublication', publicationId: id });
+const fetchPublicationsApi = () => axiosInstance.post('V1/publications/list');
+const addPublicationApi = ({publication}) => axiosInstance.post('V1/publications/create', publication);
+const updatePublicationApi = ({publication,id}) => axiosInstance.put(`V1/publications/update/${id}`, publication);
+const deletePublicationApi = (id) => axiosInstance.delete(`V1/publications/${id}`);
 
 // Sagas
 function* getPublicationsSaga() {
@@ -39,11 +39,13 @@ function* addPublicationSaga(action) {
     try {
         const { data } = yield call(addPublicationApi, action.payload);
         yield put(addPublicationSuccess(data));
+        action.payload.resetForm();
+        action.payload.handleClose()
         toast.success('Publication added successfully!');
         yield put({ type: GET_PUBLICATIONS });
     } catch (error) {
-        if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-            yield put(setPublicationFieldErrors(error.response.data.fieldErrors));
+        if (error.response?.status === 400 && error.response?.data?.errors) {
+            yield put(setPublicationFieldErrors(error.response.data.errors));
         } else {
             yield put(addPublicationFail(error.response?.data || error.message));
         }
@@ -54,11 +56,13 @@ function* updatePublicationSaga(action) {
     try {
         const { data } = yield call(updatePublicationApi, action.payload);
         yield put(updatePublicationSuccess(data));
+        action.payload.resetForm();
+        action.payload.handleClose()
         toast.success('Publication updated successfully!');
         yield put({ type: GET_PUBLICATIONS });
     } catch (error) {
-        if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-            yield put(setPublicationFieldErrors(error.response.data.fieldErrors));
+        if (error.response?.status === 400 && error.response?.data?.errors) {
+            yield put(setPublicationFieldErrors(error.response.data?.errors));
         } else {
             yield put(updatePublicationFail(error.response?.data || error.message));
         }

@@ -50,9 +50,8 @@ const Login = props => {
     }),
     onSubmit: (values) => {
       dispatch(login({
-        sp: "usp_InitiateUserAuth",
-        logname: values?.email,
-        passwd: values?.password
+        username: values?.email,
+        password: values?.password
       }, navigate));
     }
   });

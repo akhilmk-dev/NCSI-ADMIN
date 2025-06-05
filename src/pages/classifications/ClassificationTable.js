@@ -9,8 +9,9 @@ import { deleteClassification, updateClassification } from "store/actions";
 
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
+import ClassificationDataTable from "components/TableContainers/ClassificationTable";
 
-const ClassificationTable = ({ List, loading }) => {
+const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,13 @@ const ClassificationTable = ({ List, loading }) => {
     () => [
       {
         header: 'Classification',
-        accessorKey: 'classificationName',
+        accessorKey: 'name',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: 'Classification',
+        accessorKey: 'name_ar',
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -66,7 +73,7 @@ const ClassificationTable = ({ List, loading }) => {
                 {(
                   <Button
                     color="danger"
-                    onClick={() => { setDeleteId(row?.original?.classificationId); setOpenModal(true); }}
+                    onClick={() => { setDeleteId(row?.original?.id); setOpenModal(true); }}
                     className="mr-2"
                   >
                     <MdDeleteOutline size={18} />
@@ -81,8 +88,8 @@ const ClassificationTable = ({ List, loading }) => {
     [hasEditPermission, hasDeletePermission]
   );
 
-  const handleSubmit = (data) => {
-    dispatch(updateClassification(data));
+  const handleSubmit = (data,id,resetForm,handleClose) => {
+    dispatch(updateClassification(data,id,resetForm,handleClose));
   };
 
   const handleClose = () => {
@@ -103,14 +110,15 @@ const ClassificationTable = ({ List, loading }) => {
         title="Delete Classification"
         content='Are You Sure You Want to Delete the Classification?'
       />
-      <CreateClassification visible={isOpen} initialData={editData} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreateClassification  fieldErrors={fieldErrors} visible={isOpen} initialData={editData} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="container-fluid">
-        <TableContainer
+        <ClassificationDataTable
           loading={loading}
           columns={columns}
           data={List || []}
           isGlobalFilter={true}
           isPagination={true}
+          totalrows={totalrows}
           SearchPlaceholder="Search..."
           pagination="pagination"
           docName="Classifications"
