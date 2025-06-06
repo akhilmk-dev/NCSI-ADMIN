@@ -16,7 +16,7 @@ import {
   } from './actionTypes';
   
   // Get Sliders
-  export const getSliders = () => ({ type: GET_SLIDERS });
+  export const getSliders = (data) => ({ type: GET_SLIDERS ,payload:data});
   export const getSlidersSuccess = (sliders) => ({
     type: GET_SLIDERS_SUCCESS,
     payload: sliders,

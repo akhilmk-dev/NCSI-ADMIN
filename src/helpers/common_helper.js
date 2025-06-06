@@ -254,7 +254,7 @@ export const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, 
   return (
     <React.Fragment>
       <Col sm={12}>
-        <div style={{ position: 'relative', display: 'inline-block', width: '100%' , marginTop: "28px", minWidth: "200px" }}>
+        <div style={{ position: 'relative', display: 'inline-block', width: '100%' , minWidth: "200px" }}>
           <input
             {...props}
             value={value}
@@ -264,13 +264,14 @@ export const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, 
               paddingLeft: '30px',
               width: '100%',
               boxSizing: 'border-box',
+              height:"38px"
             }}
           />
           <IoIosSearch
             style={{
               position: 'absolute',
               left: '10px',
-              top: '40%',
+              top: '50%',
               transform: 'translateY(-50%)',
               color: 'gray',
               cursor: 'pointer',

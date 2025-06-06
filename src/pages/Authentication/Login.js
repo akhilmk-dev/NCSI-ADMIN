@@ -45,7 +45,7 @@ const Login = props => {
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().required("Username is required"),
+      email: Yup.string().required("Email is required"),
       password: Yup.string().required("Password is required"),
     }),
     onSubmit: (values) => {
@@ -90,11 +90,11 @@ const Login = props => {
 
 
                       <div className="mb-3">
-                        <Label className="form-label" htmlFor="username">Username</Label> <span className='text-danger'>*</span>
+                        <Label className="form-label" htmlFor="username">Email</Label> <span className='text-danger'>*</span>
                         <Input
                           name="email"
                           className="form-control"
-                          placeholder="Enter Username"
+                          placeholder="Enter your email"
                           type="email"
                           id="username"
                           onChange={validation.handleChange}

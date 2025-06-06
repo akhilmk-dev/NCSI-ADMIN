@@ -15,7 +15,7 @@ const UserList = () => {
     const loading = useSelector((state) => state.User.loading);
     const error = useSelector((state) => state.User.error);
 
-    const permissions2 = JSON.parse(localStorage?.getItem('permissions'));
+    const permissions2 = []
     
     // Fetch users when component mounts
     useEffect(() => {

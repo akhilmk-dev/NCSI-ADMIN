@@ -19,6 +19,7 @@ import EventSaga from "./Events/saga"
 import PublicationSaga from "./Publications/saga"
 import ClassificationSaga from "./Classifications/saga"
 import PopulationSaga from "./Populations/saga"
+import IndicatorSaga from "./Indicator/saga"
 
 export default function* rootSaga() {
   yield all([
@@ -39,6 +40,8 @@ export default function* rootSaga() {
     SliderSaga(),
     EventSaga(),
     PublicationSaga(),
-    ClassificationSaga()
+    ClassificationSaga(),
+    PopulationSaga(),
+    IndicatorSaga()
   ])
 }

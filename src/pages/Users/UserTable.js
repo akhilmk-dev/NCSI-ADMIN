@@ -24,7 +24,7 @@ const UserTable = ({ List, loading }) => {
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [userId, setUserId] = useState();
 
-  const permissions2 = JSON.parse(localStorage?.getItem('permissions'));
+  const permissions2 = []
 
   // Handle deletion of user
   const handleDelete = (userId) => {

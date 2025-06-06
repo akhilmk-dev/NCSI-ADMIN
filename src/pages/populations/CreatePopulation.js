@@ -3,7 +3,7 @@ import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) => {
+const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit, fieldErrors }) => {
 
   const formik = useFormik({
     initialValues: {
@@ -21,16 +21,19 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
         .required('Expatriates count is required')
         .min(0, 'Must be 0 or more'),
       date: Yup.date()
+        .min(new Date(), 'Date cannot be in the past')
         .required('Date is required'),
+
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       const payload = {
-        sp: initialData?.populationId ? 'usp_UpdatePopulation' : 'usp_InsertPopulation',
         ...values,
-        populationId: initialData?.populationId || undefined,
       };
-      onSubmit(payload);
-      onClose();
+      if (initialData) {
+        onSubmit(payload, initialData?.id, resetForm, handleClose);
+      } else {
+        onSubmit(payload, resetForm, handleClose);
+      }
     },
   });
 
@@ -48,6 +51,12 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
       });
     }
   }, [initialData]);
+
+  useEffect(() => {
+    if (fieldErrors) {
+      formik.setErrors(fieldErrors)
+    }
+  }, [fieldErrors])
 
   return (
     <Modal
@@ -74,7 +83,7 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
               onChange={formik.handleChange}
               placeholder='Enter Omanis count'
             />
-            <div className="text-danger">{formik.errors.omanis}</div>
+            {formik.touched.omanis && <div className="text-danger">{formik.errors.omanis || formik.errors.omanis?.[0]}</div>}
           </div>
 
           {/* Expatriates */}
@@ -88,7 +97,7 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
               onChange={formik.handleChange}
               placeholder="Enter Expatriates count"
             />
-            <div className="text-danger">{formik.errors.expatriates}</div>
+            {formik.touched.expatriates && <div className="text-danger">{formik.errors.expatriates || formik.errors.expatriates?.[0]}</div>}
           </div>
 
           {/* Date */}
@@ -101,7 +110,7 @@ const CreatePopulation = ({ visible, handleClose, initialData = '', onSubmit }) 
               value={formik.values.date}
               onChange={formik.handleChange}
             />
-            <div className="text-danger">{formik.errors.date}</div>
+            {formik.touched.date && <div className="text-danger">{formik.errors.date || formik.errors.date?.[0]}</div>}
           </div>
         </div>
 

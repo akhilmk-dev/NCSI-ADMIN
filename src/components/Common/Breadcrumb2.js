@@ -10,7 +10,7 @@ const Breadcrumb = props => {
   return (
     <Row>
       <Col xs="12">
-        <div className="page-title-box d-flex flex-column align-items-start">
+        <div className="page-title-box d-flex flex-column align-items-start" style={{padding:"5px 0"}}>
           <h4 className="mb-2 font-size-18">{title}</h4>
           <div className="page-title-right">
             <ol className="breadcrumb m-0">

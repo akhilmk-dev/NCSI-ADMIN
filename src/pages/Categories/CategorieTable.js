@@ -19,10 +19,10 @@ const CategorieTable = ({ List, loading }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
 
-  const permissions = JSON.parse(localStorage?.getItem('permissions')) || [];
+  const permissions =  [];
 
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Categories");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Categories");
+  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Categories");
+  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Categories");
 
   const handleDelete = (categoryId) => {
     dispatch(deleteCategory(categoryId));
@@ -46,7 +46,7 @@ const CategorieTable = ({ List, loading }) => {
         enableSorting: true,
       },
       // Ensure the Actions column has both id and header conditionally
-      ...(hasEditPermission || hasDeletePermission ? [
+      ...([
         {
           header: 'Actions', // String header for Actions column
           id: 'actions',    // Unique id for Actions column
@@ -77,9 +77,9 @@ const CategorieTable = ({ List, loading }) => {
             );
           },
         },
-      ] : []),  // Only render Actions column if user has Edit or Delete permissions
+      ]),  // Only render Actions column if user has Edit or Delete permissions
     ],
-    [hasEditPermission, hasDeletePermission] // Re-run when permissions change
+    [] // Re-run when permissions change
   );
 
   const handleSubmit = (data) => {

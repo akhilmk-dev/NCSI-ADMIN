@@ -179,7 +179,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                             onBlur={formik.handleBlur}
                             placeholder="Enter the title"
                         />
-                        {(
+                        {formik.touched?.title_en &&(
                             <div className="text-danger">{formik.errors?.title_en||formik.errors?.title_en?.[0]}</div>
                         )}
                     </div>
@@ -198,7 +198,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                             onBlur={formik.handleBlur}
                             placeholder="Enter title in arabic"
                         />
-                        {(
+                        {formik.touched.title_ar && (
                             <div className="text-danger">{formik.errors.title_ar || formik.errors?.title_ar?.[0]}</div>
                         )}
                     </div>
@@ -214,7 +214,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                             onChange={handleCoverImageChange}
                             onBlur={formik.handleBlur}
                         />
-                        {(
+                        {formik.touched.cover_image && (
                             <div className="text-danger">{formik.errors.cover_image || formik.errors?.cover_image?.[0]}</div>
                         )}
                     </div>
@@ -230,9 +230,17 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                             onChange={handlePdfChange}
                             onBlur={formik.handleBlur}
                         />
-                        {(
+                        {formik.touched.pdf_file &&(
                             <div className="text-danger">{formik.errors.pdf_file || formik.errors.pdf_file?.[0]}</div>
                         )}
+                        {initialData?.pdf_file_url && <a
+                            href={initialData?.pdf_file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#00A895", textDecoration: "underline" }}
+                        >
+                            View Uploaded File
+                        </a>}
                     </div>
 
                     {/* Type Radio Buttons */}
@@ -270,7 +278,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                                 URL
                             </label>
                         </div>
-                        {(
+                        {formik.touched.type &&(
                             <div className="text-danger">{formik.errors.type || formik.errors.type?.[0]}</div>
                         )}
                     </div>
@@ -292,7 +300,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit ,c
                             isClearable={true}
                         />
                         {formik.touched.classification_id && formik.errors.classification_id && (
-                            <div className="text-danger">{formik.errors.classification_id}</div>
+                            <div className="text-danger">{formik.errors.classification_id || formik.errors.classification_id?.[0]}</div>
                         )}
                     </div>
 

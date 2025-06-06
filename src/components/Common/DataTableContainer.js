@@ -413,7 +413,7 @@ const TableContainer = ({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="text-center border-none">
+                <td colSpan={columns.length+1} className="text-center border-none">
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                     <FadeLoader color="#007bff" size={40} />
                   </div>

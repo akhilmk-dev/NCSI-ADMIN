@@ -44,3 +44,6 @@ export * from "./Classifications/actions"
 
 // populations
 export * from "./Populations/actions"
+
+// indicators
+export * from "./Indicator/actions"

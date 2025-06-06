@@ -19,10 +19,8 @@ import { showError } from 'helpers/notification_helper';
 const CustomerProfile = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const permissions2 = JSON.parse(localStorage?.getItem('permissions'));
-      if (!permissions2?.map(item => item?.permissionName)?.includes("View Customer Profile")) {
-        navigate('/pages-403')
-    }
+    const permissions2 = []
+      
 
     // const queryParams = new URLSearchParams(location.search);
     const addresses = useSelector(state => state.Address.addresses)

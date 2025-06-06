@@ -10,6 +10,7 @@ import { deletePublication, updatePublication } from "store/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import PublicationDataTable from "components/TableContainers/PublicationDataTable";
+import { FaFilePdf } from "react-icons/fa6";
 
 const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
     const dispatch = useDispatch();
@@ -20,9 +21,9 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
     const [openModal, setOpenModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState(false);
 
-    const permissions = JSON.parse(localStorage?.getItem('permissions')) || [];
-    const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Publications");
-    const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Publications");
+    const permissions = [];
+    // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Publications");
+    // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Publications");
 
     const handleDelete = (id) => {
         dispatch(deletePublication(id));
@@ -39,18 +40,19 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
 
     const columns = useMemo(() => [
         {
-            header: "Title (EN)",
+            header: "Title",
             accessorKey: "title_en",
+            cell: ({ getValue }) => (
+                <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', width: '220px' }}>
+                  {getValue()}
+                </div>
+              ),
         },
         {
-            header: "Title (AR)",
-            accessorKey: "title_ar",
-            cell: ({ row }) => (
-                <div style={{ whiteSpace: 'normal', wordBreak: 'break-word',}}>
-                    {row.original.title_ar}
-                </div>
-            ),
-        },
+            header: 'Created At',
+            accessorKey: 'created_at',
+            cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
+          },
         {
             header: "Cover Image",
             accessorKey: "cover_image_url",
@@ -63,35 +65,35 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
                     />
                 ) : 'No Image'
             ),
+            showFilter:false
         },
-        {
-            header: "PDF",
-            accessorKey: "pdf_file_url",
-            cell: ({ row }) => (
-                row.original.pdf_file_url ? (
-                    <a href={row.original.pdf_file_url} target="_blank" rel="noopener noreferrer">
-                        View PDF
-                    </a>
-                ) : 'No PDF'
-            ),
-        },
-        {
-            header: "Show in Home",
-            accessorKey: "show_in_home",
-            cell: ({ row }) => (
-                row.original.show_in_home ? 'Yes' : 'No'
-            ),
-        },
+        
         {
             header: "Type",
             accessorKey: "type",
             cell: ({ row }) => (
                 row.original.type 
             ),
+            showFilter:false
         },
         {
             header: "Classification",
-            accessorKey: "classification_id",
+            accessorKey: "classification_title",
+            showFilter:false
+        },
+        {
+            header: "PDF",
+            accessorKey: "pdf_file_url",
+            cell: ({ row }) => (
+                row.original.pdf_file_url ? (
+                    <div className="text-center">
+                    <a href={row.original.pdf_file_url} target="_blank" className="text-center" rel="noopener noreferrer">
+                        <FaFilePdf size={23} />
+                    </a>
+                    </div>
+                ) : 'No PDF'
+            ),
+            showFilter:false
         },
 
         ...([{
@@ -125,7 +127,7 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
                 );
             },
         }]),
-    ], [hasEditPermission, hasDeletePermission]);
+    ], []);
 
     const handleSubmit = (formData,id,resetForm,handleClose) => {
         dispatch(updatePublication(formData,id,resetForm,handleClose));
@@ -161,6 +163,7 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
 
             <div className="container-fluid">
                 <PublicationDataTable
+                    classifications={classifications}
                     loading={loading}
                     columns={columns}
                     data={list || []}

@@ -8,8 +8,9 @@ import { FaRegEdit } from "react-icons/fa";
 import CreatePopulation from "./CreatePopulation";
 import TableContainer from "components/Common/DataTableContainer";
 import { deletePopulation, updatePopulation } from "store/actions";
+import PopulationDataTable from "components/TableContainers/PopulationDataTable";
 
-const PopulationTable = ({ List, loading }) => {
+const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState();
@@ -17,9 +18,9 @@ const PopulationTable = ({ List, loading }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
 
-  const permissions = JSON.parse(localStorage?.getItem("permissions")) || [];
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Population");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Population");
+  const permissions = [];
+  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Population");
+  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Population");
 
   const handleDelete = (populationId) => {
     dispatch(deletePopulation(populationId));
@@ -38,17 +39,17 @@ const PopulationTable = ({ List, loading }) => {
     {
       header: 'Date',
       accessorKey: 'date',
-      enableColumnFilter: false,
-      enableSorting: true,
       cell: ({ row }) => new Date(row.original.date).toLocaleDateString()
     },
     {
       header: 'Omanis',
       accessorKey: 'omanis',
+      showFilter:false
     },
     {
       header: 'Expatriates',
       accessorKey: 'expatriates',
+      showFilter:false
     },
     ...([
       {
@@ -71,7 +72,7 @@ const PopulationTable = ({ List, loading }) => {
                 <Button
                   color="danger"
                   onClick={() => {
-                    setDeleteId(row.original.populationId);
+                    setDeleteId(row.original.id);
                     setOpenModal(true);
                   }}
                 >
@@ -85,8 +86,8 @@ const PopulationTable = ({ List, loading }) => {
     ])
   ], []);
 
-  const handleSubmit = (data) => {
-    dispatch(updatePopulation(data));
+  const handleSubmit = (data,id,resetForm,handleClose) => {
+    dispatch(updatePopulation(data,id,resetForm,handleClose));
   };
 
   const handleClose = () => {
@@ -109,6 +110,7 @@ const PopulationTable = ({ List, loading }) => {
       />
 
       <CreatePopulation
+        fieldErrors={fieldErrors}
         visible={isOpen}
         initialData={editData}
         onSubmit={handleSubmit}
@@ -116,7 +118,10 @@ const PopulationTable = ({ List, loading }) => {
       />
 
       <div className="container-fluid">
-        <TableContainer
+        <PopulationDataTable
+          totalrows={totalrows}
+          pageInx={0}
+          initialPageSize={10}
           loading={loading}
           columns={columns}
           data={List || []}

@@ -75,11 +75,11 @@ const Header = props => {
   const notifications = useSelector(state=>state?.Notification?.notifications)
   const id = 2
 
-  useEffect(()=>{
-    dispatch(getNotifications(id))
-  },[])
+  // useEffect(()=>{
+  //   dispatch(getNotifications(id))
+  // },[])
 
-  const permissions2 = JSON.parse(localStorage?.getItem('permissions')) || [];
+  const permissions2 =  [];
 
  return (
     <React.Fragment>
@@ -89,10 +89,10 @@ const Header = props => {
             <div className="navbar-brand-box" style={{padding: '0px'}}>
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <img src={logosmImg} alt="" height="34" width="70px"/>
+                  <img src={logosmImg} alt=""  width="40px"/>
                 </span>
                 <span className="logo-lg">
-                  <img src={logodarkImg} alt="" height="45px"  width="170px" />
+                  <img src={logodarkImg} alt=""   width="170px" />
                 </span>
               </Link>
 
@@ -118,9 +118,9 @@ const Header = props => {
 
           <div className="d-flex">
 
-            <LanguageDropdown />
+            {/* <LanguageDropdown /> */}
 
-            <div className="dropdown d-none d-lg-inline-block">
+            {/* <div className="dropdown d-none d-lg-inline-block">
               <button
                 type="button"
                 onClick={() => {
@@ -131,10 +131,10 @@ const Header = props => {
               >
                 <i className="mdi mdi-fullscreen"></i>
               </button>
-            </div>
+            </div> */}
 
-              {permissions2?.map(item => item?.permissionName)?.includes("View Notifications") && (
-                <NotificationDropdown notifications={notifications?.Data}/>)}
+              
+                {/* <NotificationDropdown notifications={[]}/> */}
             <ProfileMenu />
 
             {/* <div

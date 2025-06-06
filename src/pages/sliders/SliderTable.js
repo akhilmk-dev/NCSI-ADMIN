@@ -10,8 +10,9 @@ import { deleteSlider, updateSlider } from "store/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { IMG_URL } from "constants/config";
+import SliderDataTable from "components/TableContainers/SliderDataTable";
 
-const SliderTable = ({ List, loading,fieldErrors }) => {
+const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -20,9 +21,9 @@ const SliderTable = ({ List, loading,fieldErrors }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
 
-  const permissions = JSON.parse(localStorage?.getItem('permissions')) || [];
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Sliders");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Sliders");
+  const permissions = [];
+  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Sliders");
+  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Sliders");
 
   const handleDelete = (id) => {
     dispatch(deleteSlider(id));
@@ -100,7 +101,7 @@ const SliderTable = ({ List, loading,fieldErrors }) => {
           },
         ]
       ),
-  ], [hasEditPermission, hasDeletePermission]);
+  ], []);
 
   const handleSubmit = (formData,id,resetForm,handleClose) => {
     dispatch(updateSlider(formData,id,resetForm,handleClose));
@@ -134,7 +135,10 @@ const SliderTable = ({ List, loading,fieldErrors }) => {
       />
 
       <div className="container-fluid">
-        <TableContainer
+        <SliderDataTable
+          pageInx={0}
+          initialPageSize={10}
+          totalrows={totalrows}
           loading={loading}
           columns={columns}
           data={List || []}

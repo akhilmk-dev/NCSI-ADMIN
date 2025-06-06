@@ -31,7 +31,7 @@ const EventList = () => {
     <>
       <CreateEvent fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="page-content container-fluid">
-        <div className="d-flex justify-content-between align-items-center mx-3">
+        <div className="d-flex justify-content-between align-items-center " style={{margin:"0 11px"}}>
           <Breadcrumb
             title="Events"
             breadcrumbItems={[

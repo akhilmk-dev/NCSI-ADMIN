@@ -61,7 +61,6 @@ function* updateEventSaga(action) {
         toast.success('Event updated successfully!');
         yield put({ type: GET_EVENTS });
     } catch (error) {
-        console.log(error.response,"lo")
         if (error.response?.status === 400 && error.response?.data?.error) {
             yield put(setEventFieldErrors(error.response.data.error));
         } else {

@@ -48,9 +48,9 @@ const EventDataTable = ({
     const tableRef = useRef(); // Create a reference for the table content
     const [filteredData, setFilteredData] = useState(data || []);
     const [selectedFromDate, setSelectedFromDate] = useState();
-    const [selectedSortData, setSelectedSortData] = useState();
-    const [pageIndex, setPageIndex] = useState(pageInx);
-    const [pageSize, setPageSize] = useState(initialPageSize);
+    const [selectedSortData, setSelectedSortData] = useState({value:"from_date",direction:"asc"});
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
     const [searchString, setSearchString] = useState()
     const dispatch = useDispatch();
 
@@ -88,9 +88,7 @@ const EventDataTable = ({
     const serialNumberColumn = {
         header: "#",
         id: "serial",
-        cell: ({ row, table }) => {
-            return row.index + 1;
-        },
+        cell: ({ row }) => (pageIndex * pageSize) + row.index + 1,
         enableSorting: false,
         enableColumnFilter: false,
     };
@@ -277,31 +275,32 @@ const EventDataTable = ({
     const totalPages = Math.ceil(totalrows / pageSize);
     const startPage = Math.floor(pageIndex / windowSize) * windowSize;
     const endPage = Math.min(startPage + windowSize, totalPages);
-    const sortOptions = [
-        { label: "From Date (asc)", value: "from_date", direction: "asc" },
-        { label: "From Date (desc)", value: "from_date", direction: "desc" },
-        { label: "To Date (asc)", value: "to_date", direction: "asc" },
-        { label: "To Date (desc)", value: "to_date", direction: "desc" },
-        { label: "Title(en)(a-z)", value: "title_en", direction: "asc" },
-        { label: "Title(en)(z-a)", value: "title_en", direction: "desc" },
-    ]
-
+    const hasMounted = useRef(false);
     useEffect(() => {
-        dispatch(getEvents({
-            "pagesize": pageSize,
-            "currentpage": pageIndex,
-            "sortorder": selectedSortData?.value && selectedSortData?.direction
-                ? {
-                    field: selectedSortData.value,
-                    direction: selectedSortData.direction,
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            return;
+          }
+        if (!loading) {
+            dispatch(getEvents({
+                "pagesize": pageSize,
+                "currentpage": pageIndex + 1,
+                "sortorder": selectedSortData?.value && selectedSortData?.direction
+                    ? {
+                        field: selectedSortData.value,
+                        direction: selectedSortData.direction,
+                    }
+                    : {},
+                "searchstring": searchString,
+                "filter": {
+                    "from_date": selectedFromDate,
                 }
-                : {},
-            "searchstring": searchString,
-            "filter": {
-                "from_date": selectedFromDate,
-            }
-        }))
-    }, [selectedFromDate, selectedSortData, searchString])
+            }))
+        }
+    }, [selectedFromDate, selectedSortData, searchString, pageIndex])
+    const handlePageChange = (newPageIndex) => {
+        setPageIndex(newPageIndex);
+    };
 
     return (
         <Fragment>
@@ -374,37 +373,20 @@ const EventDataTable = ({
                         </Col> */}
                     </>)}
             </Row>
-            <div className="d-flex justify-content-between gap-2 mb-2">
+            <div className="d-flex flex-wrap justify-content-between  mb-2">
                 <div className="d-flex justify-content-between gap-2 align-items-center">
-                    <DebouncedInput
+                    <div style={{ minWidth: "200px" }}>
+                        <label>Event Date</label>
+                        <input className="form-control" style={{ minWidth: "200px", height: "38px" }} type="datetime-local" onChange={(e) => setSelectedFromDate(e.target.value)} />
+                    </div>
+                </div>
+                <div className="d-flex justify-content-between align-items-end">
+                <DebouncedInput
                         value={searchString ?? ""}
                         onChange={(value) => setSearchString(String(value))}
                         className="form-control search-box me-2  d-inline-block"
                         placeholder={SearchPlaceholder}
                     />
-
-                </div>
-                <div className="d-flex justify-content-between gap-2">
-                    <div style={{ minWidth: "200px" }}>
-                        <label>From Date</label>
-                        <input className="form-control" style={{ minWidth: "200px", height: "38px" }} type="datetime-local" onChange={(e) => setSelectedFromDate(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>Sort By</label>
-                        <Select
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    minWidth: "200px",
-                                    height: '30px',
-                                }),
-                            }}
-                            value={selectedSortData}
-                            options={sortOptions}
-                            onChange={(option) => setSelectedSortData(option)}
-                            isClearable
-                        />
-                    </div>
                 </div>
             </div>
 
@@ -415,7 +397,52 @@ const EventDataTable = ({
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) =>
                                     !header.isPlaceholder ? (
-                                        <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
+                                        <th
+                                            key={header.id}
+                                            style={{ width: "150px", verticalAlign: "middle" }}
+                                        >
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                {/* Header title */}
+                                                <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+
+                                                {/* Sorting Icon */}
+                                                {(header.column.columnDef.accessorKey && header.column.getCanFilter?.() && header.column.columnDef.showFilter !== false) && (
+                                                    <span
+                                                        className="ms-1"
+                                                        style={{ cursor: "pointer" }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const field = header.column.columnDef.accessorKey;
+                                                            if (!field) return;
+
+                                                            if (!selectedSortData || selectedSortData.value !== field) {
+                                                                setSelectedSortData({ value: field, direction: "asc" }); // default to asc
+                                                            } else if (selectedSortData.direction === "asc") {
+                                                                setSelectedSortData({ value: field, direction: "desc" });
+                                                            } else {
+                                                                setSelectedSortData({ value: field, direction: "asc" }); // reset to no sort
+                                                            }
+                                                        }}
+                                                    >
+                                                        {/* Icon Logic */}
+                                                        {selectedSortData?.value === header.column.columnDef.accessorKey ? (
+                                                            selectedSortData.direction === "asc" ? (
+                                                                <i className="mdi mdi-arrow-up" style={{ fontSize: "20px" }}></i>
+                                                            ) : (
+                                                                <i className="mdi mdi-arrow-down" style={{ fontSize: "20px" }}></i>
+                                                            )
+                                                        ) : (
+                                                            <i className="mdi mdi-swap-vertical" style={{ fontSize: "20px" }}></i>
+                                                        )}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Optional: Render filter input here conditionally if needed */}
+                                            {header.column.getCanFilter?.() && header.column.columnDef.showFilter !== false && (
+                                                <div>{flexRender(header.column.columnDef.Filter, header.getContext())}</div>
+                                            )}
+                                        </th>
                                     ) : null
                                 )}
                             </tr>
@@ -424,9 +451,9 @@ const EventDataTable = ({
                     <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan={columns.length} className="text-center border-none">
+                                <td colSpan={columns.length + 1} className="text-center border-none">
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                                        <FadeLoader color="#007bff" size={40} />
+                                        <FadeLoader color="#00a895" size={40} />
                                     </div>
                                 </td>
                             </tr>

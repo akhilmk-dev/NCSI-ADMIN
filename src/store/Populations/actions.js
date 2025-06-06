@@ -16,8 +16,9 @@ import {
   } from './actionTypes';
   
   // Get Population List
-  export const getPopulation = () => ({
+  export const getPopulation = (data) => ({
     type: GET_POPULATION,
+    payload:data
   });
   
   export const getPopulationSuccess = (population) => ({
@@ -31,9 +32,9 @@ import {
   });
   
   // Add Population Record
-  export const addPopulation = (data) => ({
+  export const addPopulation = (data,resetForm,handleClose) => ({
     type: ADD_POPULATION,
-    payload: data,
+    payload: {data,resetForm,handleClose},
   });
   
   export const addPopulationSuccess = (data) => ({
@@ -47,9 +48,9 @@ import {
   });
   
   // Update Population Record
-  export const updatePopulation = (data) => ({
+  export const updatePopulation = (data,id,resetForm,handleClose) => ({
     type: UPDATE_POPULATION,
-    payload: data,
+    payload: {data,id,resetForm,handleClose},
   });
   
   export const updatePopulationSuccess = (data) => ({

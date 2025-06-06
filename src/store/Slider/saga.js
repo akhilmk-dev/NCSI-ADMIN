@@ -20,8 +20,8 @@ import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
 
 // 🧾 API Calls
-const fetchSlidersApi = () =>
-  axiosInstance.post('V1/sliders/list');
+const fetchSlidersApi = (data) =>
+  axiosInstance.post('V1/sliders/list',data);
 
 const addSliderApi = ({sliderData}) => axiosInstance.post('V1/sliders/create', sliderData);
 
@@ -32,9 +32,9 @@ const deleteSliderApi = (id) =>
 
 // 🚦 Sagas
 
-function* getSlidersSaga() {
+function* getSlidersSaga(action) {
   try {
-    const { data } = yield call(fetchSlidersApi);
+    const { data } = yield call(fetchSlidersApi,action.payload);
     yield put(getSlidersSuccess(data));
   } catch (error) {
     yield put(getSlidersFail(error.response?.data || error.message));

@@ -77,7 +77,7 @@ const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit
                                     value={formik.values.name}
                                     onChange={formik.handleChange}
                                 />
-                                <span style={{ color: 'red' }} role="alert">{formik.errors.name || formik.errors.name?.[0]}</span>
+                                {formik.touched.name && <span style={{ color: 'red' }} role="alert">{formik.errors.name || formik.errors.name?.[0]}</span>}
                             </div>
                         </div>
                         <div className="row g-3">
@@ -91,7 +91,7 @@ const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit
                                     value={formik.values.name_ar}
                                     onChange={formik.handleChange}
                                 />
-                                <span style={{ color: 'red' }} role="alert">{formik.errors.name_ar || formik.errors.name_ar?.[0]}</span>
+                                {formik.touched.name_ar &&<span style={{ color: 'red' }} role="alert">{formik.errors.name_ar || formik.errors.name_ar?.[0]}</span>}
                             </div>
                         </div>
                         <div className="modal-footer mt-3">

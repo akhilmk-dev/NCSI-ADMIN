@@ -13,7 +13,7 @@ const CategorieList = () => {
 
     const [isOpen,setIsOpen] = useState(false);
     const navigate = useNavigate();
-    const permissions = JSON.parse(localStorage?.getItem('permissions'));
+    const permissions = []
 
     const dispatch = useDispatch();
     const categories = useSelector((state) => state.Category.categories);

@@ -21,7 +21,7 @@ const Notifications = () => {
   const navigate = useNavigate()
 
   const id = JSON.parse(Cookies.get('authUser'))?.userId
-  const permissions = JSON.parse(localStorage?.getItem('permissions'));
+  const permissions = [];
 
   useEffect(() => {
     if(loading)return;
@@ -64,7 +64,7 @@ const Notifications = () => {
           const handleView = () => {
             markAsRead(row.original?.notificationId)
           };
-          const hasPermission = permissions?.map(item => item?.permissionName)?.includes("Mark As Read");
+          const hasPermission = false;
 
 
           return (

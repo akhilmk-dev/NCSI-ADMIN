@@ -20,10 +20,10 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
 
-  const permissions = JSON.parse(localStorage?.getItem('permissions')) || [];
+  const permissions = [];
 
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Classifications");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Classifications");
+  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Classifications");
+  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Classifications");
 
   const handleDelete = (classificationId) => {
     dispatch(deleteClassification(classificationId));
@@ -41,16 +41,13 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const columns = useMemo(
     () => [
       {
-        header: 'Classification',
+        header: 'Classification(En)',
         accessorKey: 'name',
-        enableColumnFilter: false,
-        enableSorting: true,
       },
       {
-        header: 'Classification',
-        accessorKey: 'name_ar',
-        enableColumnFilter: false,
-        enableSorting: true,
+        header: 'Created At',
+        accessorKey: 'created_at',
+        cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
       },
       ...([
         {
@@ -85,7 +82,7 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
         },
       ] ),
     ],
-    [hasEditPermission, hasDeletePermission]
+    []
   );
 
   const handleSubmit = (data,id,resetForm,handleClose) => {

@@ -11,13 +11,14 @@ import { PiNetworkLight } from "react-icons/pi";
 import { TfiLayoutSliderAlt } from "react-icons/tfi";
 import { FaLeanpub } from "react-icons/fa6";
 import { TbChartBarPopular } from "react-icons/tb";
+import { GrIndicator } from "react-icons/gr";
 
 const SidebarContent = ({ t }) => {
   const location = useLocation();
   const ref = useRef();
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const path = location.pathname;
-  const permissions = JSON.parse(localStorage?.getItem('permissions'));
+  const permissions = [];
 
   const activateParentDropdown = useCallback((item) => {
     item.classList.add("active");
@@ -151,7 +152,7 @@ const SidebarContent = ({ t }) => {
   }
 
   // Get available paths from permissions
-  const availablePaths = permissions?.map(permission => permission.pageUrl);
+  // const availablePaths = permissions?.map(permission => permission.pageUrl);
 
   // Handle menu item click
   const handleMenuItemClick = (itemPath) => {
@@ -210,6 +211,13 @@ const SidebarContent = ({ t }) => {
                 <Link to="/populations" className="waves-effect" onClick={() =>{handleMenuItemClick("/populations"); tToggle2();}}>
                   <TbChartBarPopular size={23} className="me-2" />
                   <span>{t("Population")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/indicators" className="waves-effect" onClick={() =>{handleMenuItemClick("/indicators"); tToggle2();}}>
+                  <GrIndicator  size={21} className="me-2" />
+                  <span>{t("Indicators")}</span>
                 </Link>
               </li>
            

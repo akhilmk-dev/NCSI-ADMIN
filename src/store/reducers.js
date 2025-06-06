@@ -46,7 +46,10 @@ import Publication from "./Publications/reducer"
 import Classification from "./Classifications/reducer"
 
 // populations
-import Populations from "./Populations/reducer"
+import Population from "./Populations/reducer"
+
+// indicators
+import Indicator from "./Indicator/reducer"
 
 const rootReducer = combineReducers({
   Layout,
@@ -66,7 +69,8 @@ const rootReducer = combineReducers({
   Event,
   Publication,
   Classification,
-  Populations
+  Population,
+  Indicator
 })
 
 export default rootReducer

@@ -19,14 +19,14 @@ import { PiFileArrowDown } from "react-icons/pi";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
-import { getPublications } from "store/actions";
+import { getClassifications, getEvents, getSliders } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
 
-
 // Global Filter (Debounced Input)
 
-const PublicationDataTable = ({
+
+const SliderDataTable = ({
     columns,
     data,
     tableClass,
@@ -42,19 +42,16 @@ const PublicationDataTable = ({
     initialPageSize = 10,
     totalrows,
     loading,
-    docName = "doc",
-    classifications
+    docName = "doc"
 }) => {
     const [globalFilter, setGlobalFilter] = useState("");
     const tableRef = useRef(); // Create a reference for the table content
     const [filteredData, setFilteredData] = useState(data || []);
     const [selectedFromDate, setSelectedFromDate] = useState();
-    const [selectedSortData, setSelectedSortData] = useState({value:"created_at",direction:"desc"});
+    const [selectedSortData, setSelectedSortData] = useState();
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(10);
-    const [searchString, setSearchString] = useState();
-    const [selectedClassification,setSelectedClassification]=useState();
-    const [selectedType,setSelectedType] = useState();
+    const [searchString, setSearchString] = useState()
     const dispatch = useDispatch();
 
     // Update filteredData when search query changes
@@ -280,37 +277,25 @@ const PublicationDataTable = ({
     const startPage = Math.floor(pageIndex / windowSize) * windowSize;
     const endPage = Math.min(startPage + windowSize, totalPages);
     const sortOptions = [
-        { label: "Title(en)(a-z)", value: "title_en", direction: "asc" },
-        { label: "Title(en)(z-a)", value: "title_en", direction: "desc" },
+        
     ]
 
-    const hasMounted = useRef(false);
     useEffect(() => {
-        if (!hasMounted.current) {
-            hasMounted.current = true;
-            return;
-          }
-            dispatch(getPublications({
-                "pagesize": pageSize,
-                "currentpage": pageIndex + 1,
-                "sortorder": selectedSortData?.value && selectedSortData?.direction
-                    ? {
-                        field: selectedSortData.value,
-                        direction: selectedSortData.direction,
-                    }
-                    : {},
-                "searchstring": searchString,
-                "filter": {
-                    "type":selectedType?.value,
-                    "classification_id":selectedClassification?.value,
-                }
-            }))
-
-    }, [selectedClassification, selectedSortData, searchString, pageIndex,selectedType])
+       if(!loading){
+        dispatch(getSliders({
+            "pagesize": pageSize,
+            "currentpage": pageIndex+1,
+            "sortorder": {
+            //   "field": "created_at",
+            //   "direction": "desc"
+            }
+          }))
+       }
+    }, [selectedFromDate, selectedSortData, searchString,pageIndex])
     const handlePageChange = (newPageIndex) => {
         setPageIndex(newPageIndex);
-    };
-
+      };
+    
     return (
         <Fragment>
             <Row className="mb-2">
@@ -384,48 +369,16 @@ const PublicationDataTable = ({
             </Row>
             <div className="d-flex justify-content-between gap-2 mb-2">
                 <div className="d-flex justify-content-between gap-2 align-items-center">
-                <div className="" style={{minWidth:"200px"}}>
-                        <label className=" fs-8">
-                            Classifications 
-                        </label>
-                        <Select
-                            options={classifications}
-                            value={classifications?.find(
-                                (option) => option.value === selectedClassification?.value
-                            ) || null}
-                            onChange={(selectedOption) =>
-                                setSelectedClassification(selectedOption)
-                            }
-                            classNamePrefix="select"
-                            isClearable={true}
-                            
-                        />
-                    </div>
-                    <div className="" style={{minWidth:"200px"}}>
-                        <label className=" fs-8">
-                            Type 
-                        </label>
-                        <Select
-                            options={[{label:"Book",value:"book"},{label:"Url",value:"url"}]}
-                            value={[{label:"Book",value:"book"},{label:"Url",value:"url"}]?.find(
-                                (option) => option.value === selectedType?.value
-                            ) || null}
-                            onChange={(selectedOption) =>
-                                setSelectedType(selectedOption)
-                            }
-                            classNamePrefix="select"
-                            isClearable={true}
-                            
-                        />
-                    </div>
-                </div>
-                <div className="d-flex justify-content-between align-items-end">
-                    <DebouncedInput
+                    {/* <DebouncedInput
                         value={searchString ?? ""}
                         onChange={(value) => setSearchString(String(value))}
                         className="form-control search-box me-2  d-inline-block"
                         placeholder={SearchPlaceholder}
-                    />
+                    /> */}
+
+                </div>
+                <div className="d-flex justify-content-between gap-2">
+
                 </div>
             </div>
 
@@ -436,52 +389,8 @@ const PublicationDataTable = ({
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) =>
                                     !header.isPlaceholder ? (
-                                        <th
-                                            key={header.id}
-                                            style={{ width: "150px", verticalAlign: "middle" }}
-                                        >
-                                            <div className="d-flex align-items-center justify-content-between">
-                                                {/* Header title */}
-                                                <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
-
-                                                {/* Sorting Icon */}
-                                                {(header.column.columnDef.accessorKey && header.column.getCanFilter?.() && header.column.columnDef.showFilter !== false) && (
-                                                    <span
-                                                        className="ms-1"
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const field = header.column.columnDef.accessorKey;
-                                                            if (!field) return;
-
-                                                            if (!selectedSortData || selectedSortData.value !== field) {
-                                                                setSelectedSortData({ value: field, direction: "asc" }); // default to asc
-                                                            } else if (selectedSortData.direction === "asc") {
-                                                                setSelectedSortData({ value: field, direction: "desc" });
-                                                            } else {
-                                                                setSelectedSortData({ value: field, direction: "asc" }); // reset to no sort
-                                                            }
-                                                        }}
-                                                    >
-                                                        {/* Icon Logic */}
-                                                        {selectedSortData?.value === header.column.columnDef.accessorKey ? (
-                                                            selectedSortData.direction === "asc" ? (
-                                                                <i className="mdi mdi-arrow-up" style={{ fontSize: "20px" }}></i>
-                                                            ) : (
-                                                                <i className="mdi mdi-arrow-down" style={{ fontSize: "20px" }}></i>
-                                                            )
-                                                        ) : (
-                                                            <i className="mdi mdi-swap-vertical" style={{ fontSize: "20px" }}></i>
-                                                        )}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Optional: Render filter input here conditionally if needed */}
-                                            {header.column.getCanFilter?.() && header.column.columnDef.showFilter !== false && (
-                                                <div>{flexRender(header.column.columnDef.Filter, header.getContext())}</div>
-                                            )}
-                                        </th>) : null
+                                        <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
+                                    ) : null
                                 )}
                             </tr>
                         ))}
@@ -489,7 +398,7 @@ const PublicationDataTable = ({
                     <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan={columns.length + 1} className="text-center border-none">
+                                <td colSpan={columns.length+1} className="text-center border-none">
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                                         <FadeLoader color="#00a895" size={40} />
                                     </div>
@@ -577,4 +486,4 @@ const PublicationDataTable = ({
     );
 };
 
-export default PublicationDataTable;
+export default SliderDataTable;

@@ -11,7 +11,7 @@ const ClassificationList = () => {
 
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
-    const permissions = JSON.parse(localStorage?.getItem('permissions'));
+    const permissions = [];
 
     const dispatch = useDispatch();
     const classifications = useSelector((state) => state.Classification.classifications);
@@ -29,7 +29,6 @@ const ClassificationList = () => {
 
     return (
         <>
-        {console.log("kiue")}
             <CreateClassification fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
             <div className='page-content container-fluid'>
                 <div className='d-flex justify-content-between align-items-center mx-3'>

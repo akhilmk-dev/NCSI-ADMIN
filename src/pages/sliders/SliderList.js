@@ -19,11 +19,6 @@ const SliderList = () => {
   const error = useSelector((state) => state.Slider.error);
   const fieldErrors = useSelector((state) => state.Slider.fieldErrors);
 
-  useEffect(() => {
-    if (loading) return;
-    dispatch(getSliders());
-  }, [dispatch]);
-
   const handleSubmit = (formData,resetForm,handleClose) => {
     dispatch(addSlider(formData,resetForm,handleClose));
   };
@@ -55,7 +50,7 @@ const SliderList = () => {
           )}
         </div>
 
-        <SliderTable fieldErrors={fieldErrors} loading={loading} List={sliders?.data?.sliders} />
+        <SliderTable totalrows={sliders?.data?.total} fieldErrors={fieldErrors} loading={loading} List={sliders?.data?.sliders} />
       </div>
     </>
   );

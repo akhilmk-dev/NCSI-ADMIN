@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { IMG_URL } from 'constants/config';
 
 const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldErrors}) => {
   const fileInputRef = useRef();
@@ -101,7 +102,7 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                 value={formik.values.link}
                 onChange={formik.handleChange}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.link || formik.errors.link?.[0]}</span>
+             { formik.touched.link && <span style={{ color: 'red' }} role="alert">{formik.errors.link || formik.errors.link?.[0]}</span>}
             </div>
 
             <div className="col-md-12">
@@ -114,7 +115,7 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                 value={formik.values.alt_text}
                 onChange={formik.handleChange}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.alt_text || formik.errors.alt_text?.[0]}</span>
+              {formik.touched.alt_text &&<span style={{ color: 'red' }} role="alert">{formik.errors.alt_text || formik.errors.alt_text?.[0]}</span>}
             </div>
 
             <div className="col-md-12">
@@ -130,7 +131,15 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                   formik.setFieldValue('slider_image', e.currentTarget.files[0]);
                 }}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image || formik.errors.slider_image?.[0]}</span>
+              {formik.touched.slider_image && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image || formik.errors.slider_image?.[0]}</span>}
+              {initialData?.slider_image_url && <a
+                            href={`${initialData?.slider_image_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#00A895", textDecoration: "underline" }}
+                        >
+                            View Uploaded image
+                        </a>}
             </div>
             <div className="col-md-12">
               <label className="form-label fs-7">Slider Image(Ar)</label>
@@ -145,7 +154,15 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                   formik.setFieldValue('slider_image_ar', e.currentTarget.files[0]);
                 }}
               />
-              <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image_ar || formik.errors.slider_image_ar?.[0]}</span>
+              {formik.touched.slider_image_ar && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image_ar || formik.errors.slider_image_ar?.[0]}</span>}
+              {initialData?.slider_image_ar && <a
+                            href={`${IMG_URL}${initialData?.slider_image_ar}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#00A895", textDecoration: "underline" }}
+                        >
+                            View Uploaded image
+                        </a>}
             </div>
           </div>
 

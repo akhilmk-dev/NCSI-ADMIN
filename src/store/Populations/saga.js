@@ -22,22 +22,22 @@ import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
 
 // API calls
-const fetchPopulationApi = () =>
-  axiosInstance.get('', { params: { sp: 'usp_GetPopulation' } });
+const fetchPopulationApi = (data) =>
+  axiosInstance.post('V1/populations/list',data);
 
-const addPopulationApi = (payload) =>
-  axiosInstance.post('', payload);
+const addPopulationApi = ({data}) =>
+  axiosInstance.post('V1/populations/create', data);
 
-const updatePopulationApi = (payload) =>
-  axiosInstance.post('', payload);
+const updatePopulationApi = ({data,id}) =>
+  axiosInstance.put(`V1/populations/update/${id}`, data);
 
 const deletePopulationApi = (id) =>
-  axiosInstance.post('', { sp: 'usp_DeletePopulation', populationId: id });
+  axiosInstance.delete(`V1/populations/${id}`);
 
 // Sagas
-function* getPopulationSaga() {
+function* getPopulationSaga(action) {
   try {
-    const { data } = yield call(fetchPopulationApi);
+    const { data } = yield call(fetchPopulationApi,action.payload);
     yield put(getPopulationSuccess(data));
   } catch (error) {
     yield put(getPopulationFail(error.response?.data || error.message));
@@ -47,12 +47,14 @@ function* getPopulationSaga() {
 function* addPopulationSaga(action) {
   try {
     const { data } = yield call(addPopulationApi, action.payload);
+    action.payload.resetForm();
+    action.payload.handleClose();
     yield put(addPopulationSuccess(data));
     toast.success('Population record added successfully!');
     yield put({ type: GET_POPULATION });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setPopulationFieldErrors(error.response.data.fieldErrors));
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setPopulationFieldErrors(error.response.data.errors));
     } else {
       yield put(addPopulationFail(error.response?.data || error.message));
     }
@@ -63,11 +65,13 @@ function* updatePopulationSaga(action) {
   try {
     const { data } = yield call(updatePopulationApi, action.payload);
     yield put(updatePopulationSuccess(data));
+    action.payload.resetForm();
+    action.payload.handleClose();
     toast.success('Population record updated successfully!');
     yield put({ type: GET_POPULATION });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setPopulationFieldErrors(error.response.data.fieldErrors));
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setPopulationFieldErrors(error.response.data.errors));
     } else {
       yield put(updatePopulationFail(error.response?.data || error.message));
     }

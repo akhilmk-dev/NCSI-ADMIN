@@ -59,9 +59,9 @@ const Header = props => {
   const notifications = useSelector(state=>state?.Notification?.notifications)
   const id = JSON.parse(Cookies.get('authUser'))?.userId
 
-  useEffect(()=>{
-    dispatch(getNotifications(id))
-  },[])
+  // useEffect(()=>{
+  //   dispatch(getNotifications(id))
+  // },[])
   
 
   return (
@@ -75,7 +75,7 @@ const Header = props => {
                   <img src={logosmImg} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logodarkImg} alt="" height="17" width="230px"  style={{border:"1px solid red"}}/>
+                  <img src={logodarkImg} alt=""   />
                 </span>
               </Link>
 
@@ -106,15 +106,15 @@ const Header = props => {
                     <span className="fa fa-search"></span>
                 </div>
             </form>
-            <LanguageDropdown />
-            <div className="dropdown d-none d-lg-inline-block">
+            {/* <LanguageDropdown /> */}
+            {/* <div className="dropdown d-none d-lg-inline-block">
                 <button type="button" className="btn header-item noti-icon waves-effect" onClick={() => {
                     toggleFullscreen()
                   }} data-bs-toggle="fullscreen">
                     <i className="mdi mdi-fullscreen"></i>
                 </button>
-            </div>
-            <NotificationDropdown id={id} notifications={notifications?.Data}/>      
+            </div> */}
+            {/* <NotificationDropdown id={id} notifications={[]}/>       */}
             <ProfileMenu />        
             {/* <div className="dropdown d-inline-block">
                 <button

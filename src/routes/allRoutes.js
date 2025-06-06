@@ -39,6 +39,7 @@ import EventList from "pages/Events/EventList";
 import PublicationList from "pages/Publications/PublicationList";
 import ClassificationList from "pages/classifications/ClassificationList";
 import PopulationList from "pages/populations/PopulationList";
+import IndicatorList from "pages/Indicator/IndicatorList";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -61,8 +62,9 @@ const userRoutes = [
    {path:"/classifications",component:<ClassificationList/>},
    {path:"/events",component:<EventList/>},
    {path:"/populations",component:<PopulationList />},
-   {path:"/profile/:id",component:<UserProfile />},
-   {path:"/changePassword", component:<ChangePassword />},
+   {path:"/indicators",component:<IndicatorList/>},
+  //  {path:"/profile/:id",component:<UserProfile />},
+  //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},
 ];
 
