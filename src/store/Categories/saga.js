@@ -32,6 +32,7 @@ function* getCategoriesSaga() {
     yield put(getCategoriesSuccess(data))
   } catch (error) {
     yield put(getCategoriesFail(error.response?.data || error.message))
+    toast.dismiss();
     toast.error('Failed to fetch categories!')
   }
 }

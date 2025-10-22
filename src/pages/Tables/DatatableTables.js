@@ -93,9 +93,6 @@ const DatatableTables = ({List}) => {
     []
   );
 
-  //meta title
-  document.title = "NCSI";
-
   return (
     <div className="">
       <div className="container-fluid">

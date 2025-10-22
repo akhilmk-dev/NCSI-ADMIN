@@ -9,14 +9,21 @@ import CreatePopulation from "./CreatePopulation";
 import TableContainer from "components/Common/DataTableContainer";
 import { deletePopulation, updatePopulation } from "store/actions";
 import PopulationDataTable from "components/TableContainers/PopulationDataTable";
+import { useTranslation } from "react-i18next";
 
-const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
+const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState();
   const [deleteId, setDeleteId] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const [selectedFromDate, setSelectedFromDate] = useState();
+  const [selectedSortData, setSelectedSortData] = useState({ value: "date", direction: "desc" });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchString, setSearchString] = useState("")
 
   const permissions = [];
   // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Population");
@@ -25,6 +32,7 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const handleDelete = (populationId) => {
     dispatch(deletePopulation(populationId));
     setDeleteId('');
+    setPageIndex(0);
     setOpenModal(false);
     setConfirmAction(false);
   };
@@ -39,17 +47,17 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
     {
       header: 'Date',
       accessorKey: 'date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString()
+      cell: ({ row }) => new Date(row.original.date).toLocaleDateString("en-GB")
     },
     {
       header: 'Omanis',
       accessorKey: 'omanis',
-      showFilter:false
+      showFilter: false
     },
     {
       header: 'Expatriates',
       accessorKey: 'expatriates',
-      showFilter:false
+      showFilter: false
     },
     ...([
       {
@@ -63,7 +71,7 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              { (
+              {(
                 <Button color="primary" onClick={handleEdit}>
                   <FaRegEdit size={18} />
                 </Button>
@@ -86,8 +94,8 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
     ])
   ], []);
 
-  const handleSubmit = (data,id,resetForm,handleClose) => {
-    dispatch(updatePopulation(data,id,resetForm,handleClose));
+  const handleSubmit = (data, id, resetForm, handleClose) => {
+    dispatch(updatePopulation(data, id, resetForm, handleClose));
   };
 
   const handleClose = () => {
@@ -110,6 +118,7 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
       />
 
       <CreatePopulation
+        loading={loading}
         fieldErrors={fieldErrors}
         visible={isOpen}
         initialData={editData}
@@ -119,6 +128,16 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
 
       <div className="container-fluid">
         <PopulationDataTable
+          selectedFromDate={selectedFromDate}
+          setSelectedFromDate={setSelectedFromDate}
+          selectedSortData={selectedSortData}
+          setSelectedSortData={setSelectedSortData}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          searchString={searchString}
+          setSearchString={setSearchString}
           totalrows={totalrows}
           pageInx={0}
           initialPageSize={10}
@@ -127,7 +146,7 @@ const PopulationTable = ({ List, loading,fieldErrors,totalrows }) => {
           data={List || []}
           isGlobalFilter={true}
           isPagination={true}
-          SearchPlaceholder="Search..."
+          SearchPlaceholder={t("Search")}
           pagination="pagination"
           docName="Population"
           paginationWrapper="dataTables_paginate paging_simple_numbers"

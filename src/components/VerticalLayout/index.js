@@ -34,7 +34,6 @@ class Layout extends Component {
   };
 
   componentDidMount() {
-
     // Scroll Top to 0
     window.scrollTo(0, 0);
     // let currentage = this.capitalizeFirstLetter(this.props.location.pathname)

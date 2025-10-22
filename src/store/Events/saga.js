@@ -42,7 +42,20 @@ function* addEventSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
         toast.success('Event added successfully!');
-        yield put({ type: GET_EVENTS });
+        yield put({ type: GET_EVENTS,payload:{
+            "pagesize": 10,
+            "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+            "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+                    direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+                }
+                : {},
+            "searchstring": localStorage.getItem('searchString'),
+            "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+                "from_date": localStorage.getItem('selectedFromDate'),
+            }:{}
+        }});
     } catch (error) {
         if (error.response?.status === 400 && error.response?.data?.error) {
             yield put(setEventFieldErrors(error.response.data.error));
@@ -59,7 +72,20 @@ function* updateEventSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
         toast.success('Event updated successfully!');
-        yield put({ type: GET_EVENTS });
+        yield put({ type: GET_EVENTS ,payload:{
+            "pagesize": 10,
+            "currentpage":Number(localStorage.getItem('pageIndex')) + 1,
+            "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+                    direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+                }
+                : {},
+            "searchstring": localStorage.getItem('searchString'),
+            "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+                "from_date": localStorage.getItem('selectedFromDate'),
+            }:{}
+        }});
     } catch (error) {
         if (error.response?.status === 400 && error.response?.data?.error) {
             yield put(setEventFieldErrors(error.response.data.error));
@@ -74,7 +100,20 @@ function* deleteEventSaga(action) {
         yield call(deleteEventApi, action.payload);
         yield put(deleteEventSuccess(action.payload));
         toast.success('Event deleted successfully!');
-        yield put({ type: GET_EVENTS });
+        yield put({ type: GET_EVENTS,payload:{
+            "pagesize": 10,
+            "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+            "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+                    direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+                }
+                : {},
+            "searchstring": localStorage.getItem('searchString'),
+            "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+                "from_date": localStorage.getItem('selectedFromDate'),
+            }:{}
+        } });
     } catch (error) {
         yield put(deleteEventFail(error.response?.data || error.message));
     }

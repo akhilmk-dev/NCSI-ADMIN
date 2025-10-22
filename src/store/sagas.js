@@ -20,6 +20,8 @@ import PublicationSaga from "./Publications/saga"
 import ClassificationSaga from "./Classifications/saga"
 import PopulationSaga from "./Populations/saga"
 import IndicatorSaga from "./Indicator/saga"
+import SurveySaga from "./Survey/saga"
+import FeedbackSaga from "./feedbacks/saga"
 
 export default function* rootSaga() {
   yield all([
@@ -42,6 +44,8 @@ export default function* rootSaga() {
     PublicationSaga(),
     ClassificationSaga(),
     PopulationSaga(),
-    IndicatorSaga()
+    IndicatorSaga(),
+    SurveySaga(),
+    FeedbackSaga()
   ])
 }

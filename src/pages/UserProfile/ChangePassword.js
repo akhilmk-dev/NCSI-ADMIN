@@ -18,7 +18,7 @@ import {
 import Breadcrumb from "components/Common/Breadcrumb2";
 import axiosInstance from "pages/Utility/axiosInstance";
 import Cookies from "js-cookie";
-import { showSuccess } from "helpers/notification_helper";
+import { showSuccess, showError } from "helpers/notification_helper";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import changeImg from '../../assets/images/change-password.png'
@@ -27,7 +27,7 @@ const ChangePassword = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const userId = JSON.parse(Cookies.get('authUser'))?.userId;
+ 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -54,23 +54,42 @@ const ChangePassword = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.post('', {
-        "sp": "usp_ChangePassword",
-        "userId": userId,
-        "currentPassword": values?.currentPassword,
-        "newPassword": values?.newPassword
+      const response = await axiosInstance.put('V1/user/me/password', {
+        current_password: values.currentPassword,
+        new_password: values.newPassword
+      });
+
+      if(response?.data?.message){
+        showSuccess(response?.data?.message || "Password updated successfully. Please login again.");
       }
-      )
-      if (response?.data?.Message == "Success") {
-        showSuccess("Password updated successfully")
-        setLoading(false)
-        resetForm();
+
+      if (response.status === 200) {
+        // Remove tokens/cookies and redirect to login
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        Cookies.remove('authUser');
+        navigate('/login');
       }
     } catch (error) {
-      setLoading(false)
+      if (error.response) {
+        if (error.response.status === 400) {
+          showError(error.response.data?.errors?.new_password?.[0] || error.response.data?.message || "Invalid request.");
+        } else if (error.response.status === 404) {
+          showError("Resource not found.");
+        } else if (error.response.status === 500) {
+          showError(error.response.data?.message || "Server error. Please try again later.");
+        } else {
+          showError(error.response.data?.message || "Something went wrong.");
+        }
+      } else {
+        showError("Network error. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
     }
   };
-
+  document.title = "Change Password | NCSI";
   return (
     <div className="page-content mt-3">
       <div className="d-flex justify-content-between align-items-center mx-2">

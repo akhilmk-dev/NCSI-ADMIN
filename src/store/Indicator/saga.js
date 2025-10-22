@@ -34,6 +34,7 @@ function* getIndicatorsSaga(action) {
     yield put(getIndicatorsSuccess(data));
   } catch (error) {
     yield put(getIndicatorsFail(error.response?.data || error.message));
+    toast.dismiss();
     toast.error('Failed to fetch indicators!');
   }
 }
@@ -45,7 +46,18 @@ function* addIndicatorSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     toast.success('Indicator added successfully!');
-    yield put({ type: GET_INDICATORS });
+    yield put({ type: GET_INDICATORS ,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  } });
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setIndicatorFieldErrors(error.response.data.errors));
@@ -62,7 +74,18 @@ function* updateIndicatorSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     toast.success('Indicator updated successfully!');
-    yield put({ type: GET_INDICATORS });
+    yield put({ type: GET_INDICATORS ,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  } });
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setIndicatorFieldErrors(error.response.data.errors));
@@ -77,7 +100,18 @@ function* deleteIndicatorSaga(action) {
     yield call(deleteIndicatorApi, action.payload);
     yield put(deleteIndicatorSuccess(action.payload));
     toast.success('Indicator deleted successfully!');
-    yield put({ type: GET_INDICATORS });
+    yield put({ type: GET_INDICATORS , payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  } });
   } catch (error) {
     yield put(deleteIndicatorFail(error.response?.data || error.message));
   }

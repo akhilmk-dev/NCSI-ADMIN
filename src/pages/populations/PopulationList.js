@@ -6,9 +6,11 @@ import CreatePopulation from './CreatePopulation';
 import PopulationTable from './PopulationTable';
 import Breadcrumb from 'components/Common/Breadcrumb2';
 import { addPopulation, getPopulation } from 'store/actions';
+import { useTranslation } from 'react-i18next';
 
 const PopulationList = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const {t} = useTranslation()
   const navigate = useNavigate();
   const permissions = [];
 
@@ -26,10 +28,10 @@ const PopulationList = () => {
   const handleClose = () => {
     setIsOpen(false);
   };
-
+  document.title = "Populations | NCSI";
   return (
     <>
-      <CreatePopulation fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreatePopulation loading = {loading} fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="page-content container-fluid">
         <div className="d-flex justify-content-between align-items-center mx-3">
           <Breadcrumb
@@ -44,7 +46,7 @@ const PopulationList = () => {
               className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
               onClick={() => setIsOpen(true)}
             >
-              <i className="ti-plus"></i> Add New
+              <i className="ti-plus"></i> {t('Add New')}
             </Button>
           )}
         </div>

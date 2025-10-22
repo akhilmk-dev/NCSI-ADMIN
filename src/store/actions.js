@@ -47,3 +47,10 @@ export * from "./Populations/actions"
 
 // indicators
 export * from "./Indicator/actions"
+
+// surveys
+export * from "./Survey/actions"
+
+// feedbacks
+export * from "./feedbacks/actions"
+

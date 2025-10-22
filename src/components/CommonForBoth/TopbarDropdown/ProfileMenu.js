@@ -79,7 +79,7 @@ const ProfileMenu = props => {
             {props.t("Profile")}{" "}
           </DropdownItem>
 
-          <DropdownItem tag="a" href="#">
+          <DropdownItem tag="a" href="/change-password">
           <i className="mdi mdi-lock-open-outline font-size-17 align-middle me-1 " />
             Change Password
           </DropdownItem>

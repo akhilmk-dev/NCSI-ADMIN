@@ -1,12 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { IMG_URL } from 'constants/config';
+import { useTranslation } from 'react-i18next';
+import { ClipLoader } from 'react-spinners';
+import { showError } from 'helpers/notification_helper';
 
-const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldErrors}) => {
+const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit, fieldErrors, loading }) => {
   const fileInputRef = useRef();
-
+  const { t } = useTranslation();
+  const [errors, setErrors] = useState({});
+   const [isSubmitted,setIsSubmitted]= useState(false);
+  
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -23,7 +29,7 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
       slider_image_ar: null
     },
     validationSchema: Yup.object({
-      link: Yup.string().url('Enter a valid URL').required('Link is required'),
+      link: Yup.string().required('Link is required'),
       alt_text: Yup.string().required('Alt text is required'),
       ...(initialData ? {} : {
         slider_image: Yup.mixed().required('Image is required'),
@@ -32,29 +38,29 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
         slider_image_ar: Yup.mixed().required('The slider image ar field is required.'),
       })
     }),
-    onSubmit: async (values,{resetForm}) => {
+    onSubmit: async (values, { resetForm }) => {
       let base64Image = null;
-      let sliderImgAr=null
+      let sliderImgAr = null
 
       if (values.slider_image) {
         base64Image = await toBase64(values.slider_image);
       }
-      if(values?.slider_image_ar){
-        sliderImgAr= await toBase64(values?.slider_image_ar)
+      if (values?.slider_image_ar) {
+        sliderImgAr = await toBase64(values?.slider_image_ar)
       }
 
       const payload = {
         link: values.link,
         alt_text: values.alt_text,
         slider_image: base64Image,
-        slider_image_ar:sliderImgAr
+        slider_image_ar: sliderImgAr
       };
-      if(initialData){
-        onSubmit(payload,initialData?.id,resetForm,handleClose)
-      }else{
-        onSubmit(payload,resetForm,handleClose);
+      if (initialData) {
+        onSubmit(payload, initialData?.id, resetForm, handleClose)
+      } else {
+        onSubmit(payload, resetForm, handleClose);
       }
-      
+
     },
   });
 
@@ -71,15 +77,23 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
     }
   }, [initialData]);
 
-  useEffect(()=>{
-    if(fieldErrors){
-      formik.setErrors(fieldErrors)
+  useEffect(() => {
+    if (fieldErrors) {
+      setErrors(fieldErrors);
     }
-  },[fieldErrors])
+  }, [fieldErrors])
+
+  useEffect(() => {
+    if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
+      console.log(formik.errors,"kooi")
+      showError("Validation Error")
+      setIsSubmitted(false)
+    }
+  }, [formik.errors, isSubmitted])
 
   return (
     <Modal
-      title={initialData ? 'Edit Slider' : 'Create New Slider'}
+      title={initialData ? t('Edit Slider') : t('Create New Slider')}
       visible={visible}
       onCancel={onClose}
       footer={null}
@@ -93,33 +107,47 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
         <div className="" role="document">
           <div className="row g-3">
             <div className="col-md-12">
-              <label className="form-label fs-7">Slider Link</label><span className="text-danger">*</span>
+              <label className="form-label fs-7">{t('Slider Link')}</label><span className="text-danger">*</span>
               <input
                 type="url"
                 className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
-                placeholder="Enter link"
+                placeholder={t("Enter link")}
                 name="link"
                 value={formik.values.link}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  // Clear backend error for 'name' on user input
+                  if (errors.link) {
+                    setErrors(prev => ({ ...prev, link: undefined }));
+                  }
+                }}
               />
-             { formik.touched.link && <span style={{ color: 'red' }} role="alert">{formik.errors.link || formik.errors.link?.[0]}</span>}
+              {formik.touched.link && <span style={{ color: 'red' }} role="alert">{formik.errors.link}</span>}
+              {(!formik.errors.link && errors?.link) && <span style={{ color: 'red' }}>{errors?.link}</span>}
             </div>
 
             <div className="col-md-12">
-              <label className="form-label fs-7">Alt Text</label><span className="text-danger">*</span>
+              <label className="form-label fs-7">{('Alt Text')}</label><span className="text-danger">*</span>
               <input
                 type="text"
                 className="form-control form-control-md form-control-solid fs-7 bg-body-secondary"
-                placeholder="Enter alt text"
+                placeholder={t("Enter alt text")}
                 name="alt_text"
                 value={formik.values.alt_text}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  // Clear backend error for 'name' on user input
+                  if (errors.alt_text) {
+                    setErrors(prev => ({ ...prev, alt_text: undefined }));
+                  }
+                }}
               />
-              {formik.touched.alt_text &&<span style={{ color: 'red' }} role="alert">{formik.errors.alt_text || formik.errors.alt_text?.[0]}</span>}
+              {formik.touched.alt_text && <span style={{ color: 'red' }} role="alert">{formik.errors.alt_text}</span>}
+              {(!formik.errors.alt_text && errors?.alt_text) && <span style={{ color: 'red' }}>{errors?.alt_text}</span>}
             </div>
 
             <div className="col-md-12">
-              <label className="form-label fs-7">Slider Image</label>
+              <label className="form-label fs-7">{t('Slider Image')}</label>
               <span className="text-danger">{!initialData && '*'}</span>
               <input
                 type="file"
@@ -129,20 +157,25 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                 ref={fileInputRef}
                 onChange={(e) => {
                   formik.setFieldValue('slider_image', e.currentTarget.files[0]);
+                  // Clear backend error for 'name' on user input
+                  if (errors.slider_image) {
+                    setErrors(prev => ({ ...prev, slider_image: undefined }));
+                  }
                 }}
               />
-              {formik.touched.slider_image && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image || formik.errors.slider_image?.[0]}</span>}
+              {formik.touched.slider_image && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image}</span>}
+              {(!formik.errors.slider_image && errors?.slider_image) && <span style={{ color: 'red' }}>{errors?.slider_image}</span>}
               {initialData?.slider_image_url && <a
-                            href={`${initialData?.slider_image_url}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: "#00A895", textDecoration: "underline" }}
-                        >
-                            View Uploaded image
-                        </a>}
+                href={`${initialData?.slider_image_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00A895", textDecoration: "underline" }}
+              >
+                {t('View Uploaded image')}
+              </a>}
             </div>
             <div className="col-md-12">
-              <label className="form-label fs-7">Slider Image(Ar)</label>
+              <label className="form-label fs-7">{t('Slider Image(Ar)')}</label>
               <span className="text-danger">{!initialData && '*'}</span>
               <input
                 type="file"
@@ -152,26 +185,31 @@ const CreateSlider = ({ visible, handleClose, initialData = '', onSubmit ,fieldE
                 ref={fileInputRef}
                 onChange={(e) => {
                   formik.setFieldValue('slider_image_ar', e.currentTarget.files[0]);
+                  // Clear backend error for 'name' on user input
+                  if (errors.slider_image_ar) {
+                    setErrors(prev => ({ ...prev, slider_image_ar: undefined }));
+                  }
                 }}
               />
-              {formik.touched.slider_image_ar && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image_ar || formik.errors.slider_image_ar?.[0]}</span>}
+              {formik.touched.slider_image_ar && <span style={{ color: 'red' }} role="alert">{formik.errors.slider_image_ar}</span>}
+              {(!formik.errors.slider_image_ar && errors?.slider_image_ar) && <span style={{ color: 'red' }}>{errors?.slider_image_ar}</span>}
               {initialData?.slider_image_ar && <a
-                            href={`${IMG_URL}${initialData?.slider_image_ar}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: "#00A895", textDecoration: "underline" }}
-                        >
-                            View Uploaded image
-                        </a>}
+                href={`${process.env.REACT_APP_IMG_URL}${initialData?.slider_image_ar}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00A895", textDecoration: "underline" }}
+              >
+                {t('View Uploaded image')}
+              </a>}
             </div>
           </div>
 
           <div className="modal-footer mt-3">
             <button type="button" className="btn btn-md btn-light" onClick={onClose}>
-              Close
+              {t('Close')}
             </button>
-            <button type="submit" className="btn btn-primary ms-3">
-              {initialData ? 'Update' : 'Add'}
+            <button type="submit" onClick={()=>setIsSubmitted(true)} className="btn btn-primary ms-3" style={{ minWidth: "100px" }} disabled={loading}>
+              {loading ? <ClipLoader color='white' size={18} /> : initialData ? t('Update') : t('Add')}
             </button>
           </div>
         </div>

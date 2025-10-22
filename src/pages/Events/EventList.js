@@ -6,11 +6,13 @@ import { addEvent, getEvents } from 'store/actions' // Assume these exist
 import CreateEvent from './CreateEvent' // Your modal form for event create/edit
 import EventTable from './EventTable' // Your table component for events
 import Breadcrumb from 'components/Common/Breadcrumb2'
+import { useTranslation } from 'react-i18next'
 
 const EventList = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const {t}= useTranslation()
 
 //   const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
 
@@ -26,10 +28,10 @@ const EventList = () => {
   const handleClose = () => {
     setIsOpen(false)
   }
-
+  document.title = "Events | NCSI";
   return (
     <>
-      <CreateEvent fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreateEvent loading={loading} fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="page-content container-fluid">
         <div className="d-flex justify-content-between align-items-center " style={{margin:"0 11px"}}>
           <Breadcrumb
@@ -44,7 +46,7 @@ const EventList = () => {
               className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
               onClick={() => setIsOpen(true)}
             >
-              <i className="ti-plus"></i> Add New
+              <i className="ti-plus"></i> {t('Add New')}
             </Button>
           )}
         </div>

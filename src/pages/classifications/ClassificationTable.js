@@ -10,8 +10,9 @@ import { deleteClassification, updateClassification } from "store/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import ClassificationDataTable from "components/TableContainers/ClassificationTable";
+import { useTranslation } from "react-i18next";
 
-const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
+const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,11 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const [deleteId, setDeleteId] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const [searchString, setSearchString] = useState("")
+  const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const { t } = useTranslation()
 
   const permissions = [];
 
@@ -28,6 +34,7 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
   const handleDelete = (classificationId) => {
     dispatch(deleteClassification(classificationId));
     setDeleteId('');
+    setPageIndex(0)
     setOpenModal(false);
     setConfirmAction(false);
   };
@@ -47,7 +54,7 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
       {
         header: 'Created At',
         accessorKey: 'created_at',
-        cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
+        cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-GB"),
       },
       ...([
         {
@@ -80,13 +87,13 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
             );
           },
         },
-      ] ),
+      ]),
     ],
     []
   );
 
-  const handleSubmit = (data,id,resetForm,handleClose) => {
-    dispatch(updateClassification(data,id,resetForm,handleClose));
+  const handleSubmit = (data, id, resetForm, handleClose) => {
+    dispatch(updateClassification(data, id, resetForm, handleClose));
   };
 
   const handleClose = () => {
@@ -94,8 +101,6 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
     setEditData('');
   };
 
-  // Meta title
-  document.title = "NCSI";
 
   return (
     <>
@@ -107,16 +112,24 @@ const ClassificationTable = ({ List, loading,fieldErrors,totalrows }) => {
         title="Delete Classification"
         content='Are You Sure You Want to Delete the Classification?'
       />
-      <CreateClassification  fieldErrors={fieldErrors} visible={isOpen} initialData={editData} onSubmit={handleSubmit} handleClose={handleClose} />
+      <CreateClassification loading={loading} fieldErrors={fieldErrors} visible={isOpen} initialData={editData} onSubmit={handleSubmit} handleClose={handleClose} />
       <div className="container-fluid">
         <ClassificationDataTable
+          selectedSortData={selectedSortData}
+          setSelectedSortData={setSelectedSortData}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          searchString={searchString}
+          setSearchString={setSearchString}
           loading={loading}
           columns={columns}
           data={List || []}
           isGlobalFilter={true}
           isPagination={true}
           totalrows={totalrows}
-          SearchPlaceholder="Search..."
+          SearchPlaceholder={t("Search")}
           pagination="pagination"
           docName="Classifications"
           paginationWrapper='dataTables_paginate paging_simple_numbers'

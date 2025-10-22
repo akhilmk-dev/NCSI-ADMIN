@@ -7,7 +7,8 @@ import React from "react";
 import Login from "../pages/Authentication/Login";
 import Logout from "../pages/Authentication/Logout";
 // import Register from "../pages/Authentication/Register";
-// import ForgetPwd from "../pages/Authentication/ForgetPassword";
+import ForgetPwd from "../pages/Authentication/ForgetPassword";
+import ResetPassword from '../pages/Authentication/ResetPassword';
 
 //  // Inner Authentication
 
@@ -40,6 +41,8 @@ import PublicationList from "pages/Publications/PublicationList";
 import ClassificationList from "pages/classifications/ClassificationList";
 import PopulationList from "pages/populations/PopulationList";
 import IndicatorList from "pages/Indicator/IndicatorList";
+import SurveyList from "pages/survery/SurveyList";
+import FeedbackList from "pages/Feedbacks/FeedBackList";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -47,6 +50,7 @@ const userRoutes = [
 
   // //profile
   { path: "/profile", component: <UserProfile /> },
+  { path: "/change-password", component: <ChangePassword /> },
 
   //Charts
   { path: "/apex-charts", component: <ChartApex /> },
@@ -63,6 +67,8 @@ const userRoutes = [
    {path:"/events",component:<EventList/>},
    {path:"/populations",component:<PopulationList />},
    {path:"/indicators",component:<IndicatorList/>},
+   {path:"/surveys", component:<SurveyList />},
+   {path:"/feedbacks", component:<FeedbackList />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},
@@ -72,7 +78,8 @@ const authRoutes = [
   { path: "/logout", component: <Logout /> },
   { path: "/login", component: <Login /> },
   {path:"/otp/:id", component:<Otp />},
-  // { path: "/forgot-password", component: <ForgetPwd /> },
+  { path: "/forgot-password", component: <ForgetPwd /> },
+  { path: "/reset-password", component: <ResetPassword /> },
   // { path: "/register", component: <Register /> },
   // { path: "/pages-maintenance", component: <PagesMaintenance /> },
   // { path: "/pages-comingsoon", component: <PagesComingsoon /> },

@@ -15,8 +15,9 @@ import {
 } from './actionTypes'
 
 // Fetch users action creators
-export const fetchUsersRequest = () => ({
+export const fetchUsersRequest = (data) => ({
   type: FETCH_USERS_REQUEST,
+  payload:data
 })
 
 export const fetchUsersSuccess = (users) => ({
@@ -46,9 +47,9 @@ export const addUserFailure = (error) => ({
 })
 
 // Update user action creators
-export const updateUserRequest = (user,onClose) => ({
+export const updateUserRequest = (id,user,onClose) => ({
   type: UPDATE_USER_REQUEST,
-  payload: {user,onClose},
+  payload: {id,user,onClose},
 })
 
 export const updateUserSuccess = (user) => ({

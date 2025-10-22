@@ -51,6 +51,12 @@ import Population from "./Populations/reducer"
 // indicators
 import Indicator from "./Indicator/reducer"
 
+// surveys
+import Survey from "./Survey/reducer"
+
+//feedbacks
+import Feedback from "./feedbacks/reducer"
+
 const rootReducer = combineReducers({
   Layout,
   Login,
@@ -70,7 +76,9 @@ const rootReducer = combineReducers({
   Publication,
   Classification,
   Population,
-  Indicator
+  Indicator,
+  Survey,
+  Feedback
 })
 
 export default rootReducer

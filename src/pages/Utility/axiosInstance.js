@@ -1,13 +1,13 @@
 // src/axiosInstance.js
 import axios from 'axios';
-import { BASE_URL } from 'constants/config';
+// import { BASE_URL } from 'constants/config';
 import { showError } from 'helpers/notification_helper';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 
 const axiosInstance = axios.create({
   // Default baseURL (can be overridden in the request itself)
-  baseURL: `${BASE_URL}`, // Default base URL
+  baseURL: `${process.env.REACT_APP_BASE_URL}`, // Default base URL
   headers: {
     'Cache-Control': 'no-cache',
     'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ axiosInstance.interceptors.request.use(
 
     // Check if the request method is POST and switch the base URL if necessary
     if (config.method === 'post') {
-      config.baseURL = `${BASE_URL}` // Change baseURL for POST requests
+      config.baseURL = `${process.env.REACT_APP_BASE_URL}` // Change baseURL for POST requests
     }
     return config;
   },
@@ -92,6 +92,13 @@ axiosInstance.interceptors.response.use(
       }
     }else if(error.response && error.response?.status === 404){
         showError(error.response?.data?.message);
+        navigate('/pages-404');
+    }
+    if(error.response.status === 400){
+      showError("Validation Error")
+    }
+    if(error.response.status == 403){
+      showError(error.response?.data?.message)
     }
     return Promise.reject(error);
   }

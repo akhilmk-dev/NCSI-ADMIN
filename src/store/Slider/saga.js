@@ -48,7 +48,14 @@ function* addSliderSaga(action) {
     action.payload.handleClose();
     yield put(addSliderSuccess(data));
     toast.success('Slider added successfully!');
-    yield put({ type: GET_SLIDERS });
+    yield put({ type: GET_SLIDERS,payload:{
+      "pagesize": 10,
+      "currentpage": Number(localStorage.getItem('pageIndex'))+1,
+      "sortorder": {
+      //   "field": "created_at",
+      //   "direction": "desc"
+      }
+    } });
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setSliderFieldErrors(error.response.data.errors));
@@ -65,7 +72,14 @@ function* updateSliderSaga(action) {
     action.payload.handleClose();
     yield put(updateSliderSuccess(data));
     toast.success('Slider updated successfully!');
-    yield put({ type: GET_SLIDERS });
+    yield put({ type: GET_SLIDERS,payload:{
+      "pagesize": 10,
+      "currentpage": Number(localStorage.getItem('pageIndex'))+1,
+      "sortorder": {
+      //   "field": "created_at",
+      //   "direction": "desc"
+      }
+    }  });
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setSliderFieldErrors(error.response.data.errors));
@@ -80,7 +94,14 @@ function* deleteSliderSaga(action) {
     yield call(deleteSliderApi, action.payload);
     yield put(deleteSliderSuccess(action.payload));
     toast.success('Slider deleted successfully!');
-    yield put({ type: GET_SLIDERS });
+    yield put({ type: GET_SLIDERS ,payload:{
+      "pagesize": 10,
+      "currentpage": Number(localStorage.getItem('pageIndex'))+1,
+      "sortorder": {
+      //   "field": "created_at",
+      //   "direction": "desc"
+      }
+    } });
   } catch (error) {
     yield put(deleteSliderFail(error.response?.data || error.message));
   }

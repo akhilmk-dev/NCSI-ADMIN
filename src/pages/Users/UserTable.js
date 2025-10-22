@@ -1,212 +1,156 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button } from "reactstrap";
-import { useNavigate } from "react-router-dom";
-import { deleteUserRequest, updateUser, updateUserRequest } from "store/actions";
+import { deleteUserRequest, updateUserRequest } from "store/actions";
 import CreateUser from "./CreateUser";
 import ConfirmationModal from "components/Modals/ConfirmationModal";
 import TableContainer from '../../components/Common/DataTableContainer';
-import { FaKey } from "react-icons/fa";
-import PasswordResetModal from "./ResetPassword";
-import axiosInstance from "pages/Utility/axiosInstance";
-import { showSuccess } from "helpers/notification_helper";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
+import UserDataTable from "components/TableContainers/UserDataTable";
 
-const UserTable = ({ List, loading }) => {
+
+const UserTable = ({ users, loading,totalrows }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [editData, setEditData] = useState();
-  const [deleteId, setDeleteId] = useState();
+  const [editData, setEditData] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
-  const [userId, setUserId] = useState();
+  const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchString, setSearchString] = useState("");
+  const user = useSelector(state=>state?.Login.user)
 
-  const permissions2 = []
-
-  // Handle deletion of user
-  const handleDelete = (userId) => {
-    dispatch(deleteUserRequest(userId));
-    setDeleteId("");
+  // Handle deletion
+  const handleDeleteConfirmed = (id) => {
+    dispatch(deleteUserRequest(id));
     setOpenModal(false);
     setConfirmAction(false);
   };
 
-  const handlePassword = (id) => {
-    setUserId(id)
-    setPasswordModalOpen(true);
-  }
-
-  const handlePasswordSubmit = async (pwd) => {
-    const response = await axiosInstance.post('', {
-      "sp": "usp_ResetUserPassword",
-      "userId": userId,
-      "newPassword": pwd
-
-    })
-    if (response) {
-      showSuccess("Password Reset Successfully")
-    }
-  }
-
-  // Effect hook to confirm and handle deletion
   useEffect(() => {
     if (deleteId && confirmAction) {
-      handleDelete(deleteId);
+      handleDeleteConfirmed(deleteId);
     }
-  }, [deleteId, confirmAction]);
+  }, [confirmAction]);
+  function formatISOToDDMMYYYY(isoDateStr) {
+    const date = new Date(isoDateStr);
+  
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+  
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getUTCFullYear();
+  
+    return `${day}/${month}/${year}`;
+  }
+  
 
-  // Table columns definition
-  const columns = useMemo(
-    () => [
-      {
-        header: "User Name",
-        accessorKey: "userName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ row }) => (
-          <span
-          >
-            {row.original.userName}
-          </span>
-        ),
-      },
-      {
-        header: "Email",
-        accessorKey: "emailId",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Phone Number",
-        accessorKey: "phoneNo",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Role",
-        accessorKey: "roleName",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Branch",
-        accessorKey: "branchName",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Employee Id",
-        accessorKey: "employeeId",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Status",
-        accessorKey: "isActive",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ row }) => (
-          <span>
-            {row.original.isActive ? "Active" : "InActive"}
-          </span>
-        ),
-      },
-      {
-        header: "Actions",
-        id: "actions",
-        cell: ({ row }) => {
-          const handleEdit = () => {
-            const rowData = row.original;
-            setEditData(rowData);
-            setIsOpen(true);
-          };
+  // Table columns
+  const columns = useMemo(() => [
+    {
+      header: "Name",
+      accessorKey: "user_name",
+    },
+    {
+      header: "Email",
+      accessorKey: "user_email",
+    },
+    {
+      header: "Phone",
+      accessorKey: "user_phone",
+    },
+    {
+      header: "Created At",
+      accessorKey: "created_at",
+      showFilter:true,
+      cell:({row})=>(
+        <span>{formatISOToDDMMYYYY(row.original.created_at)}</span>
+      )
+    },
+    {
+      header: "Status",
+      accessorKey: "user_status",
+      cell: ({ row }) => (
+        <span>{row.original.user_status === 1 ? "Active" : "Inactive"}</span>
+      ),
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      cell: ({ row }) => {
+        const handleEdit = () => {
+          setEditData(row.original);
+          setIsOpen(true);
+        };
 
-          const handleDelete = () => {
-            const rowData = row.original;
-            setDeleteId(rowData.userId);
-            setOpenModal(true);
-          };
+        const handleDelete = () => {
+          setDeleteId(row.original.user_id);
+          setOpenModal(true);
+        };
 
-          return (
-            <div className="d-flex gap-2">
-              {permissions2?.map(item => item?.permissionName)?.includes("Edit Users") && <Button color="primary" title="Edit user" onClick={handleEdit} className="mr-2">
-                <FaRegEdit size={18} />
-              </Button>}
-              {permissions2?.map(item => item?.permissionName)?.includes("Delete Users") && <Button
-                color="danger"
-                onClick={handleDelete}
-                className="mr-2"
-                title="Delete"
-              >
-                <MdDeleteOutline size={18} />
-              </Button>}
-              {permissions2?.map(item => item?.permissionName)?.includes("Reset Password") && <Button
-                color="primary"
-                onClick={() => handlePassword(row.original.userId)}
-                title="Reset Password"
-              >
-                <FaKey color="white" />
-              </Button>}
-            </div>
-          );
-        },
+        return (
+          <div className="d-flex gap-2">
+            <Button color="primary" title="Edit" onClick={handleEdit}>
+              <FaRegEdit size={18} />
+            </Button>
+            <Button color="danger" title="Delete" onClick={handleDelete}>
+              <MdDeleteOutline size={18} />
+            </Button>
+          </div>
+        );
       },
-    ],
-    []
-  );
+    }
+  ], []);
 
-  // Handle form submit (update user)
-  const handleSubmit = (data,onClose) => {
-    dispatch(updateUserRequest(data,onClose));
+  const handleFormSubmit = (id,data, onClose) => {
+    dispatch(updateUserRequest(id,data, onClose));
   };
-
-  // Handle modal close
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  // Meta title
-  document.title = "User Management | Admin Dashboard";
 
   return (
     <>
-      {/* Confirmation Modal for Deleting User */}
+      {/* Confirmation Modal */}
       <ConfirmationModal
-        okText={"Confirm"}
-        onCancel={() => {
-          setDeleteId("");
-          setOpenModal(false);
-        }}
+        okText="Confirm"
+        onCancel={() => setOpenModal(false)}
         onOk={() => setConfirmAction(true)}
         isVisible={openModal}
         title="Delete User"
         content="Are you sure you want to delete this user?"
       />
 
-      {/* Create/Edit User Modal */}
+      {/* Edit/Create Modal */}
       <CreateUser
         visible={isOpen}
-        initialData={editData} // Pass initial data for editing
-        onSubmit={handleSubmit}
-        handleClose={handleClose}
+        initialData={editData}
+        onSubmit={handleFormSubmit}
+        handleClose={() => setIsOpen(false)}
       />
 
-      <PasswordResetModal onSubmit={handlePasswordSubmit} handleClose={() => setPasswordModalOpen(false)} visible={passwordModalOpen} />
-
+      {/* Data Table */}
       <div className="container-fluid">
-        {/* Data Table Container to Display Users */}
-        <TableContainer
+        <UserDataTable
           columns={columns}
           loading={loading}
-          data={List || []}
-          isGlobalFilter={true}
-          isPagination={true}
+          data={users || []}
+          isGlobalFilter
+          isPagination
+          selectedSortData={selectedSortData}
+          setSelectedSortData={setSelectedSortData}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          setPageSize={setPageSize}
+          pageSize={pageSize}
+          setSearchString={setSearchString}
+          searchString={searchString}
           SearchPlaceholder="Search users..."
           pagination="pagination"
           docName="Users"
+          totalrows={totalrows}
           paginationWrapper="dataTables_paginate paging_simple_numbers"
           tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
         />

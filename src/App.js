@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React, { useEffect } from "react"
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import { connect } from "react-redux"
-
+import 'quill/dist/quill.snow.css'; 
 // Import Routes all
 import { userRoutes, authRoutes } from "./routes/allRoutes"
 
@@ -14,6 +14,7 @@ import NonAuthLayout from "./components/NonAuthLayout"
 
 // Import scss
 import "./assets/scss/theme.scss"
+
 import { Toaster } from 'react-hot-toast'
 import Pages404 from 'pages/Utility/pages-404'
 import Cookies from 'js-cookie'
@@ -88,7 +89,14 @@ const App = () => {
   // }
   return (
     <React.Fragment>
-      <Toaster />
+      <Toaster toastOptions={{
+    duration: 5000,
+    style: {
+      fontSize: '18px',      
+      
+    },
+  }}
+  />
       <Routes>
         <Route>
           {authRoutes.map((route, idx) => (

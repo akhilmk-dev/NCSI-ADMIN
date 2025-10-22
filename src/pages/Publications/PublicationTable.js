@@ -11,10 +11,18 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import PublicationDataTable from "components/TableContainers/PublicationDataTable";
 import { FaFilePdf } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
-const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
+const PublicationTable = ({ list, loading, classifications, fieldErrors, totalrows }) => {
     const dispatch = useDispatch();
-
+    const { t } = useTranslation();
+    const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+    const [searchString, setSearchString] = useState("");
+    const [selectedClassification, setSelectedClassification] = useState();
+    const [selectedFromDate, setSelectedFromDate] = useState();
+    const [selectedType, setSelectedType] = useState();
     const [isOpen, setIsOpen] = useState(false);
     const [editData, setEditData] = useState(null);
     const [deleteId, setDeleteId] = useState(null);
@@ -28,6 +36,7 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
     const handleDelete = (id) => {
         dispatch(deletePublication(id));
         setDeleteId(null);
+        setPageIndex(0);
         setOpenModal(false);
         setConfirmAction(false);
     };
@@ -44,15 +53,15 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
             accessorKey: "title_en",
             cell: ({ getValue }) => (
                 <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', width: '220px' }}>
-                  {getValue()}
+                    {getValue()}
                 </div>
-              ),
+            ),
         },
         {
             header: 'Created At',
             accessorKey: 'created_at',
-            cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
-          },
+            cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-GB"),
+        },
         {
             header: "Cover Image",
             accessorKey: "cover_image_url",
@@ -65,21 +74,29 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
                     />
                 ) : 'No Image'
             ),
-            showFilter:false
+            showFilter: false
         },
-        
         {
-            header: "Type",
-            accessorKey: "type",
+            header: "Views",
+            accessorKey: "views",
             cell: ({ row }) => (
-                row.original.type 
+                row.original.views
             ),
-            showFilter:false
+            showFilter: true
+        },
+
+        {
+            header: "Rating",
+            accessorKey: "avg_rating",
+            cell: ({ row }) => (
+                row.original.avg_rating
+            ),
+            showFilter: true
         },
         {
             header: "Classification",
             accessorKey: "classification_title",
-            showFilter:false
+            showFilter: false
         },
         {
             header: "PDF",
@@ -87,13 +104,13 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
             cell: ({ row }) => (
                 row.original.pdf_file_url ? (
                     <div className="text-center">
-                    <a href={row.original.pdf_file_url} target="_blank" className="text-center" rel="noopener noreferrer">
-                        <FaFilePdf size={23} />
-                    </a>
+                        <a href={row.original.pdf_file_url} target="_blank" className="text-center" rel="noopener noreferrer">
+                            <FaFilePdf size={28} />
+                        </a>
                     </div>
-                ) : 'No PDF'
+                ) :'No PDF'
             ),
-            showFilter:false
+            showFilter: false
         },
 
         ...([{
@@ -107,7 +124,7 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
 
                 return (
                     <div className="d-flex gap-2">
-                        { (
+                        {(
                             <Button color="primary" onClick={handleEdit}>
                                 <FaRegEdit size={18} />
                             </Button>
@@ -129,8 +146,8 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
         }]),
     ], []);
 
-    const handleSubmit = (formData,id,resetForm,handleClose) => {
-        dispatch(updatePublication(formData,id,resetForm,handleClose));
+    const handleSubmit = (formData, id, resetForm, handleClose) => {
+        dispatch(updatePublication(formData, id, resetForm, handleClose));
     };
 
     const handleClose = () => {
@@ -148,11 +165,12 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
                 }}
                 onOk={() => setConfirmAction(true)}
                 isVisible={openModal}
-                title="Delete Publication"
-                content="Are you sure you want to delete this publication?"
+                title={t("Delete Publication")}
+                content={t("Are you sure you want to delete this publication?")}
             />
 
             <CreatePublication
+                loading={loading}
                 fieldErrors={fieldErrors}
                 classifications={classifications}
                 visible={isOpen}
@@ -163,13 +181,28 @@ const PublicationTable = ({ list, loading,classifications,fieldErrors }) => {
 
             <div className="container-fluid">
                 <PublicationDataTable
+                    selectedFromDate={selectedFromDate}
+                    setSelectedFromDate={setSelectedFromDate}
+                    selectedSortData={selectedSortData}
+                    setSelectedSortData={setSelectedSortData}
+                    pageIndex={pageIndex}
+                    setPageIndex={setPageIndex}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
+                    searchString={searchString}
+                    setSearchString={setSearchString}
                     classifications={classifications}
+                    selectedClassification={selectedClassification}
+                    setSelectedClassification={setSelectedClassification}
+                    selectedType={selectedType}
+                    setSelectedType={setSelectedType}
                     loading={loading}
                     columns={columns}
                     data={list || []}
                     isGlobalFilter={true}
                     isPagination={true}
-                    SearchPlaceholder="Search publications..."
+                    totalrows={totalrows}
+                    SearchPlaceholder={t("Search publications")}
                     pagination="pagination"
                     docName="Publications"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"

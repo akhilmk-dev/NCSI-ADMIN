@@ -54,7 +54,7 @@ const ForgetPasswordPage = props => {
                   <div className="text-primary text-center p-4">
                     <h5 className="text-white font-size-20 p-2">Forget Password</h5>
                     <Link to="/index" className="logo logo-admin">
-                      <img src={logoSm} height="24" alt="logo" width="70px" />
+                      <img src={logoSm} style={{objectFit:"contain"}} alt="logo" width="70px" />
                     </Link>
                   </div>
                 </div>
@@ -108,11 +108,7 @@ const ForgetPasswordPage = props => {
                 </CardBody>
               </Card>
               <div className="mt-5 text-center">
-                <p>Remember It ? <Link to="/login" className="fw-medium text-primary"> Sign In here </Link> </p>
-                <p>
-                  © {new Date().getFullYear()} Zain. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Themesbrand
-                </p>
+                <p>Remember It ? <Link to="/login" className="fw-medium text-primary">Sign In here </Link> </p>
               </div>
             </Col>
           </Row>

@@ -6,9 +6,10 @@ import { addClassification, getClassifications } from 'store/actions';
 import CreateClassification from './CreateClassification';
 import Breadcrumb from 'components/Common/Breadcrumb2';
 import ClassificationTable from './ClassificationTable';
+import { useTranslation } from 'react-i18next';
 
 const ClassificationList = () => {
-
+    const {t} = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const permissions = [];
@@ -27,9 +28,10 @@ const ClassificationList = () => {
         setIsOpen(false);
     };
 
+    document.title = "Classifications | NCSI";
     return (
         <>
-            <CreateClassification fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
+            <CreateClassification loading={loading} fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
             <div className='page-content container-fluid'>
                 <div className='d-flex justify-content-between align-items-center mx-3'>
                     <Breadcrumb 
@@ -44,7 +46,7 @@ const ClassificationList = () => {
                             className='bg-primary text-white d-flex justify-content-center gap-1 align-items-center' 
                             onClick={() => setIsOpen(true)}
                         >
-                            <i className='ti-plus'></i> Add New
+                            <i className='ti-plus'></i> {t('Add New')}
                         </Button>
                     )}
                 </div>

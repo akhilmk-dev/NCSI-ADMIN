@@ -22,6 +22,7 @@ import Select from "react-select";
 import { getClassifications, getEvents, getIndicators } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
+import Pagination from "components/Common/Pagination";
 
 
 // Global Filter (Debounced Input)
@@ -43,16 +44,20 @@ const IndicatorDataTable = ({
     initialPageSize = 10,
     totalrows,
     loading,
-    docName = "doc"
+    docName = "doc",
+    selectedSortData,
+    setSelectedSortData,
+    pageIndex,
+    setPageIndex,
+    pageSize,
+    setPageSize,
+    searchString,
+    setSearchString
 }) => {
     const [globalFilter, setGlobalFilter] = useState("");
     const tableRef = useRef(); // Create a reference for the table content
     const [filteredData, setFilteredData] = useState(data || []);
     const [selectedFromDate, setSelectedFromDate] = useState();
-    const [selectedSortData, setSelectedSortData] = useState({value:"indicator_date",direction:"asc"});
-    const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
-    const [searchString, setSearchString] = useState()
     const dispatch = useDispatch();
 
     // Update filteredData when search query changes
@@ -284,6 +289,7 @@ const IndicatorDataTable = ({
             hasMounted.current = true;
             return;
           }
+           if(!loading && pageIndex !==0){
             dispatch(getIndicators({
                 "pagesize": pageSize,
                 "currentpage": pageIndex + 1,
@@ -296,7 +302,36 @@ const IndicatorDataTable = ({
                 "searchstring": searchString,
                 "filter": {}
             }))
-    }, [selectedFromDate, selectedSortData, searchString, pageIndex])
+           }
+    }, [ selectedSortData,pageIndex]);
+
+    useEffect(() => {
+        localStorage.setItem('pageIndex', pageIndex);
+        localStorage.setItem('searchString', searchString);
+        localStorage.setItem('selectedSortData', JSON.stringify(selectedSortData));
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            return;
+          }
+           if(!loading && pageIndex ==0){
+            dispatch(getIndicators({
+                "pagesize": pageSize,
+                "currentpage": pageIndex + 1,
+                "sortorder": selectedSortData?.value && selectedSortData?.direction
+                    ? {
+                        field: selectedSortData.value,
+                        direction: selectedSortData.direction,
+                    }
+                    : {},
+                "searchstring": searchString,
+                "filter": {}
+            }))
+           }
+    }, [selectedSortData,searchString,pageIndex]);
+
+    useEffect(()=>{
+        setPageIndex(0)
+    },[searchString])
     const handlePageChange = (newPageIndex) => {
         setPageIndex(newPageIndex);
     };
@@ -455,7 +490,7 @@ const IndicatorDataTable = ({
                             </tr>
                         ) : (data?.length <= 0 || getRowModel()?.rows?.length === 0) ? (
                             <tr>
-                                <td colSpan={columns.length} className="text-center">
+                                <td colSpan={columns.length+1} className="text-center">
                                     No Data Found
                                 </td>
                             </tr>
@@ -472,65 +507,16 @@ const IndicatorDataTable = ({
                     </tbody>
                 </Table>
             </div>
-
             {(isPagination && totalrows > 0) && (
-                <Row className="justify-content-md-end justify-content-center align-items-center mt-2">
-                    <Col>
-                        <div className="dataTables_info">
-                            Showing {pageIndex * pageSize + 1} to {Math.min((pageIndex + 1) * pageSize, totalrows)} of {totalrows} Results
-                        </div>
-                    </Col>
-                    <Col className="col-md-auto">
-                        <div className={paginationWrapper}>
-                            <ul className={pagination}>
-                                {/* Previous Button */}
-                                <li className={`paginate_button page-item previous ${pageIndex === 0 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handlePageChange(pageIndex - 1)}
-                                        disabled={pageIndex === 0}
-                                        style={{ color: "#245250" }}
-                                    >
-                                        <i className="mdi mdi-chevron-left"></i>
-                                    </button>
-                                </li>
-
-                                {/* Page Buttons */}
-                                {Array.from({ length: endPage - startPage }).map((_, index) => {
-                                    const page = startPage + index;
-                                    return (
-                                        <li
-                                            key={page}
-                                            className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}
-                                        >
-                                            <button
-                                                className="page-link"
-                                                onClick={() => handlePageChange(page)}
-                                                style={{ color: `${pageIndex === page ? "white" : "#245250"}` }}
-                                            >
-                                                {page + 1}
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-
-                                {/* Next Button */}
-                                <li className={`paginate_button page-item next ${pageIndex === totalPages - 1 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handlePageChange(pageIndex + 1)}
-                                        disabled={pageIndex === totalPages - 1}
-                                        style={{ color: "#245250" }}
-                                    >
-                                        <i className="mdi mdi-chevron-right"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </Col>
-                </Row>
+                <Pagination
+                    currentPage={pageIndex + 1}
+                    totalPages={totalPages}
+                    totalItems={totalrows}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                    showInfo={true}
+                />
             )}
-
         </Fragment>
     );
 };

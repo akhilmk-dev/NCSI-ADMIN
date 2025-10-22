@@ -11,16 +11,17 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { IMG_URL } from "constants/config";
 import SliderDataTable from "components/TableContainers/SliderDataTable";
+import { useTranslation } from "react-i18next";
 
 const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
   const dispatch = useDispatch();
-
+  const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState();
   const [deleteId, setDeleteId] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
-
+  const [pageIndex, setPageIndex] = useState(0);
   const permissions = [];
   // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Sliders");
   // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Sliders");
@@ -28,6 +29,7 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
   const handleDelete = (id) => {
     dispatch(deleteSlider(id));
     setDeleteId('');
+    setPageIndex(0)
     setOpenModal(false);
     setConfirmAction(false);
   };
@@ -50,7 +52,7 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
       header: "Image(Ar)",
       accessorKey: "slider_image_ar",
       cell: ({ row }) => (
-        <img src={`${IMG_URL}${row.original.slider_image_ar}`} alt="slider" height="40" style={{ borderRadius: 5 }} />
+        <img src={`${process.env.REACT_APP_IMG_URL}${row.original.slider_image_ar}`} alt="slider" height="40" style={{ borderRadius: 5 }} />
       ),
     },
     {
@@ -127,6 +129,7 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
       />
 
       <CreateSlider
+        loading={loading}
         fieldErrors={fieldErrors}
         visible={isOpen}
         initialData={editData}
@@ -136,6 +139,8 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
 
       <div className="container-fluid">
         <SliderDataTable
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
           pageInx={0}
           initialPageSize={10}
           totalrows={totalrows}
@@ -144,7 +149,7 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
           data={List || []}
           isGlobalFilter={true}
           isPagination={true}
-          SearchPlaceholder="Search..."
+          SearchPlaceholder={t("Search")}
           pagination="pagination"
           docName="Sliders"
           paginationWrapper="dataTables_paginate paging_simple_numbers"

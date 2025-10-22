@@ -42,7 +42,22 @@ function* addPublicationSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose()
         toast.success('Publication added successfully!');
-        yield put({ type: GET_PUBLICATIONS });
+        yield put({ type: GET_PUBLICATIONS,payload:{
+            "pagesize": 10,
+            "currentpage": Number(localStorage.getItem('pageIndex')) + 1,
+            "sortorder": JSON.parse(localStorage.getItem('selectedSortData'))?.value && JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                    direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+                }
+                : {},
+            "searchstring": localStorage.getItem('searchString'),
+            "filter": (localStorage.getItem('selectedType') && localStorage.getItem('selectedType') !== "undefined" && localStorage.getItem('selectedType') !== "null")
+           ? { type: JSON.parse(localStorage.getItem('selectedType'))?.value }
+           : (localStorage.getItem('selectedClassification') && localStorage.getItem('selectedClassification') !== "undefined" && localStorage.getItem('selectedClassification') !== "null")
+               ? { classification_id: JSON.parse(localStorage.getItem('selectedClassification'))?.value }
+               : {}
+        } });
     } catch (error) {
         if (error.response?.status === 400 && error.response?.data?.errors) {
             yield put(setPublicationFieldErrors(error.response.data.errors));
@@ -59,7 +74,22 @@ function* updatePublicationSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose()
         toast.success('Publication updated successfully!');
-        yield put({ type: GET_PUBLICATIONS });
+        yield put({ type: GET_PUBLICATIONS,payload:{
+            "pagesize": 10,
+            "currentpage": Number(localStorage.getItem('pageIndex')) + 1,
+            "sortorder": JSON.parse(localStorage.getItem('selectedSortData'))?.value && JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                    direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+                }
+                : {},
+            "searchstring":localStorage.getItem('searchString'),
+           "filter": (localStorage.getItem('selectedType') && localStorage.getItem('selectedType') !== "undefined" && localStorage.getItem('selectedType') !== "null")
+           ? { type: JSON.parse(localStorage.getItem('selectedType'))?.value }
+           : (localStorage.getItem('selectedClassification') && localStorage.getItem('selectedClassification') !== "undefined" && localStorage.getItem('selectedClassification') !== "null")
+               ? { classification_id: JSON.parse(localStorage.getItem('selectedClassification'))?.value }
+               : {}
+        }  });
     } catch (error) {
         if (error.response?.status === 400 && error.response?.data?.errors) {
             yield put(setPublicationFieldErrors(error.response.data?.errors));
@@ -74,7 +104,22 @@ function* deletePublicationSaga(action) {
         yield call(deletePublicationApi, action.payload);
         yield put(deletePublicationSuccess(action.payload));
         toast.success('Publication deleted successfully!');
-        yield put({ type: GET_PUBLICATIONS });
+        yield put({ type: GET_PUBLICATIONS,payload:{
+            "pagesize": 10,
+            "currentpage": Number(localStorage.getItem('pageIndex')) + 1,
+            "sortorder": JSON.parse(localStorage.getItem('selectedSortData'))?.value && JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+                ? {
+                    field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                    direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+                }
+                : {},
+            "searchstring": localStorage.getItem('searchString'),
+            "filter": (localStorage.getItem('selectedType') && localStorage.getItem('selectedType') !== "undefined" && localStorage.getItem('selectedType') !== "null")
+           ? { type: JSON.parse(localStorage.getItem('selectedType'))?.value }
+           : (localStorage.getItem('selectedClassification') && localStorage.getItem('selectedClassification') !== "undefined" && localStorage.getItem('selectedClassification') !== "null")
+               ? { classification_id: JSON.parse(localStorage.getItem('selectedClassification'))?.value }
+               : {}
+        }  });
     } catch (error) {
         yield put(deletePublicationFail(error.response?.data || error.message));
     }

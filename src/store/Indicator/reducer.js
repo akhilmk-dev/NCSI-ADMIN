@@ -61,7 +61,7 @@ import {
         return { ...state, loading: false, error: action.payload };
   
       case SET_INDICATOR_FIELD_ERRORS:
-        return { ...state, fieldErrors: action.payload };
+        return { ...state, fieldErrors: action.payload ,loading:false};
   
       default:
         return state;

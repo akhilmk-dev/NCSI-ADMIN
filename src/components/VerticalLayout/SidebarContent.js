@@ -12,11 +12,19 @@ import { TfiLayoutSliderAlt } from "react-icons/tfi";
 import { FaLeanpub } from "react-icons/fa6";
 import { TbChartBarPopular } from "react-icons/tb";
 import { GrIndicator } from "react-icons/gr";
+import { RiSurveyLine } from "react-icons/ri";
+import { MdOutlineFeedback } from "react-icons/md";
+import { FaUser } from "react-icons/fa";
+import { CiUser } from "react-icons/ci";
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
+
 
 const SidebarContent = ({ t }) => {
   const location = useLocation();
   const ref = useRef();
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+  const user = useSelector(state=>state?.Login.user)
   const path = location.pathname;
   const permissions = [];
 
@@ -184,6 +192,12 @@ const SidebarContent = ({ t }) => {
                 </Link>
               </li>
             {/* )} */}
+            {Cookies.get('isAdmin') == "yes"&&<li>
+                <Link to="/users" className="waves-effect" onClick={() =>{ handleMenuItemClick("/users"); tToggle2();}}>
+                <CiUser size={22} className="me-2" />
+                  <span>{t("Users")}</span>
+                </Link>
+              </li>}
             {/* {availablePaths.includes("/departments") && ( */}
               <li>
                 <Link to="/Sliders" className="waves-effect" onClick={() =>{handleMenuItemClick("/Sliders"); tToggle2();}}>
@@ -221,6 +235,19 @@ const SidebarContent = ({ t }) => {
                 </Link>
               </li>
            
+              <li>
+                <Link to="/surveys" className="waves-effect" onClick={() =>{handleMenuItemClick("/surveys"); tToggle2();}}>
+                  <RiSurveyLine  size={21} className="me-2" />
+                  <span>{t("Surveys")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/feedbacks" className="waves-effect" onClick={() =>{handleMenuItemClick("/feedbacks"); tToggle2();}}>
+                  <MdOutlineFeedback  size={21} className="me-2" />
+                  <span>{t("Feedbacks")}</span>
+                </Link>
+              </li>
             {/* {availablePaths.includes("/settings") && (
               <li>
                 <Link to="/settings" className="waves-effect d-flex align-items-center" onClick={() =>{handleMenuItemClick("/users");tToggle2();}}>

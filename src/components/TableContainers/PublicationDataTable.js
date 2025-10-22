@@ -12,16 +12,11 @@ import { FadeLoader } from "react-spinners";
 import { formatDateTimeToAmPm, convertToDateOnly } from "helpers/dateFormat_helper";
 import { convertToAMPM } from "helpers/format_helper";
 // import { AiOutlineFileExcel } from "react-icons/ai";
-import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
-import { BsFileEarmarkPdf } from "react-icons/bs";
-import { AiOutlineFilePdf } from "react-icons/ai";
-import { PiFileArrowDown } from "react-icons/pi";
-import { AiOutlinePrinter } from "react-icons/ai";
-import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
 import { getPublications } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
+import Pagination from "components/Common/Pagination";
 
 
 // Global Filter (Debounced Input)
@@ -43,18 +38,25 @@ const PublicationDataTable = ({
     totalrows,
     loading,
     docName = "doc",
-    classifications
+    classifications,
+    selectedClassification,
+    setSelectedClassification,
+    selectedType,
+    setSelectedType,
+    selectedFromDate,
+    setSelectedFromDate,
+    selectedSortData,
+    setSelectedSortData,
+    pageIndex,
+    setPageIndex,
+    pageSize,
+    setPageSize,
+    searchString,
+    setSearchString
 }) => {
     const [globalFilter, setGlobalFilter] = useState("");
     const tableRef = useRef(); // Create a reference for the table content
     const [filteredData, setFilteredData] = useState(data || []);
-    const [selectedFromDate, setSelectedFromDate] = useState();
-    const [selectedSortData, setSelectedSortData] = useState({value:"created_at",direction:"desc"});
-    const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
-    const [searchString, setSearchString] = useState();
-    const [selectedClassification,setSelectedClassification]=useState();
-    const [selectedType,setSelectedType] = useState();
     const dispatch = useDispatch();
 
     // Update filteredData when search query changes
@@ -290,6 +292,7 @@ const PublicationDataTable = ({
             hasMounted.current = true;
             return;
           }
+        if(!loading && pageIndex != 0){
             dispatch(getPublications({
                 "pagesize": pageSize,
                 "currentpage": pageIndex + 1,
@@ -305,8 +308,44 @@ const PublicationDataTable = ({
                     "classification_id":selectedClassification?.value,
                 }
             }))
+        }
 
-    }, [selectedClassification, selectedSortData, searchString, pageIndex,selectedType])
+    }, [ selectedSortData,pageIndex])
+
+    useEffect(() => {
+        localStorage.setItem('pageIndex', pageIndex);
+        localStorage.setItem('searchString', searchString);
+        localStorage.setItem('selectedSortData', JSON.stringify(selectedSortData))
+        localStorage.setItem('selectedFromDate', selectedFromDate);
+        localStorage.setItem('selectedClassification', JSON.stringify(selectedClassification));
+        localStorage.setItem('selectedType',JSON.stringify(selectedType));
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            return;
+          }
+        if(!loading && pageIndex == 0){
+            dispatch(getPublications({
+                "pagesize": pageSize,
+                "currentpage": pageIndex + 1,
+                "sortorder": selectedSortData?.value && selectedSortData?.direction
+                    ? {
+                        field: selectedSortData.value,
+                        direction: selectedSortData.direction,
+                    }
+                    : {},
+                "searchstring": searchString,
+                "filter": {
+                    "type":selectedType?.value,
+                    "classification_id":selectedClassification?.value,
+                }
+            }))
+        }
+    }, [selectedSortData,selectedClassification,searchString, pageIndex,selectedType]);
+
+    useEffect(()=>{
+            setPageIndex(0)
+    },[selectedClassification,searchString,selectedType]);
+
     const handlePageChange = (newPageIndex) => {
         setPageIndex(newPageIndex);
     };
@@ -422,7 +461,7 @@ const PublicationDataTable = ({
                 <div className="d-flex justify-content-between align-items-end">
                     <DebouncedInput
                         value={searchString ?? ""}
-                        onChange={(value) => setSearchString(String(value))}
+                        onChange={(value) => {setSearchString(String(value))}}
                         className="form-control search-box me-2  d-inline-block"
                         placeholder={SearchPlaceholder}
                     />
@@ -486,18 +525,18 @@ const PublicationDataTable = ({
                             </tr>
                         ))}
                     </thead>
-                    <tbody>
+                    <tbody >
                         {loading ? (
                             <tr>
                                 <td colSpan={columns.length + 1} className="text-center border-none">
-                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px'}}>
                                         <FadeLoader color="#00a895" size={40} />
                                     </div>
                                 </td>
                             </tr>
                         ) : (data?.length <= 0 || getRowModel()?.rows?.length === 0) ? (
                             <tr>
-                                <td colSpan={columns.length} className="text-center">
+                                <td colSpan={columns.length+1} className="text-center">
                                     No Data Found
                                 </td>
                             </tr>
@@ -516,61 +555,14 @@ const PublicationDataTable = ({
             </div>
 
             {(isPagination && totalrows > 0) && (
-                <Row className="justify-content-md-end justify-content-center align-items-center mt-2">
-                    <Col>
-                        <div className="dataTables_info">
-                            Showing {pageIndex * pageSize + 1} to {Math.min((pageIndex + 1) * pageSize, totalrows)} of {totalrows} Results
-                        </div>
-                    </Col>
-                    <Col className="col-md-auto">
-                        <div className={paginationWrapper}>
-                            <ul className={pagination}>
-                                {/* Previous Button */}
-                                <li className={`paginate_button page-item previous ${pageIndex === 0 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handlePageChange(pageIndex - 1)}
-                                        disabled={pageIndex === 0}
-                                        style={{ color: "#245250" }}
-                                    >
-                                        <i className="mdi mdi-chevron-left"></i>
-                                    </button>
-                                </li>
-
-                                {/* Page Buttons */}
-                                {Array.from({ length: endPage - startPage }).map((_, index) => {
-                                    const page = startPage + index;
-                                    return (
-                                        <li
-                                            key={page}
-                                            className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}
-                                        >
-                                            <button
-                                                className="page-link"
-                                                onClick={() => handlePageChange(page)}
-                                                style={{ color: `${pageIndex === page ? "white" : "#245250"}` }}
-                                            >
-                                                {page + 1}
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-
-                                {/* Next Button */}
-                                <li className={`paginate_button page-item next ${pageIndex === totalPages - 1 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handlePageChange(pageIndex + 1)}
-                                        disabled={pageIndex === totalPages - 1}
-                                        style={{ color: "#245250" }}
-                                    >
-                                        <i className="mdi mdi-chevron-right"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </Col>
-                </Row>
+                <Pagination
+                    currentPage={pageIndex + 1}
+                    totalPages={totalPages}
+                    totalItems={totalrows}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                    showInfo={true}
+                />
             )}
 
         </Fragment>

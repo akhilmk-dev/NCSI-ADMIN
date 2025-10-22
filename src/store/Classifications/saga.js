@@ -32,6 +32,7 @@ function* getClassificationsSaga(action) {
     yield put(getClassificationsSuccess(data))
   } catch (error) {
     yield put(getClassificationsFail(error.response?.data || error.message))
+    toast.dismiss();
     toast.error('Failed to fetch classifications!')
   }
 }
@@ -43,7 +44,18 @@ function* addClassificationSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     toast.success('Classification added successfully!')
-    yield put({ type: GET_CLASSIFICATIONS })
+    yield put({ type: GET_CLASSIFICATIONS,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  }  })
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setClassificationFieldErrors(error.response.data.errors))
@@ -60,7 +72,18 @@ function* updateClassificationSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     toast.success('Classification updated successfully!')
-    yield put({ type: GET_CLASSIFICATIONS })
+    yield put({ type: GET_CLASSIFICATIONS,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  }  })
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setClassificationFieldErrors(error.response.data.errors))
@@ -75,7 +98,18 @@ function* deleteClassificationSaga(action) {
     yield call(deleteClassificationApi, action.payload)
     yield put(deleteClassificationSuccess(action.payload))
     toast.success('Classification deleted successfully!')
-    yield put({ type: GET_CLASSIFICATIONS })
+    yield put({ type: GET_CLASSIFICATIONS ,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter":{}
+  } })
   } catch (error) {
     yield put(deleteClassificationFail(error.response?.data || error.message))
   }

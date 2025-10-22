@@ -13,6 +13,7 @@ import {
 import axiosInstance from 'pages/Utility/axiosInstance'
 import toast from 'react-hot-toast'
 import Cookies from 'js-cookie'
+import { showSuccess } from 'helpers/notification_helper'
 
 // API calls
 const loginApi = (credentials) => axiosInstance.post('V1/user/login', credentials)
@@ -23,9 +24,12 @@ function* loginSaga(action) {
   try {
     const { data } = yield call(loginApi, action.payload.credentials)
     Cookies.set('access_token', data?.data?.token);
+    Cookies.set('isAdmin',data?.data?.super_admin);
+    toast.dismiss();
+    showSuccess(data?.message)
+    yield put(loginSuccess(data?.data))
     action.payload.navigate(`/dashboard`);
-    yield put(loginSuccess(data))
-    toast.success(data?.message)
+   
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
       yield put(setLoginFieldErrors(error.response.data.fieldErrors))
@@ -39,6 +43,7 @@ function* logoutSaga() {
   try {
     yield call(logoutApi)
     yield put(logoutSuccess())
+    toast.dismiss();
     toast.success('Logout successful!')
   } catch (error) {
     yield put(logoutFail(error.response?.data || error.message))

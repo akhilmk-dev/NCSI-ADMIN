@@ -19,33 +19,30 @@ import {
 } from './actions'
 import axiosInstance from 'pages/Utility/axiosInstance'
 import toast from 'react-hot-toast'
+import { showSuccess } from 'helpers/notification_helper'
 
 // API calls
-const fetchUsersApi = async () => {
-  return await axiosInstance.get('', { params: { sp: "usp_GetUser" } })
+const fetchUsersApi = async (data) => {
+  return await axiosInstance.post('V1/users/list',data)
 }
 
 const addUserApi = async (user) => {
-  return await axiosInstance.post('', user)
+  return await axiosInstance.post('V1/users', user)
 }
 
-const updateUserApi = async (user) => {
-  return await axiosInstance.post(``, user)
+const updateUserApi = async ({id,user}) => {
+  return await axiosInstance.put(`V1/user/update/${id}`, user)
 }
 
 const deleteUserApi = async (userId) => {
-  return await axiosInstance.post(``, {
-    "sp": "usp_DeleteUser",
-    "userId": userId
-
-  })
+  return await axiosInstance.delete(`V1/user/${userId}`)
 }
 
 // Fetch users
-function* fetchUsersSaga() {
+function* fetchUsersSaga(action) {
   try {
-    const response = yield call(fetchUsersApi)
-    yield put(fetchUsersSuccess(response.data))
+    const response = yield call(fetchUsersApi,action.payload)
+    yield put(fetchUsersSuccess(response.data?.data))
   } catch (error) {
     yield put(fetchUsersFailure(error.message))
   }
@@ -57,23 +54,24 @@ function* addUserSaga(action) {
     const response = yield call(addUserApi, action.payload.user);
     action.payload.onClose();
     yield put(addUserSuccess(response.data))
-    toast.success('User added successfully!')
+    showSuccess('User added successfully!')
     yield put({ type: FETCH_USERS_REQUEST })
   } catch (error) {
-    yield put(addUserFailure(error.message))
+    yield put(addUserFailure(error?.response?.data?.errors))
   }
 }
 
 // Update user
 function* updateUserSaga(action) {
   try {
-    const response = yield call(updateUserApi, action.payload.user)
+    const response = yield call(updateUserApi, action.payload)
+    console.log(action.payload)
+    showSuccess(response?.data?.message)
     action.payload.onClose();
-    yield put(updateUserSuccess(response.data))
-    toast.success('User updated successfully!')
+    yield put(updateUserSuccess(response))
     yield put({ type: FETCH_USERS_REQUEST })
   } catch (error) {
-    yield put(updateUserFailure(error.message))
+    yield put(updateUserFailure(error?.response?.data?.errors))
   }
 }
 

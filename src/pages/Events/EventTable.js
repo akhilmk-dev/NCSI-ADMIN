@@ -10,6 +10,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import EventDataTable from "components/TableContainers/EventDataTable";
 import { FaFilePdf } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 
 const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
@@ -19,7 +20,12 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [deleteId, setDeleteId] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
-
+  const [selectedFromDate, setSelectedFromDate] = useState();
+  const [selectedSortData, setSelectedSortData] = useState({ value: "from_date", direction: "asc" });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchString, setSearchString] = useState("")
+  const { t } = useTranslation()
 
   const permissions = [];
   const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Events");
@@ -28,6 +34,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
   const handleDelete = (id) => {
     dispatch(deleteEvent(id));
     setDeleteId('');
+    setPageIndex(0);
     setOpenModal(false);
     setConfirmAction(false);
   };
@@ -51,12 +58,12 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
     {
       header: "From Date",
       accessorKey: "from_date",
-      cell: ({ row }) => new Date(row.original.from_date).toLocaleString(),
+      cell: ({ row }) => new Date(row.original.from_date).toLocaleString("en-GB"),
     },
     {
       header: "To Date",
       accessorKey: "to_date",
-      cell: ({ row }) => new Date(row.original.to_date).toLocaleString(),
+      cell: ({ row }) => new Date(row.original.to_date).toLocaleString("en-GB"),
     },
     {
       header: "Location",
@@ -74,12 +81,12 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
         row.original.event_pdf ? (
           <div className="text-center">
             <a href={row.original.pdf_url} className="text-center" target="_blank" rel="noopener noreferrer">
-              <FaFilePdf size={23} />
+              <FaFilePdf size={28} />
             </a>
           </div>
         ) : 'N/A'
       ),
-      showFilter:false
+      showFilter: false
     },
     ...([{
       header: "Actions",
@@ -116,7 +123,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {
     dispatch(updateEvent(formData, id, resetForm, handleClose));
-    // setIsOpen(false);
+    //setIsOpen(false);
   };
 
   const handleClose = () => {
@@ -139,6 +146,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
       />
 
       <CreateEvent
+        loading={loading}
         visible={isOpen}
         initialData={editData}
         onSubmit={handleSubmit}
@@ -148,13 +156,23 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
 
       <div className="container-fluid">
         <EventDataTable
+          selectedFromDate ={selectedFromDate}
+          setSelectedFromDate ={setSelectedFromDate}
+          selectedSortData = {selectedSortData}
+          setSelectedSortData = {setSelectedSortData}
+          pageIndex ={pageIndex}
+          setPageIndex = {setPageIndex}
+          pageSize ={pageSize}
+          setPageSize = {setPageSize}
+          searchString = {searchString}
+          setSearchString = {setSearchString}
           totalrows={totalrows}
           loading={loading}
           columns={columns}
           data={List || []}
           isGlobalFilter={true}
           isPagination={true}
-          SearchPlaceholder="Search..."
+          SearchPlaceholder={t("Search")}
           pagination="pagination"
           docName="Events"
           paginationWrapper="dataTables_paginate paging_simple_numbers"

@@ -51,7 +51,20 @@ function* addPopulationSaga(action) {
     action.payload.handleClose();
     yield put(addPopulationSuccess(data));
     toast.success('Population record added successfully!');
-    yield put({ type: GET_POPULATION });
+    yield put({ type: GET_POPULATION,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+          "date": localStorage.getItem('selectedFromDate'),
+      }:{}
+  } });
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setPopulationFieldErrors(error.response.data.errors));
@@ -68,7 +81,20 @@ function* updatePopulationSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     toast.success('Population record updated successfully!');
-    yield put({ type: GET_POPULATION });
+    yield put({ type: GET_POPULATION ,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+          "date": localStorage.getItem('selectedFromDate'),
+      }:{}
+  }});
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setPopulationFieldErrors(error.response.data.errors));
@@ -83,7 +109,20 @@ function* deletePopulationSaga(action) {
     yield call(deletePopulationApi, action.payload);
     yield put(deletePopulationSuccess(action.payload));
     toast.success('Population record deleted successfully!');
-    yield put({ type: GET_POPULATION });
+    yield put({ type: GET_POPULATION ,payload:{
+      "pagesize": 10,
+      "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
+      "sortorder": JSON.parse(localStorage.getItem("selectedSortData"))?.value && JSON.parse(localStorage.getItem("selectedSortData"))?.direction
+          ? {
+              field: JSON.parse(localStorage.getItem("selectedSortData")).value,
+              direction: JSON.parse(localStorage.getItem("selectedSortData")).direction,
+          }
+          : {},
+      "searchstring": localStorage.getItem('searchString'),
+      "filter": localStorage.getItem('selectedFromDate') !== "undefined" ? {
+          "date": localStorage.getItem('selectedFromDate'),
+      }:{}
+  }});
   } catch (error) {
     yield put(deletePopulationFail(error.response?.data || error.message));
   }
