@@ -21,7 +21,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
   const [selectedFromDate, setSelectedFromDate] = useState();
-  const [selectedSortData, setSelectedSortData] = useState({ value: "from_date", direction: "asc" });
+  const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("")

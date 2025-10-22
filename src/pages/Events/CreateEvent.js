@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import Select from "react-select";
+
 import { Modal } from 'antd';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -29,7 +31,8 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const FILE_SIZE = 5 * 1024 * 1024; // 5MB
+ const FILE_SIZE = 20 * 1024 * 1024; // 20MB
+ 
   const SUPPORTED_FORMATS = ['application/pdf'];
   const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 
@@ -55,6 +58,19 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
       }
     }
   };
+
+  const eventTypeOptionsEN = [
+  { value: "Public Event", label: "Public Event" },
+  { value: "Private Event", label: "Private Event" },
+  { value: "Other", label: "Other" },
+];
+
+const eventTypeOptionsAR = [
+  { value: "حدث عام", label: "حدث عام" },
+  { value: "حدث خاص", label: "حدث خاص" },
+  { value: "اخرى", label: "اخرى" },
+];
+
 
   const formik = useFormik({
     initialValues: {
@@ -82,11 +98,11 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
       short_description_en: Yup.string().required('Short description is required'),
       short_description_ar: Yup.string().required('Short description in arabic is required'),
       from_date: Yup.date()
-        .required('From Date is required')
-        .min(today, 'From Date cannot be in the past'),
+        .required('From Date is required'),
+        // .min(today, 'From Date cannot be in the past'),
       to_date: Yup.date()
-        .required('To Date is required')
-        .min(Yup.ref('from_date'), 'To Date must be after From Date'),
+        .required('To Date is required'),
+        // .min(Yup.ref('from_date'), 'To Date must be after From Date'),
       location_en: Yup.string().required('Location is required'),
       location_ar: Yup.string().required('Location in arabic is required'),
       event_type_en: Yup.string(),
@@ -298,8 +314,8 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
             { name: 'to_date', label: 'To Date', type: 'datetime-local' },
             { name: 'location_en', label: 'Location', placeholder: "Enter the location" },
             { name: 'location_ar', label: 'Location(Ar)', placeholder: "Enter the location in arabic" },
-            { name: 'event_type_en', label: 'Event Type', placeholder: "Enter event type" },
-            { name: 'event_type_ar', label: 'Event Type(Ar)', placeholder: "Enter event type in arabic" },
+            // { name: 'event_type_en', label: 'Event Type', placeholder: "Enter event type" },
+            // { name: 'event_type_ar', label: 'Event Type(Ar)', placeholder: "Enter event type in arabic" },
             { name: 'event_speaker_en', label: 'Event Speaker', placeholder: "Enter speaker name" },
             { name: 'event_speaker_ar', label: 'Event Speaker(Ar)', placeholder: "Enter speaker name in arabic" }
           ].map(({ name, label, type = 'text', dir, isTextarea, placeholder }) => (
@@ -331,6 +347,54 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
               {formik.touched[name] && <div className="text-danger">{formik.errors[name] || formik.errors[name]?.[0]}</div>}
             </div>
           ))}
+
+   {/* Event Type (English) */}
+<div className="col-md-6">
+  <label className="form-label fs-7">
+    {t("Event Type")} <span className="text-danger">*</span>
+  </label>
+  <Select
+    name="event_type_en"
+    options={eventTypeOptionsEN}
+    isClearable
+    value={eventTypeOptionsEN.find(
+      (option) => option.value === formik.values.event_type_en
+    )}
+    onChange={(option) =>
+      formik.setFieldValue("event_type_en", option ? option.value : "")
+    }
+    placeholder="Select event type"
+  />
+  {formik.touched.event_type_en && (
+    <div className="text-danger">{formik.errors.event_type_en}</div>
+  )}
+</div>
+
+{/* Event Type (Arabic) */}
+<div className="col-md-6">
+  <label className="form-label fs-7">
+    {t("Event Type (Ar)")} <span className="text-danger">*</span>
+  </label>
+  <Select
+    name="event_type_ar"
+    options={eventTypeOptionsAR}
+    isClearable
+    isRtl
+    classNamePrefix="react-select"
+    value={eventTypeOptionsAR.find(
+      (option) => option.value === formik.values.event_type_ar
+    )}
+    onChange={(option) =>
+      formik.setFieldValue("event_type_ar", option ? option.value : "")
+    }
+    placeholder="اختر نوع الحدث"
+  />
+  {formik.touched.event_type_ar && (
+    <div className="text-danger">{formik.errors.event_type_ar}</div>
+  )}
+</div>
+
+
 
           {/* PDF Upload */}
           <div className="col-md-6">
@@ -386,6 +450,11 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
                 formik.setFieldValue('event_image', e.currentTarget.files[0]);
               }}
             />
+
+              <small className="text-muted d-block mt-1">
+    Recommended image size: <strong>1640 × 561 pixels</strong> for best display quality.
+  </small>
+
             {formik.touched.event_image && <div className="text-danger">{formik.errors.event_image || formik.errors.event_image?.[0]}</div>}
             {initialData?.img_url && <a
               href={initialData?.img_url}
