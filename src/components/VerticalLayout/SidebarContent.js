@@ -248,6 +248,14 @@ const SidebarContent = ({ t }) => {
                   <span>{t("Feedbacks")}</span>
                 </Link>
               </li>
+
+              
+              <li>
+                <Link to="/news" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
+                  <MdOutlineFeedback  size={21} className="me-2" />
+                  <span>{t("News")}</span>
+                </Link>
+              </li>
             {/* {availablePaths.includes("/settings") && (
               <li>
                 <Link to="/settings" className="waves-effect d-flex align-items-center" onClick={() =>{handleMenuItemClick("/users");tToggle2();}}>
