@@ -54,3 +54,6 @@ export * from "./Survey/actions"
 // feedbacks
 export * from "./feedbacks/actions"
 
+// news
+export * from "./News/actions"
+

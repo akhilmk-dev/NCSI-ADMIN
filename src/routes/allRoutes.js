@@ -43,6 +43,7 @@ import PopulationList from "pages/populations/PopulationList";
 import IndicatorList from "pages/Indicator/IndicatorList";
 import SurveyList from "pages/survery/SurveyList";
 import FeedbackList from "pages/Feedbacks/FeedBackList";
+import NewsList from "pages/News/NewsList";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -69,6 +70,7 @@ const userRoutes = [
    {path:"/indicators",component:<IndicatorList/>},
    {path:"/surveys", component:<SurveyList />},
    {path:"/feedbacks", component:<FeedbackList />},
+   {path:"/news",component:<NewsList />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},

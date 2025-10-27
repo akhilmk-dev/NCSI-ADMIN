@@ -25,7 +25,7 @@ const PublicationList = () => {
       "sortorder":{},
       "searchstring": "",
       "filter": {}
-  }))
+    }))
   },[dispatch])
 
   const handleSubmit = (data,resetForm,handleClose) => {

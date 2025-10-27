@@ -1,3 +1,17 @@
-export const GET_NEWS='GET_NEWS';
-export const GET_NEWS_SUCCESS='GET_NEWS_SUCCESS';
-export const GET_NEWS_FAIL='GET_NEWS_FAIL';
+export const GET_NEWS = "GET_NEWS";
+export const GET_NEWS_SUCCESS = "GET_NEWS_SUCCESS";
+export const GET_NEWS_FAIL = "GET_NEWS_FAIL";
+
+export const ADD_NEWS = "ADD_NEWS";
+export const ADD_NEWS_SUCCESS = "ADD_NEWS_SUCCESS";
+export const ADD_NEWS_FAIL = "ADD_NEWS_FAIL";
+
+export const UPDATE_NEWS = "UPDATE_NEWS";
+export const UPDATE_NEWS_SUCCESS = "UPDATE_NEWS_SUCCESS";
+export const UPDATE_NEWS_FAIL = "UPDATE_NEWS_FAIL";
+
+export const DELETE_NEWS = "DELETE_NEWS";
+export const DELETE_NEWS_SUCCESS = "DELETE_NEWS_SUCCESS";
+export const DELETE_NEWS_FAIL = "DELETE_NEWS_FAIL";
+
+export const SET_NEWS_FIELD_ERRORS = "SET_NEWS_FIELD_ERRORS";

@@ -22,6 +22,7 @@ import PopulationSaga from "./Populations/saga"
 import IndicatorSaga from "./Indicator/saga"
 import SurveySaga from "./Survey/saga"
 import FeedbackSaga from "./feedbacks/saga"
+import NewsSaga from "./News/saga"
 
 export default function* rootSaga() {
   yield all([
@@ -46,6 +47,7 @@ export default function* rootSaga() {
     PopulationSaga(),
     IndicatorSaga(),
     SurveySaga(),
-    FeedbackSaga()
+    FeedbackSaga(),
+    NewsSaga()
   ])
 }

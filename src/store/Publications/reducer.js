@@ -29,7 +29,6 @@ const publicationReducer = (state = initialState, action) => {
             return { ...state, loading: false, publications: action.payload };
         case GET_PUBLICATIONS_FAIL:
             return { ...state, loading: false, error: action.payload };
-
         case ADD_PUBLICATION:
             return { ...state, loading: true };
         case ADD_PUBLICATION_SUCCESS:

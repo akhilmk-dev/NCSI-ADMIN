@@ -57,6 +57,9 @@ import Survey from "./Survey/reducer"
 //feedbacks
 import Feedback from "./feedbacks/reducer"
 
+//News
+import News from "./News/reducer"
+
 const rootReducer = combineReducers({
   Layout,
   Login,
@@ -78,7 +81,8 @@ const rootReducer = combineReducers({
   Population,
   Indicator,
   Survey,
-  Feedback
+  Feedback,
+  News
 })
 
 export default rootReducer
