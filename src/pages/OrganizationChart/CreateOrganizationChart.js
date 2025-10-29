@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Modal } from "antd";
+import { Modal, Switch, InputNumber } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
-import ReactQuill from "react-quill";
 import { showError } from "helpers/notification_helper";
-import "react-quill/dist/quill.snow.css";
 
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 const FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -20,7 +18,7 @@ const fileToBase64 = (file) => {
   });
 };
 
-const CreateNews = ({
+const CreateOrganizationChart = ({
   visible,
   handleClose,
   initialData = "",
@@ -38,43 +36,53 @@ const CreateNews = ({
     initialValues: {
       title_en: initialData?.title_en || "",
       title_ar: initialData?.title_ar || "",
-      content_en: initialData?.content_en || "",
-      content_ar: initialData?.content_ar || "",
-      news_image: "",
+      designation_en: initialData?.designation_en || "",
+      designation_ar: initialData?.designation_ar || "",
+      photo: "",
+      sort_order: initialData?.sort_order || 1,
+      status: initialData?.status ?? true,
     },
     validationSchema: Yup.object({
       title_en: Yup.string().required("English title is required"),
       title_ar: Yup.string().required("Arabic title is required"),
-      content_en: Yup.string().required("English content is required"),
-      content_ar: Yup.string().required("Arabic content is required"),
-      news_image: initialData
+      designation_en: Yup.string().required("English designation is required"),
+      designation_ar: Yup.string().required("Arabic designation is required"),
+      photo: initialData
         ? Yup.mixed()
-          .nullable()
-          .test(
-            "fileSize",
-            "File size too large (max 5MB)",
-            (value) =>
-              !value || typeof value === "string" || value.size <= FILE_SIZE
-          )
-          .test(
-            "fileFormat",
-            "Unsupported Format (JPG/PNG only)",
-            (value) =>
-              !value ||
-              typeof value === "string" ||
-              SUPPORTED_IMAGE_FORMATS.includes(value.type)
-          )
+            .nullable()
+            .test(
+              "fileSize",
+              "File size too large (max 5MB)",
+              (value) =>
+                !value || typeof value === "string" || value.size <= FILE_SIZE
+            )
+            .test(
+              "fileFormat",
+              "Unsupported Format (JPG/PNG only)",
+              (value) =>
+                !value ||
+                typeof value === "string" ||
+                SUPPORTED_IMAGE_FORMATS.includes(value.type)
+            )
         : Yup.mixed()
-          .nullable()
-          .required("News image is required"),
+            .nullable()
+            .required("Organization image is required"),
+      sort_order: Yup.number()
+        .typeError("Sort order must be a number")
+        .required("Sort order is required")
+        .positive("Must be greater than 0")
+        .integer("Must be an integer"),
+      status: Yup.boolean().required(),
     }),
     onSubmit: async (values, { resetForm }) => {
       const payload = {
         title_en: values.title_en,
         title_ar: values.title_ar,
-        content_en: values.content_en,
-        content_ar: values.content_ar,
-        news_image: values.news_image,
+        designation_en: values.designation_en,
+        designation_ar: values.designation_ar,
+        photo: values.photo,
+        sort_order: values.sort_order,
+        status: values.status,
       };
 
       if (initialData) {
@@ -85,7 +93,7 @@ const CreateNews = ({
     },
   });
 
-  // Sync external validation errors
+  // Handle external field errors
   useEffect(() => {
     if (fieldErrors) {
       formik.setErrors(fieldErrors);
@@ -94,8 +102,7 @@ const CreateNews = ({
 
   useEffect(() => {
     if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-      console.log(formik.errors)
-      console.log(formik.values)
+      console.log(formik.errors);
       showError("Validation Error");
       setIsSubmitted(false);
     }
@@ -111,49 +118,24 @@ const CreateNews = ({
     if (file) {
       try {
         const base64 = await fileToBase64(file);
-        formik.setFieldValue("news_image", base64);
+        formik.setFieldValue("photo", base64);
       } catch (err) {
         console.error(err);
       }
     } else {
-      formik.setFieldValue("news_image", null);
+      formik.setFieldValue("photo", null);
     }
   };
 
-  // Quill Editor Configuration
-  const quillModules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ align: [] }],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
-      ["clean"],
-    ],
-  };
-
-  const quillFormats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "align",
-    "list",
-    "bullet",
-    "link",
-    "image",
-  ];
-
   return (
     <Modal
-      title={initialData ? "Edit News" : "Create News"}
+      title={initialData ? "Edit Organization Chart" : "Create Organization Chart"}
       open={visible}
       onCancel={onClose}
       footer={null}
       destroyOnClose
       centered
-      width={800}
+      width={700}
       maskClosable={false}
       className="custom-modal-header p-0"
     >
@@ -171,7 +153,7 @@ const CreateNews = ({
               value={formik.values.title_en}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter title in English"
+              placeholder="Enter English title"
             />
             {formik.touched.title_en && (
               <div className="text-danger">{formik.errors.title_en}</div>
@@ -190,69 +172,70 @@ const CreateNews = ({
               value={formik.values.title_ar}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter title in Arabic"
+              placeholder="Enter Arabic title"
             />
             {formik.touched.title_ar && (
               <div className="text-danger">{formik.errors.title_ar}</div>
             )}
           </div>
 
-          {/* Content EN (Rich Text) */}
-          <div className="col-12">
-            <label className="form-label fs-7">
-              Content (EN) <span className="text-danger">*</span>
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              formats={quillFormats}
-              value={formik.values.content_en}
-              onChange={(val) => formik.setFieldValue("content_en", val)}
-              style={{ height: "250px", marginBottom: "60px" }} // Increased height
-            />
-            {formik.touched.content_en && (
-              <div className="text-danger">{formik.errors.content_en}</div>
-            )}
-          </div>
-
-          {/* Content AR (Rich Text) */}
-          <div className="col-12">
-            <label className="form-label fs-7">
-              Content (AR) <span className="text-danger">*</span>
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              formats={quillFormats}
-              value={formik.values.content_ar}
-              onChange={(val) => formik.setFieldValue("content_ar", val)}
-              style={{ height: "250px", marginBottom: "60px" }} // Increased height
-              dir="rtl"
-            />
-            {formik.touched.content_ar && (
-              <div className="text-danger">{formik.errors.content_ar}</div>
-            )}
-          </div>
-
-          {/* News Image */}
+          {/* Designation EN */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              News Image <span className="text-danger">*</span>
+              Designation (EN) <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              name="designation_en"
+              className="form-control"
+              value={formik.values.designation_en}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter English designation"
+            />
+            {formik.touched.designation_en && (
+              <div className="text-danger">{formik.errors.designation_en}</div>
+            )}
+          </div>
+
+          {/* Designation AR */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">
+              Designation (AR) <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              name="designation_ar"
+              className="form-control"
+              value={formik.values.designation_ar}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter Arabic designation"
+            />
+            {formik.touched.designation_ar && (
+              <div className="text-danger">{formik.errors.designation_ar}</div>
+            )}
+          </div>
+
+          {/* Photo Upload */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">
+              Photo <span className="text-danger">*</span>
             </label>
             <input
               type="file"
-              name="news_image"
+              name="photo"
               accept="image/jpeg,image/png,image/jpg"
               className="form-control"
               onChange={handleImageChange}
               onBlur={formik.handleBlur}
             />
-            {formik.touched.news_image && (
-              <div className="text-danger">{formik.errors.news_image}</div>
+            {formik.touched.photo && (
+              <div className="text-danger">{formik.errors.photo}</div>
             )}
-            {initialData?.img_url && (
+            {initialData?.photo && (
               <a
-                href={initialData.img_url}
+                href={initialData.photo}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00A895", textDecoration: "underline" }}
@@ -261,9 +244,41 @@ const CreateNews = ({
               </a>
             )}
           </div>
+
+          {/* Sort Order */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">
+              Sort Order <span className="text-danger">*</span>
+            </label>
+            <input
+              type="number"
+              min={1}
+              name="sort_order"
+              className="form-control w-100"
+              value={formik.values.sort_order}
+              onChange={(val) => formik.setFieldValue("sort_order", val)}
+            />
+            {formik.touched.sort_order && (
+              <div className="text-danger">{formik.errors.sort_order}</div>
+            )}
+          </div>
+
+          {/* Status */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">Status</label>
+            <div>
+              <Switch
+                checked={formik.values.status}
+                onChange={(checked) => formik.setFieldValue("status", checked)}
+                style={{
+                  backgroundColor: formik.values.status ? "#00A895" : undefined,
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Footer Buttons */}
+        {/* Footer */}
         <div className="modal-footer mt-4">
           <button type="button" className="btn btn-light" onClick={onClose}>
             Close
@@ -289,4 +304,4 @@ const CreateNews = ({
   );
 };
 
-export default CreateNews;
+export default CreateOrganizationChart;

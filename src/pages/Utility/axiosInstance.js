@@ -78,11 +78,11 @@ axiosInstance.interceptors.response.use(
 
     // }
 
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response?.status === 401) {
       Cookies.remove('access_token');
       showError("Session Expired, Please login")
       navigate('/login')
-    } else if (error.response.status === 500) {
+    } else if (error.response?.status === 500) {
       if (error.response?.data?.Message?.startsWith("The DELETE statement")) {
         showError("Unable to delete as dependencies found")
       } else if (error.response.data?.message) {
@@ -94,10 +94,10 @@ axiosInstance.interceptors.response.use(
         showError(error.response?.data?.message);
         navigate('/pages-404');
     }
-    if(error.response.status === 400){
+    if(error.response?.status === 400){
       showError("Validation Error")
     }
-    if(error.response.status == 403){
+    if(error.response?.status == 403){
       showError(error.response?.data?.message)
     }
     return Promise.reject(error);

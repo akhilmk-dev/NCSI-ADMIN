@@ -18,6 +18,10 @@ import { FaUser } from "react-icons/fa";
 import { CiUser } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import Cookies from "js-cookie";
+import { BiNews } from "react-icons/bi";
+import { GiAchievement } from "react-icons/gi";
+import { RiFolderChartLine } from "react-icons/ri";
+
 
 
 const SidebarContent = ({ t }) => {
@@ -42,15 +46,15 @@ const SidebarContent = ({ t }) => {
       const parent2 = parent.parentElement;
 
       if (parent2) {
-        parent2.classList.add("mm-show"); // ul tag
+        parent2.classList.add("mm-show"); 
 
-        const parent3 = parent2.parentElement; // li tag
+        const parent3 = parent2.parentElement; 
         if (parent3) {
-          parent3.classList.add("mm-active"); // li
-          parent3.childNodes[0].classList.add("mm-active"); //a
-          const parent4 = parent3.parentElement; // ul
+          parent3.classList.add("mm-active"); 
+          parent3.childNodes[0].classList.add("mm-active"); 
+          const parent4 = parent3.parentElement; 
           if (parent4) {
-            parent4.classList.add("mm-show"); // ul
+            parent4.classList.add("mm-show"); 
             const parent5 = parent4.parentElement;
             if (parent5) {
               parent5.classList.add("mm-show"); // li
@@ -91,15 +95,15 @@ const SidebarContent = ({ t }) => {
 
           const parent3 = parent2.parentElement;
           if (parent3) {
-            parent3.classList.remove("mm-active"); // li
+            parent3.classList.remove("mm-active"); 
             parent3.childNodes[0].classList.remove("mm-active");
 
-            const parent4 = parent3.parentElement; // ul
+            const parent4 = parent3.parentElement; 
             if (parent4) {
-              parent4.classList.remove("mm-show"); // ul
+              parent4.classList.remove("mm-show"); 
               const parent5 = parent4.parentElement;
               if (parent5) {
-                parent5.classList.remove("mm-show"); // li
+                parent5.classList.remove("mm-show"); 
                 parent5.childNodes[0].classList.remove("mm-active"); // a tag
               }
             }
@@ -109,14 +113,13 @@ const SidebarContent = ({ t }) => {
     }
   };
 
-
   function tToggle2(){
     var body = document.body;
     if (window.screen.width <= 992) {
       body.classList.toggle("sidebar-enable");
     }
   }
-
+  
   const activeMenu = useCallback(() => {
     const pathName = location.pathname;
     const fullPath = pathName;
@@ -249,10 +252,30 @@ const SidebarContent = ({ t }) => {
                 </Link>
               </li>
 
-              
+              <li>
+                <Link to="/achievements" className="waves-effect" onClick={() =>{handleMenuItemClick("/achievements"); tToggle2();}}>
+                  <GiAchievement  size={21} className="me-2" />
+                  <span>{t("Achievements")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/organization-charts" className="waves-effect" onClick={() =>{handleMenuItemClick("/organization-charts"); tToggle2();}}>
+                  <RiFolderChartLine  size={21} className="me-2" />
+                  <span>{t("Organization charts")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/cms-pages" className="waves-effect" onClick={() =>{handleMenuItemClick("/cms-pages"); tToggle2();}}>
+                  <BiNews  size={21} className="me-2" />
+                  <span>{t("CMS Pages")}</span>
+                </Link>
+              </li>
+
               <li>
                 <Link to="/news" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
-                  <MdOutlineFeedback  size={21} className="me-2" />
+                  <BiNews  size={21} className="me-2" />
                   <span>{t("News")}</span>
                 </Link>
               </li>

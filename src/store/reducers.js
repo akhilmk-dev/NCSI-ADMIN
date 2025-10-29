@@ -60,6 +60,15 @@ import Feedback from "./feedbacks/reducer"
 //News
 import News from "./News/reducer"
 
+// Achievements
+import Achievement from "./Achievements/reducer"
+
+// Organizationcharts
+import OrganizationChart from "./OrganizationChart/reducer"
+
+// cmspages
+import CmsPage from "./CmsPages/reducer"
+
 const rootReducer = combineReducers({
   Layout,
   Login,
@@ -82,7 +91,10 @@ const rootReducer = combineReducers({
   Indicator,
   Survey,
   Feedback,
-  News
+  News,
+  Achievement,
+  OrganizationChart,
+  CmsPage 
 })
 
 export default rootReducer

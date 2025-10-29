@@ -57,3 +57,12 @@ export * from "./feedbacks/actions"
 // news
 export * from "./News/actions"
 
+// Achievements
+export * from "./Achievements/actions"
+
+// organizationchart
+export * from "./OrganizationChart/actions"
+
+// cmspages
+export * from "./CmsPages/actions"
+

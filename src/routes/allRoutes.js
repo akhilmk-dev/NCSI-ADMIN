@@ -44,6 +44,10 @@ import IndicatorList from "pages/Indicator/IndicatorList";
 import SurveyList from "pages/survery/SurveyList";
 import FeedbackList from "pages/Feedbacks/FeedBackList";
 import NewsList from "pages/News/NewsList";
+import AchievementList from "pages/Achievements/AchievementList";
+import OrganizationChartList from "pages/OrganizationChart/OrganizationChartList";
+import PagesList from "pages/CmsPages/CmsList";
+import CreateCmsPage from "pages/CmsPages/CreateCmsPage";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -58,7 +62,6 @@ const userRoutes = [
   { path: "/chartjs-charts", component: <ChartjsChart /> },
   { path: "/e-charts", component: <EChart /> },
   { path: "/sparkline-charts", component: <SparklineChart /> },
-
   // this route should be at the end of all other routes
    {path:"/notifications",component:<Notifications />},
    {path:"/users", component :<UserList />},
@@ -70,7 +73,11 @@ const userRoutes = [
    {path:"/indicators",component:<IndicatorList/>},
    {path:"/surveys", component:<SurveyList />},
    {path:"/feedbacks", component:<FeedbackList />},
+   {path:"/achievements",component:<AchievementList />},
+   {path:"/organization-charts",component:<OrganizationChartList />},
    {path:"/news",component:<NewsList />},
+   {path:'/cms-pages',component:<PagesList />},
+   {path:"/cms/:id",component:<CreateCmsPage />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},

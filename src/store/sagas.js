@@ -23,6 +23,9 @@ import IndicatorSaga from "./Indicator/saga"
 import SurveySaga from "./Survey/saga"
 import FeedbackSaga from "./feedbacks/saga"
 import NewsSaga from "./News/saga"
+import AchievementSaga from "./Achievements/saga"
+import OraganizationSaga from "./OrganizationChart/saga"
+import CmsPageSaga from "./CmsPages/saga"
 
 export default function* rootSaga() {
   yield all([
@@ -48,6 +51,9 @@ export default function* rootSaga() {
     IndicatorSaga(),
     SurveySaga(),
     FeedbackSaga(),
-    NewsSaga()
+    NewsSaga(),
+    AchievementSaga(),
+    OraganizationSaga(),
+    CmsPageSaga()
   ])
 }
