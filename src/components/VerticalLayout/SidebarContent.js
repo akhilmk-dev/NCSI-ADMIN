@@ -21,6 +21,11 @@ import Cookies from "js-cookie";
 import { BiNews } from "react-icons/bi";
 import { GiAchievement } from "react-icons/gi";
 import { RiFolderChartLine } from "react-icons/ri";
+import { RiPagesLine } from "react-icons/ri";
+import { IoMdList } from "react-icons/io";
+import { LiaProjectDiagramSolid } from "react-icons/lia";
+import { VscListTree } from "react-icons/vsc";
+
 
 
 
@@ -267,9 +272,30 @@ const SidebarContent = ({ t }) => {
               </li>
 
               <li>
+                <Link to="/statistics" className="waves-effect" onClick={() =>{handleMenuItemClick("/statistics"); tToggle2();}}>
+                  <IoMdList  size={21} className="me-2" />
+                  <span>{t("Statistics")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/methodologies" className="waves-effect" onClick={() =>{handleMenuItemClick("/methodologies"); tToggle2();}}>
+                  <LiaProjectDiagramSolid  size={21} className="me-2" />
+                  <span>{t("Methodologies")}</span>
+                </Link>
+              </li>
+
+              <li>
                 <Link to="/cms-pages" className="waves-effect" onClick={() =>{handleMenuItemClick("/cms-pages"); tToggle2();}}>
-                  <BiNews  size={21} className="me-2" />
+                  <RiPagesLine  size={21} className="me-2" />
                   <span>{t("CMS Pages")}</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/guide-classifications" className="waves-effect" onClick={() =>{handleMenuItemClick("/guide-classifications"); tToggle2();}}>
+                  <VscListTree  size={21} className="me-2" />
+                  <span>{t("Guide Classifications")}</span>
                 </Link>
               </li>
 

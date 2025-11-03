@@ -69,6 +69,15 @@ import OrganizationChart from "./OrganizationChart/reducer"
 // cmspages
 import CmsPage from "./CmsPages/reducer"
 
+// statistics
+import Statistics from "./Statistics/reducer"
+
+// guide classificaions
+import GuideClassification from "./GuideClassifications/reducer"
+
+// methodologies 
+import Methodologies from "./Methodologies/reducer"
+
 const rootReducer = combineReducers({
   Layout,
   Login,
@@ -94,7 +103,10 @@ const rootReducer = combineReducers({
   News,
   Achievement,
   OrganizationChart,
-  CmsPage 
+  CmsPage,
+  Statistics,
+  GuideClassification,
+  Methodologies
 })
 
 export default rootReducer

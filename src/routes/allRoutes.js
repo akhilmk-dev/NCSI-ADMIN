@@ -48,6 +48,9 @@ import AchievementList from "pages/Achievements/AchievementList";
 import OrganizationChartList from "pages/OrganizationChart/OrganizationChartList";
 import PagesList from "pages/CmsPages/CmsList";
 import CreateCmsPage from "pages/CmsPages/CreateCmsPage";
+import StatisticsList from "pages/statistics/StatisticsList";
+import GuideClassificationList from "pages/GuideClassification/GuideClassificationList";
+import MethodologyList from "pages/Methadologies/MethodologyList";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -75,9 +78,12 @@ const userRoutes = [
    {path:"/feedbacks", component:<FeedbackList />},
    {path:"/achievements",component:<AchievementList />},
    {path:"/organization-charts",component:<OrganizationChartList />},
+   {path:"/guide-classifications",component:<GuideClassificationList />},
    {path:"/news",component:<NewsList />},
    {path:'/cms-pages',component:<PagesList />},
    {path:"/cms/:id",component:<CreateCmsPage />},
+   {path:"/statistics", component:<StatisticsList />},
+   {path:"/methodologies",component:<MethodologyList />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},

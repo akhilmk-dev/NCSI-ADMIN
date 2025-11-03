@@ -1,5 +1,3 @@
-// actions.js
-
 import {
   GET_ROLES,
   GET_ROLES_SUCCESS,

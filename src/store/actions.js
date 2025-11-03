@@ -66,3 +66,11 @@ export * from "./OrganizationChart/actions"
 // cmspages
 export * from "./CmsPages/actions"
 
+// statistics
+export * from "./Statistics/actions"
+
+// guide classifications
+export * from "./GuideClassifications/actions"
+
+// methodologies 
+export * from "./Methodologies/actions"

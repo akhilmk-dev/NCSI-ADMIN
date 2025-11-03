@@ -388,6 +388,9 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                             height={20}
                             width={40}
                             handleDiameter={20}
+                            style={{
+                                backgroundColor: formik.values.status ? "#00A895" : undefined,
+                              }}
                         />
                     </div>
                     <div className="col-md-6 d-flex align-items-center">
@@ -400,6 +403,9 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                             height={20}
                             width={40}
                             handleDiameter={20}
+                            style={{
+                                backgroundColor: formik.values.status ? "#00A895" : undefined,
+                              }}
                         />
                     </div>
 

@@ -6,6 +6,7 @@ import { ClipLoader } from "react-spinners";
 import ReactQuill from "react-quill";
 import { showError } from "helpers/notification_helper";
 import "react-quill/dist/quill.snow.css";
+import "../../assets/scss/quill-custom.css"; 
 
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 const FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -33,7 +34,7 @@ const CreateNews = ({
   const formik = useFormik({
     enableReinitialize: true,
     validateOnMount: false,
-    validateOnChange: false,
+    validateOnChange: true,
     validateOnBlur: true,
     initialValues: {
       title_en: initialData?.title_en || "",
@@ -45,28 +46,49 @@ const CreateNews = ({
     validationSchema: Yup.object({
       title_en: Yup.string().required("English title is required"),
       title_ar: Yup.string().required("Arabic title is required"),
-      content_en: Yup.string().required("English content is required"),
-      content_ar: Yup.string().required("Arabic content is required"),
+      content_en: Yup.string()
+      .test(
+        "not-empty-html",
+        "English content is required",
+        (value) => {
+          if (!value) return false; // null or undefined
+          // Remove HTML tags and whitespace
+          const stripped = value.replace(/<(.|\n)*?>/g, "").trim();
+          return stripped.length > 0;
+        }
+      )
+    ,
+      content_ar: Yup.string()
+      .test(
+        "not-empty-html",
+        "Arabic content is required",
+        (value) => {
+          if (!value) return false;
+          const stripped = value.replace(/<(.|\n)*?>/g, "").trim();
+          return stripped.length > 0;
+        }
+      )
+    ,
       news_image: initialData
         ? Yup.mixed()
-          .nullable()
-          .test(
-            "fileSize",
-            "File size too large (max 5MB)",
-            (value) =>
-              !value || typeof value === "string" || value.size <= FILE_SIZE
-          )
-          .test(
-            "fileFormat",
-            "Unsupported Format (JPG/PNG only)",
-            (value) =>
-              !value ||
-              typeof value === "string" ||
-              SUPPORTED_IMAGE_FORMATS.includes(value.type)
-          )
+            .nullable()
+            .test(
+              "fileSize",
+              "File size too large (max 5MB)",
+              (value) =>
+                !value || typeof value === "string" || value.size <= FILE_SIZE
+            )
+            .test(
+              "fileFormat",
+              "Unsupported Format (JPG/PNG only)",
+              (value) =>
+                !value ||
+                typeof value === "string" ||
+                SUPPORTED_IMAGE_FORMATS.includes(value.type)
+            )
         : Yup.mixed()
-          .nullable()
-          .required("News image is required"),
+            .nullable()
+            .required("News image is required"),
     }),
     onSubmit: async (values, { resetForm }) => {
       const payload = {
@@ -85,17 +107,13 @@ const CreateNews = ({
     },
   });
 
-  // Sync external validation errors
+  // Handle external validation errors
   useEffect(() => {
-    if (fieldErrors) {
-      formik.setErrors(fieldErrors);
-    }
+    if (fieldErrors) formik.setErrors(fieldErrors);
   }, [fieldErrors]);
 
   useEffect(() => {
     if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-      console.log(formik.errors)
-      console.log(formik.values)
       showError("Validation Error");
       setIsSubmitted(false);
     }
@@ -120,14 +138,14 @@ const CreateNews = ({
     }
   };
 
-  // Quill Editor Configuration
+  // Quill Config (no image upload)
   const quillModules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
       ["bold", "italic", "underline", "strike"],
       [{ align: [] }],
       [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
+      ["link"], //  removed "image"
       ["clean"],
     ],
   };
@@ -142,7 +160,6 @@ const CreateNews = ({
     "list",
     "bullet",
     "link",
-    "image",
   ];
 
   return (
@@ -170,10 +187,9 @@ const CreateNews = ({
               className="form-control"
               value={formik.values.title_en}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
               placeholder="Enter title in English"
             />
-            {formik.touched.title_en && (
+            {formik.errors.title_en && (
               <div className="text-danger">{formik.errors.title_en}</div>
             )}
           </div>
@@ -189,15 +205,14 @@ const CreateNews = ({
               className="form-control"
               value={formik.values.title_ar}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
               placeholder="Enter title in Arabic"
             />
-            {formik.touched.title_ar && (
+            {formik.errors.title_ar && (
               <div className="text-danger">{formik.errors.title_ar}</div>
             )}
           </div>
 
-          {/* Content EN (Rich Text) */}
+          {/* Content EN */}
           <div className="col-12">
             <label className="form-label fs-7">
               Content (EN) <span className="text-danger">*</span>
@@ -208,14 +223,15 @@ const CreateNews = ({
               formats={quillFormats}
               value={formik.values.content_en}
               onChange={(val) => formik.setFieldValue("content_en", val)}
-              style={{ height: "250px", marginBottom: "60px" }} // Increased height
+              onBlur={() => formik.setFieldTouched("content_en", true)}
+              style={{ height: "250px", marginBottom: "60px" }}
             />
-            {formik.touched.content_en && (
+            {formik.errors.content_en && (
               <div className="text-danger">{formik.errors.content_en}</div>
             )}
           </div>
 
-          {/* Content AR (Rich Text) */}
+          {/* Content AR */}
           <div className="col-12">
             <label className="form-label fs-7">
               Content (AR) <span className="text-danger">*</span>
@@ -226,10 +242,11 @@ const CreateNews = ({
               formats={quillFormats}
               value={formik.values.content_ar}
               onChange={(val) => formik.setFieldValue("content_ar", val)}
-              style={{ height: "250px", marginBottom: "60px" }} // Increased height
+              onBlur={() => formik.setFieldTouched("content_ar", true)}
               dir="rtl"
+              style={{ height: "250px", marginBottom: "60px" }}
             />
-            {formik.touched.content_ar && (
+            {formik.errors.content_ar && (
               <div className="text-danger">{formik.errors.content_ar}</div>
             )}
           </div>
@@ -245,9 +262,8 @@ const CreateNews = ({
               accept="image/jpeg,image/png,image/jpg"
               className="form-control"
               onChange={handleImageChange}
-              onBlur={formik.handleBlur}
             />
-            {formik.touched.news_image && (
+            {formik.errors.news_image && (
               <div className="text-danger">{formik.errors.news_image}</div>
             )}
             {initialData?.img_url && (
@@ -263,7 +279,7 @@ const CreateNews = ({
           </div>
         </div>
 
-        {/* Footer Buttons */}
+        {/* Footer */}
         <div className="modal-footer mt-4">
           <button type="button" className="btn btn-light" onClick={onClose}>
             Close

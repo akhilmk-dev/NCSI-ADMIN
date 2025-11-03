@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
 import { showError } from "helpers/notification_helper";
 
+
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 const FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -31,7 +32,7 @@ const CreateOrganizationChart = ({
   const formik = useFormik({
     enableReinitialize: true,
     validateOnMount: false,
-    validateOnChange: false,
+    validateOnChange: true,
     validateOnBlur: true,
     initialValues: {
       title_en: initialData?.title_en || "",
@@ -39,7 +40,7 @@ const CreateOrganizationChart = ({
       designation_en: initialData?.designation_en || "",
       designation_ar: initialData?.designation_ar || "",
       photo: "",
-      sort_order: initialData?.sort_order || 1,
+      sort_order: initialData?.sort_order || "",
       status: initialData?.status ?? true,
     },
     validationSchema: Yup.object({
@@ -49,24 +50,24 @@ const CreateOrganizationChart = ({
       designation_ar: Yup.string().required("Arabic designation is required"),
       photo: initialData
         ? Yup.mixed()
-            .nullable()
-            .test(
-              "fileSize",
-              "File size too large (max 5MB)",
-              (value) =>
-                !value || typeof value === "string" || value.size <= FILE_SIZE
-            )
-            .test(
-              "fileFormat",
-              "Unsupported Format (JPG/PNG only)",
-              (value) =>
-                !value ||
-                typeof value === "string" ||
-                SUPPORTED_IMAGE_FORMATS.includes(value.type)
-            )
+          .nullable()
+          .test(
+            "fileSize",
+            "File size too large (max 5MB)",
+            (value) =>
+              !value || typeof value === "string" || value.size <= FILE_SIZE
+          )
+          .test(
+            "fileFormat",
+            "Unsupported Format (JPG/PNG only)",
+            (value) =>
+              !value ||
+              typeof value === "string" ||
+              SUPPORTED_IMAGE_FORMATS.includes(value.type)
+          )
         : Yup.mixed()
-            .nullable()
-            .required("Organization image is required"),
+          .nullable()
+          .required("Organization image is required"),
       sort_order: Yup.number()
         .typeError("Sort order must be a number")
         .required("Sort order is required")
@@ -233,9 +234,9 @@ const CreateOrganizationChart = ({
             {formik.touched.photo && (
               <div className="text-danger">{formik.errors.photo}</div>
             )}
-            {initialData?.photo && (
+            {initialData?.img_url && (
               <a
-                href={initialData.photo}
+                href={initialData.img_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00A895", textDecoration: "underline" }}
@@ -252,15 +253,24 @@ const CreateOrganizationChart = ({
             </label>
             <input
               type="number"
-              min={1}
               name="sort_order"
               className="form-control w-100"
               value={formik.values.sort_order}
-              onChange={(val) => formik.setFieldValue("sort_order", val)}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                // Only allow positive numbers
+                if (!isNaN(value) && value > 0) {
+                  formik.setFieldValue("sort_order", value);
+                } else if (e.target.value === "") {
+                  // Allow clearing the field
+                  formik.setFieldValue("sort_order", "");
+                }
+              }}
             />
-            {formik.touched.sort_order && (
+            {formik.touched.sort_order && formik.errors.sort_order && (
               <div className="text-danger">{formik.errors.sort_order}</div>
             )}
+
           </div>
 
           {/* Status */}

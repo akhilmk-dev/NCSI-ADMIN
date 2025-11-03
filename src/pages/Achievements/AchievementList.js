@@ -29,11 +29,6 @@ const AchievementList = () => {
   // Page Title
   document.title = "Achievements | NCSI";
 
-  // Fetch Achievements
-  useEffect(() => {
-    dispatch(getAchievements());
-  }, [dispatch]);
-
   return (
     <>
       {/* Create / Edit Modal */}

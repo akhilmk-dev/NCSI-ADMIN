@@ -1,0 +1,22 @@
+// ==================== GET ALL ====================
+export const GET_METHODOLOGIES = "GET_METHODOLOGIES";
+export const GET_METHODOLOGIES_SUCCESS = "GET_METHODOLOGIES_SUCCESS";
+export const GET_METHODOLOGIES_FAIL = "GET_METHODOLOGIES_FAIL";
+
+// ==================== ADD ====================
+export const ADD_METHODOLOGY = "ADD_METHODOLOGY";
+export const ADD_METHODOLOGY_SUCCESS = "ADD_METHODOLOGY_SUCCESS";
+export const ADD_METHODOLOGY_FAIL = "ADD_METHODOLOGY_FAIL";
+
+// ==================== UPDATE ====================
+export const UPDATE_METHODOLOGY = "UPDATE_METHODOLOGY";
+export const UPDATE_METHODOLOGY_SUCCESS = "UPDATE_METHODOLOGY_SUCCESS";
+export const UPDATE_METHODOLOGY_FAIL = "UPDATE_METHODOLOGY_FAIL";
+
+// ==================== DELETE ====================
+export const DELETE_METHODOLOGY = "DELETE_METHODOLOGY";
+export const DELETE_METHODOLOGY_SUCCESS = "DELETE_METHODOLOGY_SUCCESS";
+export const DELETE_METHODOLOGY_FAIL = "DELETE_METHODOLOGY_FAIL";
+
+// ==================== FIELD ERRORS ====================
+export const SET_METHODOLOGY_FIELD_ERRORS = "SET_METHODOLOGY_FIELD_ERRORS";

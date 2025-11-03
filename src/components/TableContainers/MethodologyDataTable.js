@@ -19,13 +19,15 @@ import { PiFileArrowDown } from "react-icons/pi";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
-import { getCmsPages } from "store/actions";
+import { getMethodologies } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
 import Pagination from "components/Common/Pagination";
 
+
 // Global Filter (Debounced Input)
-const PageDataTable = ({
+
+const MethodologyDataTable = ({
     columns,
     data,
     tableClass,
@@ -42,6 +44,8 @@ const PageDataTable = ({
     totalrows,
     loading,
     docName = "doc",
+    selectedFromDate,
+    setSelectedFromDate,
     selectedSortData,
     setSelectedSortData,
     pageIndex,
@@ -49,12 +53,12 @@ const PageDataTable = ({
     pageSize,
     setPageSize,
     searchString,
-    setSearchString
+    setSearchString,
 }) => {
     const [globalFilter, setGlobalFilter] = useState("");
     const tableRef = useRef(); // Create a reference for the table content
     const [filteredData, setFilteredData] = useState(data || []);
-    const [selectedFromDate, setSelectedFromDate] = useState();
+
     const dispatch = useDispatch();
 
     // Update filteredData when search query changes
@@ -101,7 +105,6 @@ const PageDataTable = ({
         ...prev,
         columns: [serialNumberColumn, ...columns]
     }));
-
 
     const { getHeaderGroups, getRowModel, getCanPreviousPage, getCanNextPage, getPageOptions, getPageCount, nextPage, previousPage, getState } = table;
 
@@ -279,12 +282,14 @@ const PageDataTable = ({
     const totalPages = Math.ceil(totalrows / pageSize);
     const startPage = Math.floor(pageIndex / windowSize) * windowSize;
     const endPage = Math.min(startPage + windowSize, totalPages);
-
-
+    const hasMounted = useRef(false);
     useEffect(() => {
-
-        if (!loading && pageIndex !==0) {
-            dispatch(getCmsPages({
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            return;
+        }
+        if (!loading && pageIndex !== 0) {
+            dispatch(getMethodologies({
                 "pagesize": pageSize,
                 "currentpage": pageIndex + 1,
                 "sortorder": selectedSortData?.value && selectedSortData?.direction
@@ -294,38 +299,42 @@ const PageDataTable = ({
                     }
                     : {},
                 "searchstring": searchString,
-                "filter": {}
+                "filter": {
+                    "from_date": selectedFromDate,
+                }
             }))
         }
-    },[selectedSortData, pageIndex])
-
-    useEffect(() => {
-        localStorage.setItem('pageIndex',pageIndex);
-        localStorage.setItem('searchString',searchString);
-        localStorage.setItem('selectedSortData',JSON.stringify(selectedSortData));
-        if (!loading && pageIndex == 0) {
-            dispatch(getCmsPages({
-                "pagesize": pageSize,
-                "currentpage": pageIndex + 1,
-                "sortorder": selectedSortData?.value && selectedSortData?.direction
-                    ? {
-                        field: selectedSortData.value,
-                        direction: selectedSortData.direction,
-                    }
-                    : {},
-                "searchstring": searchString,
-                "filter": {}
-            }))
-        }
-    }, [searchString, pageIndex,selectedSortData]);
-
-    useEffect(()=>{
-        setPageIndex(0)
-    },[searchString])
-
+    }, [selectedSortData, pageIndex])
     const handlePageChange = (newPageIndex) => {
         setPageIndex(newPageIndex);
     };
+
+    useEffect(() => {
+        localStorage.setItem('pageIndex', pageIndex);
+        localStorage.setItem('searchString', searchString);
+        localStorage.setItem('selectedSortData', JSON.stringify(selectedSortData))
+        localStorage.setItem('selectedFromDate', selectedFromDate);
+        if (!loading && pageIndex == 0) {
+            dispatch(getMethodologies({
+                "pagesize": pageSize,
+                "currentpage": pageIndex + 1,
+                "sortorder": selectedSortData?.value && selectedSortData?.direction
+                    ? {
+                        field: selectedSortData.value,
+                        direction: selectedSortData.direction,
+                    }
+                    : {},
+                "searchstring": searchString,
+                "filter": {
+                    "from_date": selectedFromDate,
+                }
+            }))
+        }
+    }, [pageIndex, searchString, selectedFromDate, selectedSortData])
+
+    useEffect(() => {
+        setPageIndex(0)
+    }, [searchString, selectedFromDate])
 
     return (
         <Fragment>
@@ -398,19 +407,18 @@ const PageDataTable = ({
                         </Col> */}
                     </>)}
             </Row>
-            <div className="d-flex justify-content-between gap-2 mb-2">
+            <div className="d-flex flex-wrap justify-content-between  mb-2">
                 <div className="d-flex justify-content-between gap-2 align-items-center">
 
-
                 </div>
-                {/* <div className="d-flex justify-content-between align-items-end">
+                <div className="d-flex justify-content-between align-items-end">
                     <DebouncedInput
                         value={searchString ?? ""}
-                        onChange={(value) => setSearchString(String(value))}
+                        onChange={(value) => { setSearchString(String(value)) }}
                         className="form-control search-box me-2  d-inline-block"
                         placeholder={SearchPlaceholder}
                     />
-                </div> */}
+                </div>
             </div>
 
             <div className="table-responsive" id="table-to-print" ref={tableRef}>
@@ -465,7 +473,8 @@ const PageDataTable = ({
                                             {header.column.getCanFilter?.() && header.column.columnDef.showFilter !== false && (
                                                 <div>{flexRender(header.column.columnDef.Filter, header.getContext())}</div>
                                             )}
-                                        </th>) : null
+                                        </th>
+                                    ) : null
                                 )}
                             </tr>
                         ))}
@@ -481,7 +490,7 @@ const PageDataTable = ({
                             </tr>
                         ) : (data?.length <= 0 || getRowModel()?.rows?.length === 0) ? (
                             <tr>
-                                <td colSpan={columns.length+1} className="text-center">
+                                <td colSpan={columns.length + 1} className="text-center">
                                     No Data Found
                                 </td>
                             </tr>
@@ -501,17 +510,17 @@ const PageDataTable = ({
 
             {(isPagination && totalrows > 0) && (
                 <Pagination
-                currentPage={pageIndex + 1}
-                totalPages={totalPages}
-                totalItems={totalrows}
-                pageSize={pageSize}
-                onPageChange={handlePageChange}
-                showInfo={true}
-            />
+                    currentPage={pageIndex + 1}
+                    totalPages={totalPages}
+                    totalItems={totalrows}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                    showInfo={true}
+                />
             )}
-             
+
         </Fragment>
     );
 };
 
-export default PageDataTable;
+export default MethodologyDataTable;

@@ -19,13 +19,16 @@ import { PiFileArrowDown } from "react-icons/pi";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
 import Select from "react-select";
-import { getCmsPages } from "store/actions";
+import { getStatistics } from "store/actions";
 import { useDispatch } from "react-redux";
 import { DebouncedInput } from "helpers/common_helper";
 import Pagination from "components/Common/Pagination";
 
+
 // Global Filter (Debounced Input)
-const PageDataTable = ({
+
+
+const StatisticsDataTable = ({
     columns,
     data,
     tableClass,
@@ -284,7 +287,7 @@ const PageDataTable = ({
     useEffect(() => {
 
         if (!loading && pageIndex !==0) {
-            dispatch(getCmsPages({
+            dispatch(getStatistics({
                 "pagesize": pageSize,
                 "currentpage": pageIndex + 1,
                 "sortorder": selectedSortData?.value && selectedSortData?.direction
@@ -304,7 +307,7 @@ const PageDataTable = ({
         localStorage.setItem('searchString',searchString);
         localStorage.setItem('selectedSortData',JSON.stringify(selectedSortData));
         if (!loading && pageIndex == 0) {
-            dispatch(getCmsPages({
+            dispatch(getStatistics({
                 "pagesize": pageSize,
                 "currentpage": pageIndex + 1,
                 "sortorder": selectedSortData?.value && selectedSortData?.direction
@@ -403,14 +406,14 @@ const PageDataTable = ({
 
 
                 </div>
-                {/* <div className="d-flex justify-content-between align-items-end">
+                <div className="d-flex justify-content-between align-items-end">
                     <DebouncedInput
                         value={searchString ?? ""}
                         onChange={(value) => setSearchString(String(value))}
                         className="form-control search-box me-2  d-inline-block"
                         placeholder={SearchPlaceholder}
                     />
-                </div> */}
+                </div>
             </div>
 
             <div className="table-responsive" id="table-to-print" ref={tableRef}>
@@ -514,4 +517,4 @@ const PageDataTable = ({
     );
 };
 
-export default PageDataTable;
+export default StatisticsDataTable;

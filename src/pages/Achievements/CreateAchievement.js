@@ -7,6 +7,8 @@ import ReactQuill from "react-quill";
 import dayjs from "dayjs";
 import { showError } from "helpers/notification_helper";
 import "react-quill/dist/quill.snow.css";
+import "../../assets/scss/quill-custom.css";
+
 
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 const FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -34,13 +36,13 @@ const CreateAchievement = ({
     const formik = useFormik({
         enableReinitialize: true,
         validateOnMount: false,
-        validateOnChange: false,
+        validateOnChange: true,
         validateOnBlur: true,
         initialValues: {
             title_en: initialData?.title_en || "",
             title_ar: initialData?.title_ar || "",
-            content_en: initialData?.content_en || "",
-            content_ar: initialData?.content_ar || "",
+            content_en: initialData?.content_en?.replace(/\\\//g, "/") || "",
+            content_ar: initialData?.content_ar?.replace(/\\\//g, "/") || "",
             ach_image: "",
             ach_date: initialData?.ach_date || "",
             status: initialData?.status ?? true,
@@ -48,8 +50,28 @@ const CreateAchievement = ({
         validationSchema: Yup.object({
             title_en: Yup.string().required("English title is required"),
             title_ar: Yup.string().required("Arabic title is required"),
-            content_en: Yup.string().required("English content is required"),
-            content_ar: Yup.string().required("Arabic content is required"),
+            content_en: Yup.string()
+                .test(
+                    "not-empty-html",
+                    "English content is required",
+                    (value) => {
+                        if (!value) return false; // null or undefined
+                        // Remove HTML tags and whitespace
+                        const stripped = value.replace(/<(.|\n)*?>/g, "").trim();
+                        return stripped.length > 0;
+                    }
+                )
+            ,
+            content_ar: Yup.string()
+                .test(
+                    "not-empty-html",
+                    "Arabic content is required",
+                    (value) => {
+                        if (!value) return false;
+                        const stripped = value.replace(/<(.|\n)*?>/g, "").trim();
+                        return stripped.length > 0;
+                    }
+                ),
             ach_image: initialData
                 ? Yup.mixed()
                     .nullable()
@@ -97,6 +119,7 @@ const CreateAchievement = ({
     // Handle external field errors
     useEffect(() => {
         if (fieldErrors) {
+
             formik.setErrors(fieldErrors);
         }
     }, [fieldErrors]);
@@ -104,7 +127,6 @@ const CreateAchievement = ({
     useEffect(() => {
         if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
             console.log(formik.errors);
-            console.log(formik.values);
             showError("Validation Error");
             setIsSubmitted(false);
         }
@@ -129,14 +151,14 @@ const CreateAchievement = ({
         }
     };
 
-    // Quill configuration
+    // Quill Config (no image upload)
     const quillModules = {
         toolbar: [
             [{ header: [1, 2, 3, false] }],
             ["bold", "italic", "underline", "strike"],
             [{ align: [] }],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link", "image"],
+            ["link"], //  removed "image"
             ["clean"],
         ],
     };
@@ -151,7 +173,6 @@ const CreateAchievement = ({
         "list",
         "bullet",
         "link",
-        "image",
     ];
 
     return (
@@ -259,9 +280,9 @@ const CreateAchievement = ({
                         {formik.touched.ach_image && (
                             <div className="text-danger">{formik.errors.ach_image}</div>
                         )}
-                        {initialData?.ach_image && (
+                        {initialData?.img_url && (
                             <a
-                                href={initialData.ach_image}
+                                href={initialData.img_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ color: "#00A895", textDecoration: "underline" }}

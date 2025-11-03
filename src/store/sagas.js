@@ -26,6 +26,9 @@ import NewsSaga from "./News/saga"
 import AchievementSaga from "./Achievements/saga"
 import OraganizationSaga from "./OrganizationChart/saga"
 import CmsPageSaga from "./CmsPages/saga"
+import StatisticsSaga from "./Statistics/saga"
+import GuideClassifcationSaga from "./GuideClassifications/saga"
+import MethodologiesSaga from "./Methodologies/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -54,6 +57,9 @@ export default function* rootSaga() {
     NewsSaga(),
     AchievementSaga(),
     OraganizationSaga(),
-    CmsPageSaga()
+    CmsPageSaga(),
+    StatisticsSaga(),
+    GuideClassifcationSaga(),
+    MethodologiesSaga()
   ])
 }

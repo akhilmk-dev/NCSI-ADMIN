@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "pages/Utility/axiosInstance";
 import Breadcrumb from "components/Common/Breadcrumb2";
 import { useNavigate, useParams } from "react-router-dom";
+import ConfirmationModal from "components/Modals/ConfirmationModal";
 
 // Validation Schema
 const validationSchema = Yup.object().shape({
@@ -33,6 +34,24 @@ const validationSchema = Yup.object().shape({
     Yup.object().shape({
       title_en: Yup.string().required("Title (EN) is required"),
       title_ar: Yup.string().required("Title (AR) is required"),
+      pdf_en: Yup.mixed()
+        .test("required", "PDF (EN) is required", function (value) {
+          const parent = this.parent;
+          return value || parent?.pdf_en || parent?.file_en;
+        })
+        .test("fileFormat", "Only PDF files are allowed", function (value) {
+          if (!value || typeof value === "string") return true;
+          return value?.type === "application/pdf";
+        }),
+      pdf_ar: Yup.mixed()
+        .test("required", "PDF (AR) is required", function (value) {
+          const parent = this.parent;
+          return value || parent?.pdf_ar || parent?.file_ar;
+        })
+        .test("fileFormat", "Only PDF files are allowed", function (value) {
+          if (!value || typeof value === "string") return true;
+          return value?.type === "application/pdf";
+        }),
       order: Yup.number()
         .typeError("Order must be a number")
         .required("Order is required"),
@@ -40,32 +59,30 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
-// Helper: Convert file to base64 for upload API
+// Helper: Convert file to base64
 const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.readAsDataURL(file); 
-    reader.onload = () => resolve(reader.result); 
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
-
 
 const CreateCmsPage = () => {
   const [pdfFiles, setPdfFiles] = useState({});
   const [initialData, setInitialData] = useState(null);
-  const [baseUrl,setBaseUrl] = useState()
+  const [baseUrl, setBaseUrl] = useState();
+  const [openModal, setOpenModal] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(null);
+
   const { id } = useParams();
   const navigate = useNavigate();
 
-  //  Upload PDF and return URL
+  // Upload PDF
   const uploadPdfAndGetUrl = async (file) => {
     try {
       const base64Data = await fileToBase64(file);
-
-      const payload = {
-        media: base64Data,
-      };
-
+      const payload = { media: base64Data };
       const response = await axiosInstance.post("V1/pages/upload-media-pdf", payload);
 
       if (response.data?.data?.file) {
@@ -82,8 +99,7 @@ const CreateCmsPage = () => {
     }
   };
 
-  // Handle File Upload (Now uses upload API)
-  const handleFileChange = async (event, index, fieldName) => {
+  const handleFileChange = async (event, index, fieldName, setFieldValue) => {
     const file = event.target.files[0];
     if (file) {
       toast.loading("Uploading PDF...");
@@ -95,6 +111,7 @@ const CreateCmsPage = () => {
           ...prev,
           [`${fieldName}_${index}`]: pdfUrl,
         }));
+        setFieldValue(`decrees_laws_decisions[${index}].${fieldName}`, pdfUrl);
       }
     }
   };
@@ -104,7 +121,7 @@ const CreateCmsPage = () => {
     try {
       const response = await axiosInstance.get(`V1/pages/view/${id}`);
       setInitialData(response.data?.data?.page?.data);
-      setBaseUrl(response.data?.data?.base_url)
+      setBaseUrl(response.data?.data?.base_url);
     } catch (error) {
       toast.error("Failed to load data");
     }
@@ -118,7 +135,6 @@ const CreateCmsPage = () => {
     return <div className="p-5 text-center">Loading...</div>;
   }
 
-  // ✅ Initial Values
   const initialValues = {
     ceo_message_en: initialData.ceo_message_en || "",
     ceo_message_ar: initialData.ceo_message_ar || "",
@@ -136,14 +152,9 @@ const CreateCmsPage = () => {
         : [{ title_en: "", title_ar: "", pdf_en: "", pdf_ar: "", order: "" }],
   };
 
-  // ✅ Update API
   const handleUpdatePage = async (formValues) => {
     try {
-      const payload = {
-        page_key: "hierarchy",
-        data: formValues,
-      };
-
+      const payload = { page_key: "hierarchy", data: formValues };
       const response = await axiosInstance.put("/V1/pages/update", payload);
       if (response.status === 200) {
         toast.success("Hierarchy updated successfully!");
@@ -174,7 +185,6 @@ const CreateCmsPage = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
-          // ✅ Merge uploaded PDF URLs
           const updatedValues = { ...values };
           updatedValues.decrees_laws_decisions.forEach((item, index) => {
             updatedValues.decrees_laws_decisions[index].pdf_en =
@@ -188,9 +198,9 @@ const CreateCmsPage = () => {
           navigate("/cms-pages");
         }}
       >
-        {({ values, isSubmitting }) => (
+        {({ values, isSubmitting, setFieldValue }) => (
           <Form>
-            {/* 🔹 Page Details */}
+            {/* Page Details */}
             <Card className="mb-4 shadow-sm">
               <CardHeader className="bg-light fw-bold">Hierarchy Details</CardHeader>
               <CardBody>
@@ -210,7 +220,12 @@ const CreateCmsPage = () => {
                     <Col md="6" key={i}>
                       <FormGroup>
                         <Label>{label}</Label>
-                        <Field name={name} as={Input} />
+                        <span style={{ color: "red" }}>*</span>
+                        <Field
+                          name={name}
+                          as={Input}
+                          placeholder={`Enter ${label}`}
+                        />
                         <ErrorMessage
                           name={name}
                           component="div"
@@ -223,16 +238,23 @@ const CreateCmsPage = () => {
               </CardBody>
             </Card>
 
-            {/* 🔹 Decrees / Laws / Decisions */}
+            {/* Decrees / Laws / Decisions */}
             <FieldArray name="decrees_laws_decisions">
-              {({ push, remove }) => (
+              {({ push }) => (
                 <>
                   {values.decrees_laws_decisions.map((item, index) => (
                     <Card key={index} className="mb-4 shadow-sm">
                       <CardHeader className="bg-light d-flex justify-content-between align-items-center">
                         <strong>Decree / Law / Decision {index + 1}</strong>
                         {index > 0 && (
-                          <Button color="danger" size="sm" onClick={() => remove(index)}>
+                          <Button
+                            color="danger"
+                            size="sm"
+                            onClick={() => {
+                              setDeleteIndex(index);
+                              setOpenModal(true);
+                            }}
+                          >
                             Remove
                           </Button>
                         )}
@@ -242,9 +264,11 @@ const CreateCmsPage = () => {
                           <Col md="6">
                             <FormGroup>
                               <Label>Title (EN)</Label>
+                              <span style={{ color: "red" }}>*</span>
                               <Field
                                 name={`decrees_laws_decisions[${index}].title_en`}
                                 as={Input}
+                                placeholder="Enter Title(en)"
                               />
                               <ErrorMessage
                                 name={`decrees_laws_decisions[${index}].title_en`}
@@ -257,9 +281,11 @@ const CreateCmsPage = () => {
                           <Col md="6">
                             <FormGroup>
                               <Label>Title (AR)</Label>
+                              <span style={{ color: "red" }}>*</span>
                               <Field
                                 name={`decrees_laws_decisions[${index}].title_ar`}
                                 as={Input}
+                                placeholder="Enter Title(ar)"
                               />
                               <ErrorMessage
                                 name={`decrees_laws_decisions[${index}].title_ar`}
@@ -272,14 +298,27 @@ const CreateCmsPage = () => {
                           <Col md="6">
                             <FormGroup>
                               <Label>PDF (EN)</Label>
+                              <span style={{ color: "red" }}>*</span>
                               <Input
                                 type="file"
                                 accept="application/pdf"
-                                onChange={(e) => handleFileChange(e, index, "pdf_en")}
+                                onChange={(e) =>
+                                  handleFileChange(
+                                    e,
+                                    index,
+                                    "pdf_en",
+                                    setFieldValue
+                                  )
+                                }
+                              />
+                              <ErrorMessage
+                                name={`decrees_laws_decisions[${index}].pdf_en`}
+                                component="div"
+                                className="text-danger small mt-1"
                               />
                               {item.pdf_en && (
                                 <a
-                                  href={baseUrl +'/'+item.pdf_en}
+                                  href={baseUrl + "/" + item.pdf_en}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="d-block mt-2 text-primary"
@@ -293,14 +332,27 @@ const CreateCmsPage = () => {
                           <Col md="6">
                             <FormGroup>
                               <Label>PDF (AR)</Label>
+                              <span style={{ color: "red" }}>*</span>
                               <Input
                                 type="file"
                                 accept="application/pdf"
-                                onChange={(e) => handleFileChange(e, index, "pdf_ar")}
+                                onChange={(e) =>
+                                  handleFileChange(
+                                    e,
+                                    index,
+                                    "pdf_ar",
+                                    setFieldValue
+                                  )
+                                }
+                              />
+                              <ErrorMessage
+                                name={`decrees_laws_decisions[${index}].pdf_ar`}
+                                component="div"
+                                className="text-danger small mt-1"
                               />
                               {item.pdf_ar && (
                                 <a
-                                  href={baseUrl +'/'+item.pdf_ar}
+                                  href={baseUrl + "/" + item.pdf_ar}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="d-block mt-2 text-primary"
@@ -314,6 +366,7 @@ const CreateCmsPage = () => {
                           <Col md="6">
                             <FormGroup>
                               <Label>Order</Label>
+                              <span style={{ color: "red" }}>*</span>
                               <Field
                                 name={`decrees_laws_decisions[${index}].order`}
                                 type="number"
@@ -349,6 +402,30 @@ const CreateCmsPage = () => {
                 </>
               )}
             </FieldArray>
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+              okText="Confirm"
+              isVisible={openModal}
+              title="Delete Decree / Law / Decision"
+              content="Are you sure you want to delete this item?"
+              onCancel={() => {
+                setDeleteIndex(null);
+                setOpenModal(false);
+              }}
+              onOk={() => {
+                if (deleteIndex !== null) {
+                  setFieldValue(
+                    "decrees_laws_decisions",
+                    values.decrees_laws_decisions.filter(
+                      (_, i) => i !== deleteIndex
+                    )
+                  );
+                  setDeleteIndex(null);
+                  setOpenModal(false);
+                }
+              }}
+            />
 
             <div className="text-end mt-4">
               <Button color="success" type="submit" disabled={isSubmitting}>
