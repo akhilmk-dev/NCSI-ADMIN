@@ -93,10 +93,10 @@ const UserProfile = () => {
       {successMessage && <Alert color="success">{successMessage}</Alert>}
       <Formik
         initialValues={{
-          username: user.userName,
-          email: user.emailId,
-          phoneNumber: user.phoneNo,
-          role: user.roleName,
+          username: user?.userName,
+          email: user?.emailId,
+          phoneNumber: user?.phoneNo,
+          role: user?.roleName,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}

@@ -74,3 +74,6 @@ export * from "./GuideClassifications/actions"
 
 // methodologies 
 export * from "./Methodologies/actions"
+
+// survey licences
+export * from "./SurveyLiscences/actions"

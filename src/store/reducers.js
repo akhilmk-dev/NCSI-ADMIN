@@ -78,6 +78,9 @@ import GuideClassification from "./GuideClassifications/reducer"
 // methodologies 
 import Methodologies from "./Methodologies/reducer"
 
+// survey liscences
+import SurveyLicense from "./SurveyLiscences/reducer"
+
 const rootReducer = combineReducers({
   Layout,
   Login,
@@ -106,7 +109,8 @@ const rootReducer = combineReducers({
   CmsPage,
   Statistics,
   GuideClassification,
-  Methodologies
+  Methodologies,
+  SurveyLicense
 })
 
 export default rootReducer

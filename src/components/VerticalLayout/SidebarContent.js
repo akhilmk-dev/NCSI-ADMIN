@@ -300,6 +300,13 @@ const SidebarContent = ({ t }) => {
               </li>
 
               <li>
+                <Link to="/survey-licenses" className="waves-effect" onClick={() =>{handleMenuItemClick("/survey-licenses"); tToggle2();}}>
+                  <VscListTree  size={21} className="me-2" />
+                  <span>{t("Survey Licenses")}</span>
+                </Link>
+              </li>
+
+              <li>
                 <Link to="/news" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
                   <BiNews  size={21} className="me-2" />
                   <span>{t("News")}</span>

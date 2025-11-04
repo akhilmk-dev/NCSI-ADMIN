@@ -9,9 +9,6 @@ import Logout from "../pages/Authentication/Logout";
 // import Register from "../pages/Authentication/Register";
 import ForgetPwd from "../pages/Authentication/ForgetPassword";
 import ResetPassword from '../pages/Authentication/ResetPassword';
-
-//  // Inner Authentication
-
 // Dashboard
 import Dashboard from "../pages/Dashboard/index";
 // Charts
@@ -19,9 +16,6 @@ import ChartApex from "../pages/Charts/Apexcharts";
 import ChartjsChart from "../pages/Charts/ChartjsChart";
 import EChart from "../pages/Charts/EChart";
 import SparklineChart from "../pages/Charts/SparklineChart";
-
-
-//Ui
 
 //Pages
 import Pages404 from "../pages/Utility/pages-404";
@@ -51,13 +45,14 @@ import CreateCmsPage from "pages/CmsPages/CreateCmsPage";
 import StatisticsList from "pages/statistics/StatisticsList";
 import GuideClassificationList from "pages/GuideClassification/GuideClassificationList";
 import MethodologyList from "pages/Methadologies/MethodologyList";
+import SurveyLicenseList from "pages/SurveyLiscences/SurveyLiscenceList";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
   { path: "/dashboard", component: <Dashboard /> },
 
   // //profile
-  { path: "/profile", component: <UserProfile /> },
+  // { path: "/profile", component: <UserProfile /> },
   { path: "/change-password", component: <ChangePassword /> },
 
   //Charts
@@ -79,6 +74,7 @@ const userRoutes = [
    {path:"/achievements",component:<AchievementList />},
    {path:"/organization-charts",component:<OrganizationChartList />},
    {path:"/guide-classifications",component:<GuideClassificationList />},
+   {path:"/survey-licenses",component:<SurveyLicenseList />},
    {path:"/news",component:<NewsList />},
    {path:'/cms-pages',component:<PagesList />},
    {path:"/cms/:id",component:<CreateCmsPage />},
@@ -101,9 +97,7 @@ const authRoutes = [
   { path: "/pages-404", component: <Pages404 /> },
   {path:"/pages-403", component:<Pages403 />},
   { path: "/pages-500", component: <Pages500 /> },
-
   //Authentication Inner
-
 ];
 
 export { userRoutes, authRoutes };

@@ -29,6 +29,7 @@ import CmsPageSaga from "./CmsPages/saga"
 import StatisticsSaga from "./Statistics/saga"
 import GuideClassifcationSaga from "./GuideClassifications/saga"
 import MethodologiesSaga from "./Methodologies/saga";
+import SurveyLicenseSagS from "./SurveyLiscences/saga"
 
 export default function* rootSaga() {
   yield all([
@@ -60,6 +61,7 @@ export default function* rootSaga() {
     CmsPageSaga(),
     StatisticsSaga(),
     GuideClassifcationSaga(),
-    MethodologiesSaga()
+    MethodologiesSaga(),
+    SurveyLicenseSagS()
   ])
 }
