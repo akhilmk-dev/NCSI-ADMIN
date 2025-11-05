@@ -38,17 +38,17 @@ const CreateSurveyLicense = ({
       licensenumber: Yup.string().required("License number is required"),
       title: Yup.string().required("Title is required"),
       agency: Yup.string().required("Agency is required"),
-      sponsor: Yup.string().required("Sponsor is required"),
-      agency_rep: Yup.string().required("Agency representative is required"),
-      licencetype: Yup.string().required("License type is required"),
-      approval_date: Yup.date().required("Approval date is required"),
+      // sponsor: Yup.string().required("Sponsor is required"),
+      // agency_rep: Yup.string().required("Agency representative is required"),
+      // licencetype: Yup.string().required("License type is required"),
+      // approval_date: Yup.date().required("Approval date is required"),
       implementation_period_from: Yup.date().required(
         "Implementation start date is required"
       ),
       implementation_period_to: Yup.date().required(
         "Implementation end date is required"
       ),
-      objective: Yup.string().required("Objective is required"),
+      // objective: Yup.string().required("Objective is required"),
     }),
     onSubmit: async (values, { resetForm }) => {
       const payload = {
@@ -126,7 +126,7 @@ const CreateSurveyLicense = ({
           {/* Title */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Title <span className="text-danger">*</span>
+              Survey Title <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -162,7 +162,7 @@ const CreateSurveyLicense = ({
           {/* Sponsor */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Sponsor <span className="text-danger">*</span>
+              Sponsor 
             </label>
             <input
               type="text"
@@ -180,7 +180,7 @@ const CreateSurveyLicense = ({
           {/* Agency Representative */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Agency Representative <span className="text-danger">*</span>
+              Agency Representative 
             </label>
             <input
               type="text"
@@ -198,7 +198,7 @@ const CreateSurveyLicense = ({
           {/* License Type */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              License Type <span className="text-danger">*</span>
+              License Type 
             </label>
             <input
               type="text"
@@ -216,7 +216,7 @@ const CreateSurveyLicense = ({
           {/* Approval Date */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Approval Date <span className="text-danger">*</span>
+              Approval Date 
             </label>
             <DatePicker
               className="form-control w-100"
@@ -285,7 +285,7 @@ const CreateSurveyLicense = ({
           {/* Objective */}
           <div className="col-12">
             <label className="form-label fs-7">
-              Objective <span className="text-danger">*</span>
+              Objective 
             </label>
             <textarea
               name="objective"
