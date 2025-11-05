@@ -2,43 +2,51 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "reactstrap";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoEyeOutline } from "react-icons/io5";
+import { FaRegEdit } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { deleteSurveyLicense } from "store/actions";
+import { deleteSurveyLicense, updateSurveyLicense } from "store/actions"; 
 import ConfirmationModal from "components/Modals/ConfirmationModal";
 import { Modal } from "antd";
 import axiosInstance from "pages/Utility/axiosInstance";
 import { useTranslation } from "react-i18next";
 import SurveyLicenseDataTable from "components/TableContainers/SurveyLicenseDataTable";
+import CreateSurveyLicense from "./CreateSurveyLiscence";
+
 
 const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+  // === STATES ===
+  const [editData, setEditData] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const [deleteId, setDeleteId] = useState(null);
   const [confirmAction, setConfirmAction] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+
   const [selectedLicense, setSelectedLicense] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewId, setViewId] = useState(null);
 
   const [pageIndex, setPageIndex] = useState(0);
-const [pageSize, setPageSize] = useState(10);
-const [searchString, setSearchString] = useState("");
-const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
+  const [pageSize, setPageSize] = useState(10);
+  const [searchString, setSearchString] = useState("");
+  const [selectedSortData, setSelectedSortData] = useState({
+    value: "created_at",
+    direction: "desc",
+  });
 
-
-  
+  // === FETCH SINGLE LICENSE DETAILS FOR VIEW ===
   const fetchLicenseDetails = async () => {
     try {
       const response = await axiosInstance.get(`V1/liscences/view/${viewId}`);
-    
-
-    const licenseData = response.data?.data?.liscences;
+      const licenseData = response.data?.data?.liscences;
       setSelectedLicense(licenseData);
       setShowViewModal(true);
       setViewId(null);
     } catch (error) {
-      console.error(" Error fetching license details:", error);
+      console.error("Error fetching license details:", error);
     }
   };
 
@@ -46,7 +54,7 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
     if (viewId) fetchLicenseDetails();
   }, [viewId]);
 
-  // 🗑️ Delete handler
+  // === DELETE HANDLER ===
   const handleDelete = (id) => {
     dispatch(deleteSurveyLicense(id));
     setDeleteId(null);
@@ -58,23 +66,37 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
     if (deleteId && confirmAction) handleDelete(deleteId);
   }, [deleteId, confirmAction]);
 
-  // 🧾 Table columns
+  // === EDIT SUBMIT HANDLER ===
+  const handleSubmit = (formData, id, resetForm, handleClose) => {
+    dispatch(updateSurveyLicense(formData, id, resetForm, handleClose));
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setEditData(null);
+  };
+
+  // === TABLE COLUMNS ===
   const columns = useMemo(
     () => [
-      // { header: "ID", accessorKey: "id" },
-      { header: "License Number", accessorKey: "licensenumber" },
-      { header: "Title", accessorKey: "title" },
-      { header: "Agency", accessorKey: "agency" },
-      { header: "Sponsor", accessorKey: "sponsor" },
-      { header: "Approval Date", accessorKey: "approval_date" },
+      { header: "License Number", accessorKey: "licensenumber",cell: ({ getValue }) => getValue() || "N/A", },
+      { header: "Title", accessorKey: "title",cell: ({ getValue }) => getValue() || "N/A", },
+      { header: "Agency", accessorKey: "agency",cell: ({ getValue }) => getValue() || "N/A", },
+      { header: "Sponsor", accessorKey: "sponsor",cell: ({ getValue }) => getValue() || "N/A", },
+      { header: "Approval Date", accessorKey: "approval_date",cell: ({ getValue }) => getValue() || "N/A", },
       {
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
           const handleView = () => setViewId(row.original.id);
+          const handleEdit = () => {
+            setEditData(row.original);
+            setIsOpen(true);
+          };
 
           return (
             <div className="d-flex gap-2">
+             
               <Button
                 color="info"
                 title="View"
@@ -84,6 +106,12 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
                 <IoEyeOutline size={18} color="white" />
               </Button>
 
+              {/*  Edit Button */}
+              <Button color="primary" title="Edit" onClick={handleEdit}>
+                <FaRegEdit size={18} />
+              </Button>
+
+              {/* Delete Button */}
               <Button
                 color="danger"
                 title="Delete"
@@ -104,7 +132,17 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
 
   return (
     <>
- 
+      {/* === Edit Modal === */}
+      <CreateSurveyLicense
+        loading={loading}
+        fieldErrors={fieldErrors}
+        visible={isOpen}
+        initialData={editData}
+        onSubmit={handleSubmit}
+        handleClose={handleClose}
+      />
+
+      {/* === View Modal === */}
       <Modal
         title="License Details"
         visible={showViewModal}
@@ -128,7 +166,10 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
               ["Agency Representative", selectedLicense.agency_rep],
               ["License Type", selectedLicense.licencetype],
               ["Approval Date", selectedLicense.approval_date],
-              ["Implementation Period", `${selectedLicense.implementation_period_from} → ${selectedLicense.implementation_period_to}`],
+              [
+                "Implementation Period",
+                `${selectedLicense.implementation_period_from} → ${selectedLicense.implementation_period_to}`,
+              ],
               ["Objective", selectedLicense.objective],
               ["Status", selectedLicense.status === 1 ? "Active" : "Inactive"],
               ["Created At", selectedLicense.created_at],
@@ -143,7 +184,7 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
         )}
       </Modal>
 
-      {/*  Confirmation Modal */}
+      {/* === Delete Confirmation === */}
       <ConfirmationModal
         okText={"Confirm"}
         onCancel={() => {
@@ -156,12 +197,10 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
         content="Are you sure you want to delete this license?"
       />
 
-      {/*  Data Table */}
+      {/* === Data Table === */}
       <div className="container-fluid">
-        
         <SurveyLicenseDataTable
-
-         selectedSortData={selectedSortData}
+          selectedSortData={selectedSortData}
           setSelectedSortData={setSelectedSortData}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
@@ -169,7 +208,6 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
           setPageSize={setPageSize}
           searchString={searchString}
           setSearchString={setSearchString}
-
           totalrows={totalrows}
           loading={loading}
           columns={columns}
