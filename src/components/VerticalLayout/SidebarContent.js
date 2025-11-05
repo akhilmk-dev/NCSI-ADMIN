@@ -12,7 +12,7 @@ import { TfiLayoutSliderAlt } from "react-icons/tfi";
 import { FaLeanpub } from "react-icons/fa6";
 import { TbChartBarPopular } from "react-icons/tb";
 import { GrIndicator } from "react-icons/gr";
-import { RiSurveyLine } from "react-icons/ri";
+import { RiSurveyLine,RiShieldUserLine  } from "react-icons/ri";
 import { MdOutlineFeedback,MdAssignment  } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { CiUser } from "react-icons/ci";
@@ -312,6 +312,14 @@ const SidebarContent = ({ t }) => {
                   <span>{t("News")}</span>
                 </Link>
               </li>
+
+                 <li>
+                <Link to="/roles" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
+                  <RiShieldUserLine   size={21} className="me-2" />
+                  <span>{t("Roles")}</span>
+                </Link>
+              </li>
+
             {/* {availablePaths.includes("/settings") && (
               <li>
                 <Link to="/settings" className="waves-effect d-flex align-items-center" onClick={() =>{handleMenuItemClick("/users");tToggle2();}}>

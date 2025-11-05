@@ -65,6 +65,16 @@ const UserTable = ({ users, loading,totalrows }) => {
       accessorKey: "user_phone",
     },
     {
+  header: "Role",
+  accessorKey: "role_name",
+  cell: ({ row }) => (
+    <span>
+      {row.original.role?.name || row.original.role_name || "—"}
+    </span>
+  ),
+},
+
+    {
       header: "Created At",
       accessorKey: "created_at",
       showFilter:true,

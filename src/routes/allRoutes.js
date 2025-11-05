@@ -25,6 +25,7 @@ import UserList from "pages/Users/UserList";
 
 import UserProfile from "pages/UserProfile/UserProfile";
 import ChangePassword from "pages/UserProfile/ChangePassword";
+import Profile from "pages/UserProfile/UserProfile"
 import { Navigate } from "react-router-dom";
 import SettingsList from "pages/settings/settingsList";
 import Otp from "pages/Authentication/Otp";
@@ -54,7 +55,7 @@ const userRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
 
   // //profile
-  // { path: "/profile", component: <UserProfile /> },
+  { path: "/profile", component: <UserProfile /> },
   { path: "/change-password", component: <ChangePassword /> },
 
   //Charts
