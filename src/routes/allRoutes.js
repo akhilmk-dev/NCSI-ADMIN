@@ -46,6 +46,8 @@ import StatisticsList from "pages/statistics/StatisticsList";
 import GuideClassificationList from "pages/GuideClassification/GuideClassificationList";
 import MethodologyList from "pages/Methadologies/MethodologyList";
 import SurveyLicenseList from "pages/SurveyLiscences/SurveyLiscenceList";
+import RoleList from "pages/Roles/RoleList";
+import CreateRole from "pages/Roles/CreateRole";
 
 const userRoutes = [
   // { path: "/", component: <Navigate to="/dashboard" /> },
@@ -80,6 +82,8 @@ const userRoutes = [
    {path:"/cms/:id",component:<CreateCmsPage />},
    {path:"/statistics", component:<StatisticsList />},
    {path:"/methodologies",component:<MethodologyList />},
+   {path:"/roles",component:<RoleList />},
+   {path:"/createRole",component:<CreateRole />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
    {path:"/settings", component:<SettingsList />},

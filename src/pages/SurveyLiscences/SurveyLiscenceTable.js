@@ -58,7 +58,7 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
     if (deleteId && confirmAction) handleDelete(deleteId);
   }, [deleteId, confirmAction]);
 
-  // 🧾 Table columns
+  //  Table columns
   const columns = useMemo(
     () => [
       // { header: "ID", accessorKey: "id" },
@@ -169,7 +169,6 @@ const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", 
           setPageSize={setPageSize}
           searchString={searchString}
           setSearchString={setSearchString}
-
           totalrows={totalrows}
           loading={loading}
           columns={columns}

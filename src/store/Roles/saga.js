@@ -1,11 +1,10 @@
-
-import { call, put, takeEvery } from 'redux-saga/effects'
+import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   GET_ROLES,
   ADD_ROLE,
   UPDATE_ROLE,
   DELETE_ROLE,
-} from './actionTypes'
+} from './actionTypes';
 import {
   getRolesSuccess,
   getRolesFail,
@@ -16,76 +15,131 @@ import {
   deleteRoleSuccess,
   deleteRoleFail,
   setRoleFieldErrors,
-} from './actions'
-import axiosInstance from 'pages/Utility/axiosInstance' // Adjust import path to your axios instance
-import toast from 'react-hot-toast'
-import { showSuccess } from 'helpers/notification_helper'
+} from './actions';
+import axiosInstance from 'pages/Utility/axiosInstance';
+import toast from 'react-hot-toast';
 
-// API calls
-const fetchRolesApi = () => axiosInstance.get('', { params: { sp: 'usp_GetRoles' } })
-const addRoleApi = (role) => axiosInstance.post('', role)
-const updateRoleApi = (role) => axiosInstance.post('', role)
-const deleteRoleApi = (id) => axiosInstance.post('', { sp: 'usp_DeleteRole', roleId: id })
+// API Calls
+const fetchRolesApi = (filters) => axiosInstance.post('V1/roles/list', filters);
+const addRoleApi = ({ role, resetForm, handleClose }) => axiosInstance.post('V1/roles/create', role);
+const updateRoleApi = ({ role, id, resetForm, handleClose }) => axiosInstance.put(`V1/roles/update/${id}`, role);
+const deleteRoleApi = (id) => axiosInstance.delete(`V1/roles/${id}`);
 
 // Sagas
-function* getRolesSaga() {
+function* getRolesSaga(action) {
   try {
-    const { data } = yield call(fetchRolesApi)
-    yield put(getRolesSuccess(data))
+    const { data } = yield call(fetchRolesApi, action.payload);
+    yield put(getRolesSuccess(data));
   } catch (error) {
-    yield put(getRolesFail(error.response?.data || error.message))
+    yield put(getRolesFail(error.response?.data || error.message));
   }
 }
 
 function* addRoleSaga(action) {
   try {
-    const { data } = yield call(addRoleApi, action.payload?.role)
-    yield put(addRoleSuccess(data))
-    action.payload.navigate(`/roles`)
-    showSuccess('Role added successfully!')
-    yield put({ type: GET_ROLES })
+    const { data } = yield call(addRoleApi, action.payload);
+    yield put(addRoleSuccess(data));
+
+    // Reset form and close modal
+    action.payload.navigate('/roles');
+    toast.success('Role added successfully!');
+
+    // Refresh list
+    yield put({
+      type: GET_ROLES,
+      payload: {
+        pagesize: 10,
+        currentpage: Number(localStorage.getItem('pageIndex')) + 1,
+        sortorder:
+          JSON.parse(localStorage.getItem('selectedSortData'))?.value &&
+          JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+            ? {
+                field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+              }
+            : {},
+        searchstring: localStorage.getItem('searchString'),
+        filter: {},
+      },
+    });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setRoleFieldErrors(error.response.data.fieldErrors))
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setRoleFieldErrors(error.response.data.errors));
     } else {
-      yield put(addRoleFail(error.response?.data || error.message))
+      yield put(addRoleFail(error.response?.data || error.message));
     }
   }
 }
 
 function* updateRoleSaga(action) {
   try {
-    const { data } = yield call(updateRoleApi, action.payload?.role)
-    yield put(updateRoleSuccess(data))
-    action.payload.navigate(`/roles`)
-    showSuccess('Role updated successfully!')
-    yield put({ type: GET_ROLES })
+    const { data } = yield call(updateRoleApi, action.payload);
+    yield put(updateRoleSuccess(data));
+    // Reset form and close modal
+    action.payload.navigate('/roles');
+    toast.success('Role updated successfully!');
+    // Refresh list
+    yield put({
+      type: GET_ROLES,
+      payload: {
+        pagesize: 10,
+        currentpage: Number(localStorage.getItem('pageIndex')) + 1,
+        sortorder:
+          JSON.parse(localStorage.getItem('selectedSortData'))?.value &&
+          JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+            ? {
+                field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+              }
+            : {},
+        searchstring: localStorage.getItem('searchString'),
+        filter: {},
+      },
+    });
   } catch (error) {
-    if (error.response?.status === 400 && error.response?.data?.fieldErrors) {
-      yield put(setRoleFieldErrors(error.response.data.fieldErrors))
+    if (error.response?.status === 400 && error.response?.data?.errors) {
+      yield put(setRoleFieldErrors(error.response.data.errors));
     } else {
-      yield put(updateRoleFail(error.response?.data || error.message))
+      yield put(updateRoleFail(error.response?.data || error.message));
     }
   }
 }
 
 function* deleteRoleSaga(action) {
   try {
-    yield call(deleteRoleApi, action.payload)
-    yield put(deleteRoleSuccess(action.payload))
-    showSuccess('Role deleted successfully!')
-    yield put({ type: GET_ROLES })
+    yield call(deleteRoleApi, action.payload);
+    yield put(deleteRoleSuccess(action.payload));
+    toast.success('Role deleted successfully!');
+
+    // Refresh list
+    yield put({
+      type: GET_ROLES,
+      payload: {
+        pagesize: 10,
+        currentpage: Number(localStorage.getItem('pageIndex')) + 1,
+        sortorder:
+          JSON.parse(localStorage.getItem('selectedSortData'))?.value &&
+          JSON.parse(localStorage.getItem('selectedSortData'))?.direction
+            ? {
+                field: JSON.parse(localStorage.getItem('selectedSortData')).value,
+                direction: JSON.parse(localStorage.getItem('selectedSortData')).direction,
+              }
+            : {},
+        searchstring: localStorage.getItem('searchString'),
+        filter: {},
+      },
+    });
   } catch (error) {
-    yield put(deleteRoleFail(error.response?.data || error.message))
+    yield put(deleteRoleFail(error.response?.data || error.message));
   }
 }
 
-// Watcher saga
-function* roleSaga() {
-  yield takeEvery(GET_ROLES, getRolesSaga)
-  yield takeEvery(ADD_ROLE, addRoleSaga)
-  yield takeEvery(UPDATE_ROLE, updateRoleSaga)
-  yield takeEvery(DELETE_ROLE, deleteRoleSaga)
+// Watcher Saga
+function* rolesSaga() {
+  yield takeEvery(GET_ROLES, getRolesSaga);
+  yield takeEvery(ADD_ROLE, addRoleSaga);
+  yield takeEvery(UPDATE_ROLE, updateRoleSaga);
+  yield takeEvery(DELETE_ROLE, deleteRoleSaga);
 }
 
-export default roleSaga
+export default rolesSaga;
