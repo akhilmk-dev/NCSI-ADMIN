@@ -30,6 +30,9 @@ const validationSchema = Yup.object().shape({
   goals_ar: Yup.string().required("Goals (AR) is required"),
   values_en: Yup.string().required("Values (EN) is required"),
   values_ar: Yup.string().required("Values (AR) is required"),
+  arabic_1: Yup.string().required("Arabic-1 is required"),
+  arabic_2: Yup.string().required("Arabic-2 is required"),
+
   decrees_laws_decisions: Yup.array().of(
     Yup.object().shape({
       title_en: Yup.string().required("Title (EN) is required"),
@@ -146,6 +149,9 @@ const CreateCmsPage = () => {
     goals_ar: initialData.goals_ar || "",
     values_en: initialData.values_en || "",
     values_ar: initialData.values_ar || "",
+    arabic_1: initialData.arabic_1 || "",
+    arabic_2: initialData.arabic_2 || "",
+
     decrees_laws_decisions:
       initialData.decrees_laws_decisions?.length > 0
         ? initialData.decrees_laws_decisions
@@ -216,6 +222,8 @@ const CreateCmsPage = () => {
                     ["Goals (AR)", "goals_ar"],
                     ["Values (EN)", "values_en"],
                     ["Values (AR)", "values_ar"],
+                    ["Arabic-1", "arabic_1"],
+                    ["Arabic-2", "arabic_2"],
                   ].map(([label, name], i) => (
                     <Col md="6" key={i}>
                       <FormGroup>
