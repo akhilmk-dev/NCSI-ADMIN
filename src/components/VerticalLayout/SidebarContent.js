@@ -13,7 +13,7 @@ import { FaLeanpub } from "react-icons/fa6";
 import { TbChartBarPopular } from "react-icons/tb";
 import { GrIndicator } from "react-icons/gr";
 import { RiSurveyLine } from "react-icons/ri";
-import { MdOutlineFeedback } from "react-icons/md";
+import { MdOutlineFeedback,MdAssignment  } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { CiUser } from "react-icons/ci";
 import { useSelector } from "react-redux";
@@ -301,7 +301,7 @@ const SidebarContent = ({ t }) => {
 
               <li>
                 <Link to="/survey-licenses" className="waves-effect" onClick={() =>{handleMenuItemClick("/survey-licenses"); tToggle2();}}>
-                  <VscListTree  size={21} className="me-2" />
+                  <MdAssignment   size={21} className="me-2" />
                   <span>{t("Survey Licenses")}</span>
                 </Link>
               </li>

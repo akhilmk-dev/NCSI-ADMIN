@@ -1,153 +1,92 @@
-import ConfirmationModal from "components/Modals/ConfirmationModal";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "reactstrap";
-import { deleteSurveyLicense, updateSurveyLicense } from "store/actions";
 import { MdDeleteOutline } from "react-icons/md";
-import { FaRegEdit } from "react-icons/fa";
-import SurveyLicenseDataTable from "components/TableContainers/SurveyLicenseDataTable";
+import { IoEyeOutline } from "react-icons/io5";
+import { useDispatch } from "react-redux";
+import { deleteSurveyLicense } from "store/actions";
+import ConfirmationModal from "components/Modals/ConfirmationModal";
+import { Modal } from "antd";
+import axiosInstance from "pages/Utility/axiosInstance";
 import { useTranslation } from "react-i18next";
-import CreateSurveyLicense from "./CreateSurveyLiscence";
+import SurveyLicenseDataTable from "components/TableContainers/SurveyLicenseDataTable";
 
-const SurveyLicenseTable = ({ list, loading, fieldErrors, totalrows }) => {
-  const dispatch = useDispatch();
+const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
-  const [selectedSortData, setSelectedSortData] = useState({
-    value: "created_at",
-    direction: "desc",
-  });
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchString, setSearchString] = useState("");
-  const [selectedFromDate, setSelectedFromDate] = useState();
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedLicense, setSelectedLicense] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewId, setViewId] = useState(null);
 
-  // DELETE HANDLER
+  const [pageIndex, setPageIndex] = useState(0);
+const [pageSize, setPageSize] = useState(10);
+const [searchString, setSearchString] = useState("");
+const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
+
+
+  
+  const fetchLicenseDetails = async () => {
+    try {
+      const response = await axiosInstance.get(`V1/liscences/view/${viewId}`);
+    
+
+    const licenseData = response.data?.data?.liscences;
+      setSelectedLicense(licenseData);
+      setShowViewModal(true);
+      setViewId(null);
+    } catch (error) {
+      console.error(" Error fetching license details:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (viewId) fetchLicenseDetails();
+  }, [viewId]);
+
+  // 🗑️ Delete handler
   const handleDelete = (id) => {
     dispatch(deleteSurveyLicense(id));
     setDeleteId(null);
-    setPageIndex(0);
     setOpenModal(false);
     setConfirmAction(false);
   };
 
   useEffect(() => {
-    if (deleteId && confirmAction) {
-      handleDelete(deleteId);
-    }
+    if (deleteId && confirmAction) handleDelete(deleteId);
   }, [deleteId, confirmAction]);
 
-  // TABLE COLUMNS
+  // 🧾 Table columns
   const columns = useMemo(
     () => [
-      {
-        header: "License Number",
-        accessorKey: "licensenumber",
-      },
-      {
-        header: "Title",
-        accessorKey: "title",
-        cell: ({ getValue }) => (
-          <div
-            style={{
-              whiteSpace: "normal",
-              wordWrap: "break-word",
-              width: "200px",
-            }}
-          >
-            {getValue()}
-          </div>
-        ),
-      },
-      {
-        header: "Agency",
-        accessorKey: "agency",
-      },
-      {
-        header: "Sponsor",
-        accessorKey: "sponsor",
-      },
-      {
-        header: "Agency Representative",
-        accessorKey: "agency_rep",
-      },
-      {
-        header: "License Type",
-        accessorKey: "licencetype",
-      },
-      {
-        header: "Approval Date",
-        accessorKey: "approval_date",
-        cell: ({ getValue }) =>
-          getValue() ? new Date(getValue()).toLocaleDateString("en-GB") : "-",
-      },
-      {
-        header: "Implementation Period (From)",
-        accessorKey: "implementation_period_from",
-        cell: ({ getValue }) =>
-          getValue() ? new Date(getValue()).toLocaleDateString("en-GB") : "-",
-      },
-      {
-        header: "Implementation Period (To)",
-        accessorKey: "implementation_period_to",
-        cell: ({ getValue }) =>
-          getValue() ? new Date(getValue()).toLocaleDateString("en-GB") : "-",
-      },
-      {
-        header: "Objective",
-        accessorKey: "objective",
-        cell: ({ getValue }) => (
-          <div
-            style={{
-              whiteSpace: "normal",
-              wordWrap: "break-word",
-              width: "250px",
-            }}
-          >
-            {getValue()}
-          </div>
-        ),
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        cell: ({ getValue }) => (
-          <span
-          >
-            {getValue() ? "Active" : "Inactive"}
-          </span>
-        ),
-      },
-      {
-        header: "Created At",
-        accessorKey: "created_at",
-        cell: ({ row }) =>
-          row.original.created_at
-            ? new Date(row.original.created_at).toLocaleString("en-GB")
-            : "-",
-      },
+      // { header: "ID", accessorKey: "id" },
+      { header: "License Number", accessorKey: "licensenumber" },
+      { header: "Title", accessorKey: "title" },
+      { header: "Agency", accessorKey: "agency" },
+      { header: "Sponsor", accessorKey: "sponsor" },
+      { header: "Approval Date", accessorKey: "approval_date" },
       {
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
-          const handleEdit = () => {
-            setEditData(row.original);
-            setIsOpen(true);
-          };
+          const handleView = () => setViewId(row.original.id);
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
-                <FaRegEdit size={18} />
+              <Button
+                color="info"
+                title="View"
+                style={{ backgroundColor: "#00A895" }}
+                onClick={handleView}
+              >
+                <IoEyeOutline size={18} color="white" />
               </Button>
+
               <Button
                 color="danger"
+                title="Delete"
                 onClick={() => {
                   setDeleteId(row.original.id);
                   setOpenModal(true);
@@ -160,51 +99,69 @@ const SurveyLicenseTable = ({ list, loading, fieldErrors, totalrows }) => {
         },
       },
     ],
-    [t]
+    []
   );
-
-  // UPDATE HANDLER
-  const handleSubmit = (formData, id, resetForm, handleClose) => {
-    dispatch(updateSurveyLicense(formData, id, resetForm, handleClose));
-  };
-
-  // CLOSE MODAL
-  const handleClose = () => {
-    setIsOpen(false);
-    setEditData(null);
-  };
 
   return (
     <>
-      {/* Delete Confirmation Modal */}
+ 
+      <Modal
+        title="License Details"
+        visible={showViewModal}
+        onCancel={() => {
+          setShowViewModal(false);
+          setSelectedLicense(null);
+        }}
+        footer={null}
+        destroyOnClose
+        centered
+        width={800}
+        className="custom-modal-header p-0"
+      >
+        {selectedLicense && (
+          <div className="p-3">
+            {[
+              ["License Number", selectedLicense.licensenumber],
+              ["Title", selectedLicense.title],
+              ["Agency", selectedLicense.agency],
+              ["Sponsor", selectedLicense.sponsor],
+              ["Agency Representative", selectedLicense.agency_rep],
+              ["License Type", selectedLicense.licencetype],
+              ["Approval Date", selectedLicense.approval_date],
+              ["Implementation Period", `${selectedLicense.implementation_period_from} → ${selectedLicense.implementation_period_to}`],
+              ["Objective", selectedLicense.objective],
+              ["Status", selectedLicense.status === 1 ? "Active" : "Inactive"],
+              ["Created At", selectedLicense.created_at],
+              ["Updated At", selectedLicense.updated_at],
+            ].map(([label, value], idx) => (
+              <div key={idx} className="row mb-2">
+                <div className="col-4 fw-bold">{label}:</div>
+                <div className="col-8">{value || "N/A"}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
+
+      {/*  Confirmation Modal */}
       <ConfirmationModal
-        okText={t("Confirm")}
+        okText={"Confirm"}
         onCancel={() => {
           setDeleteId(null);
           setOpenModal(false);
         }}
         onOk={() => setConfirmAction(true)}
         isVisible={openModal}
-        title={t("Delete Survey License")}
-        content={t("Are you sure you want to delete this survey license?")}
+        title="Delete License"
+        content="Are you sure you want to delete this license?"
       />
 
-      {/* Edit Modal */}
-      <CreateSurveyLicense
-        loading={loading}
-        fieldErrors={fieldErrors}
-        visible={isOpen}
-        initialData={editData}
-        onSubmit={handleSubmit}
-        handleClose={handleClose}
-      />
-
-      {/* DataTable */}
+      {/*  Data Table */}
       <div className="container-fluid">
+        
         <SurveyLicenseDataTable
-          selectedFromDate={selectedFromDate}
-          setSelectedFromDate={setSelectedFromDate}
-          selectedSortData={selectedSortData}
+
+         selectedSortData={selectedSortData}
           setSelectedSortData={setSelectedSortData}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
@@ -212,15 +169,15 @@ const SurveyLicenseTable = ({ list, loading, fieldErrors, totalrows }) => {
           setPageSize={setPageSize}
           searchString={searchString}
           setSearchString={setSearchString}
+
+          totalrows={totalrows}
           loading={loading}
           columns={columns}
           data={list || []}
           isGlobalFilter={true}
           isPagination={true}
-          totalrows={totalrows}
-          SearchPlaceholder={t("Search survey licenses")}
+          SearchPlaceholder={t("Search")}
           pagination="pagination"
-          docName="Survey Licenses"
           paginationWrapper="dataTables_paginate paging_simple_numbers"
           tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
         />

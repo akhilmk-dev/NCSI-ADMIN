@@ -43,6 +43,7 @@ const deleteSurveyLicenseApi = (id) =>
 function* getSurveyLicensesSaga(action) {
   try {
     const { data } = yield call(fetchSurveyLicensesApi, action.payload);
+    console.log(" Survey Licenses API Response:", data);
     yield put(getSurveyLicensesSuccess(data));
   } catch (error) {
     yield put(getSurveyLicensesFail(error.response?.data || error.message));

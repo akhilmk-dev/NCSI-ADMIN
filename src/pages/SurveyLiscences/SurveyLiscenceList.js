@@ -17,12 +17,12 @@ const SurveyLicenseList = () => {
   const error = useSelector((state) => state.SurveyLicense.error);
   const fieldErrors = useSelector((state) => state.SurveyLicense.fieldErrors);
 
-  // Fetch data when component mounts
+  
   useEffect(() => {
     dispatch(getSurveyLicenses());
   }, [dispatch]);
 
-  // Handle Form Submission
+  
   const handleSubmit = (data, resetForm, handleClose) => {
     dispatch(addSurveyLicense(data, resetForm, handleClose));
   };
