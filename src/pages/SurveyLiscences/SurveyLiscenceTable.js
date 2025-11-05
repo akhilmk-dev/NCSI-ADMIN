@@ -66,7 +66,17 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
     if (deleteId && confirmAction) handleDelete(deleteId);
   }, [deleteId, confirmAction]);
 
-  // 🧾 Table columns
+  // === EDIT SUBMIT HANDLER ===
+  const handleSubmit = (formData, id, resetForm, handleClose) => {
+    dispatch(updateSurveyLicense(formData, id, resetForm, handleClose));
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setEditData(null);
+  };
+
+  // === TABLE COLUMNS ===
   const columns = useMemo(
     () => [
       { header: "License Number", accessorKey: "licensenumber",cell: ({ getValue }) => getValue() || "N/A", },
@@ -100,7 +110,6 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
               <Button color="primary" title="Edit" onClick={handleEdit}>
                 <FaRegEdit size={18} />
               </Button>
-
               {/* Delete Button */}
               <Button
                 color="danger"
