@@ -4,6 +4,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
 import { showError } from "helpers/notification_helper";
+import Select from "react-select";
+
 
 
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
@@ -26,6 +28,7 @@ const CreateOrganizationChart = ({
   onSubmit,
   fieldErrors,
   loading,
+  list=[]
 }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -128,6 +131,11 @@ const CreateOrganizationChart = ({
     }
   };
 
+  const parentOptions=(list || [])
+  .slice(0,4).map((item)=>({
+    value:item.id,
+    label:`${item.title_en} (${item.designation_en})`,
+  }))
   return (
     <Modal
       title={initialData ? "Edit Organization Chart" : "Create Organization Chart"}
@@ -217,6 +225,28 @@ const CreateOrganizationChart = ({
               <div className="text-danger">{formik.errors.designation_ar}</div>
             )}
           </div>
+
+          {/* Select Parent */}
+<div className="col-md-6">
+  <label className="form-label fs-7">Select Parent</label>
+
+  <Select
+    options={parentOptions}
+    isClearable
+    placeholder="Select parent"
+    value={
+      parentOptions.find((opt) => opt.value === formik.values.parent_id) || null
+    }
+    onChange={(selected) =>
+      formik.setFieldValue("parent_id", selected ? selected.value : null)
+    }
+  />
+
+  {formik.touched.parent_id && formik.errors.parent_id && (
+    <div className="text-danger">{formik.errors.parent_id}</div>
+  )}
+</div>
+
 
           {/* Photo Upload */}
           <div className="col-md-6">

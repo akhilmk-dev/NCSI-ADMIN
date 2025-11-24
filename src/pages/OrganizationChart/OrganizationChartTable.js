@@ -9,6 +9,7 @@ import { FaRegEdit } from "react-icons/fa";
 import OrganizationChartDataTable from "components/TableContainers/OrganizationChartDataTable";
 import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
+import axiosInstance from "pages/Utility/axiosInstance";
 
 const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -31,6 +32,8 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
   const hasEditPermission = permissions.includes('organizationcharts.update');
   const hasDeletePermission = permissions.includes('organizationcharts.delete')
   const isAdmin = Cookies.get('isAdmin') == "yes"
+  const [fullList, setFullList] = useState([]);
+
   
 
   // DELETE HANDLER
@@ -47,6 +50,28 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
       handleDelete(deleteId);
     }
   }, [deleteId, confirmAction]);
+
+  useEffect(() => {
+  const fetchFullList = async () => {
+    try {
+      const response = await axiosInstance.post("V1/organizationcharts/list", {
+        pagesize: 10000,
+        currentpage: 1,
+        sortorder: {},
+        searchstring: "",
+        filter: {}
+      });
+
+      setFullList(response?.data?.data?.orgchart || []);
+    } catch (err) {
+      console.error("Full list fetch failed", err);
+    }
+  };
+
+  fetchFullList();
+}, []);
+
+
 
   // COLUMNS
   const columns = useMemo(
@@ -205,6 +230,8 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
         initialData={editData}
         onSubmit={handleSubmit}
         handleClose={handleClose}
+      list={fullList}
+
       />
 
       {/* DataTable */}

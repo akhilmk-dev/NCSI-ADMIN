@@ -8,6 +8,7 @@ import { addOrganizationChart, getOrganizationCharts } from "store/actions";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import axiosInstance from "pages/Utility/axiosInstance";
 
 const OrganizationChartList = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +26,8 @@ const OrganizationChartList = () => {
   const hasCreatePermission = permissions.includes('organizationcharts.create')
   const hasListPermission = permissions.includes('organizationcharts.list');
   const isAdmin = Cookies.get('isAdmin') == "yes"
+  const [fullList, setFullList] = useState([]);
+
   
   useEffect(() => {
     if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
@@ -32,12 +35,35 @@ const OrganizationChartList = () => {
     }
   }, [])
 
+  useEffect(() => {
+  const fetchFullList = async () => {
+    try {
+      const response = await axiosInstance.post("V1/organizationcharts/list", {
+        pagesize: 10000,
+        currentpage: 1,
+        sortorder: {},
+        searchstring: "",
+        filter: {}
+      });
+
+       console.log("FULL LIST => ", response?.data?.data?.orgchart);
+
+      setFullList(response?.data?.data?.orgchart || []);
+    } catch (err) {
+      console.error("Full list fetch failed", err);
+    }
+  };
+
+  fetchFullList();
+}, []);
+
 
   // Handle Form Submission
   const handleSubmit = (data, resetForm, handleClose) => {
     dispatch(addOrganizationChart(data, resetForm, handleClose));
   };
 
+  
   // Handle Close Modal
   const handleClose = () => {
     setIsOpen(false);
@@ -54,6 +80,8 @@ const OrganizationChartList = () => {
         visible={isOpen}
         onSubmit={handleSubmit}
         handleClose={handleClose}
+        list={fullList}
+
       />
 
       {/* Page Content */}
@@ -80,6 +108,8 @@ const OrganizationChartList = () => {
           totalrows={orgChartList?.data?.total}
           loading={loading}
           list={orgChartList?.data?.orgchart}
+           fullList={fullList}
+
         />
       </div>
     </>
