@@ -44,7 +44,8 @@ const ProfileMenu = props => {
 
   const handleLogout = ()=>{
     const allCookies = Cookies.get();
-
+      Cookies.remove('access_token')
+      localStorage.clear()
       // Loop through each cookie and remove it
       for (const cookieName in allCookies) {
         Cookies.remove(cookieName); // Removes the cookie

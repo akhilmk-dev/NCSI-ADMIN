@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API Calls
 const fetchNewsApi = (news) => axiosInstance.post('V1/news/list', news);
 const addNewsApi = ({ news }) => axiosInstance.post('V1/news/create', news);
-const updateNewsApi = ({ news, id }) => axiosInstance.put(`V1/news/update/${id}`, news);
-const deleteNewsApi = (id) => axiosInstance.delete(`V1/news/${id}`);
+const updateNewsApi = ({ news, id }) => axiosInstance.post(`V1/news/update/${id}`, news);
+const deleteNewsApi = (id) => axiosInstance.post(`V1/news/${id}`);
 
 // Sagas
 function* getNewsSaga(action) {
@@ -44,7 +45,7 @@ function* addNewsSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
 
-        toast.success('News added successfully!');
+        showSuccess('News added successfully!');
 
         // Refresh list
         yield put({
@@ -81,7 +82,7 @@ function* updateNewsSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
 
-        toast.success('News updated successfully!');
+        showSuccess('News updated successfully!');
 
         yield put({
             type: GET_NEWS,
@@ -113,7 +114,7 @@ function* deleteNewsSaga(action) {
     try {
         yield call(deleteNewsApi, action.payload);
         yield put(deleteNewsSuccess(action.payload));
-        toast.success('News deleted successfully!');
+        showSuccess('News deleted successfully!');
 
         yield put({
             type: GET_NEWS,

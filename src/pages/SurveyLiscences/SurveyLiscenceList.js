@@ -6,23 +6,38 @@ import { addSurveyLicense, getSurveyLicenses } from "store/actions"; // Adjust i
 import { useTranslation } from "react-i18next";
 import CreateSurveyLicense from "./CreateSurveyLiscence";
 import SurveyLicenseTable from "./SurveyLiscenceTable";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const SurveyLicenseList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const surveyLicenses = useSelector((state) => state.SurveyLicense.licenses);
   const loading = useSelector((state) => state.SurveyLicense.loading);
   const error = useSelector((state) => state.SurveyLicense.error);
   const fieldErrors = useSelector((state) => state.SurveyLicense.fieldErrors);
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('liscences.update');
+  const hasDeletePermission = permissions.includes('liscences.delete')
+  const hasViewPermission = permissions.includes('liscences.view');
+  const hasCreatePermission = permissions.includes('liscences.create')
+  const hasListPermission = permissions.includes('liscences.list');
+    const isAdmin = Cookies.get('isAdmin') == "yes"
   
+  useEffect(() => {
+    if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+      navigate('/pages-403')
+    }
+  }, [])
+
+
   useEffect(() => {
     dispatch(getSurveyLicenses());
   }, [dispatch]);
 
-  
+
   const handleSubmit = (data, resetForm, handleClose) => {
     dispatch(addSurveyLicense(data, resetForm, handleClose));
   };
@@ -49,18 +64,18 @@ const SurveyLicenseList = () => {
       <div className="page-content container-fluid">
         <div className="d-flex justify-content-between align-items-center mx-3">
           <Breadcrumb
-            title="Survey Licenses"
+            title="Survey Licence"
             breadcrumbItems={[
               { title: "Dashboard", link: "/dashboard" },
-              { title: "Survey Licenses", link: "#" },
+              { title: "Survey Licence", link: "#" },
             ]}
           />
-          <Button
+          {(isAdmin || hasCreatePermission) && <Button
             className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
             onClick={() => setIsOpen(true)}
           >
             <i className="ti-plus"></i> {t("Add New")}
-          </Button>
+          </Button>}
         </div>
 
         {/* Survey License Table */}

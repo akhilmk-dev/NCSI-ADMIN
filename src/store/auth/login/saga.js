@@ -25,6 +25,7 @@ function* loginSaga(action) {
     const { data } = yield call(loginApi, action.payload.credentials)
     Cookies.set('access_token', data?.data?.token);
     Cookies.set('isAdmin',data?.data?.super_admin);
+    localStorage.setItem('permissions',JSON.stringify(data?.data?.permissions));
     toast.dismiss();
     showSuccess(data?.message)
     yield put(loginSuccess(data?.data))

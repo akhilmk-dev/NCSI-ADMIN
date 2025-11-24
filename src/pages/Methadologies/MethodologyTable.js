@@ -8,6 +8,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaFilePdf, FaRegEdit } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import MethodologyDataTable from "components/TableContainers/MethodologyDataTable";
+import Cookies from "js-cookie";
 
 const MethodologyTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -21,12 +22,16 @@ const MethodologyTable = ({ list, loading, fieldErrors, totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const [selectedFromDate, setSelectedFromDate] = useState();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('methodologies.update');
+  const hasDeletePermission = permissions.includes('methodologies.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // DELETE HANDLER
   const handleDelete = (id) => {
@@ -130,7 +135,7 @@ const MethodologyTable = ({ list, loading, fieldErrors, totalrows }) => {
           </span>
         ),
       },
-      {
+      ...(isAdmin || hasDeletePermission || hasEditPermission ? [{
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
@@ -141,10 +146,10 @@ const MethodologyTable = ({ list, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission )&& <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasDeletePermission) && <Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row.original.id);
@@ -152,13 +157,13 @@ const MethodologyTable = ({ list, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    [t]
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {

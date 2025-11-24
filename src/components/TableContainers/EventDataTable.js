@@ -409,10 +409,10 @@ const EventDataTable = ({
             </Row>
             <div className="d-flex flex-wrap justify-content-between  mb-2">
                 <div className="d-flex justify-content-between gap-2 align-items-center">
-                    <div style={{ minWidth: "200px" }}>
+                    {/* <div style={{ minWidth: "200px" }}>
                         <label>Event Date</label>
                         <input className="form-control" style={{ minWidth: "200px", height: "38px" }} type="datetime-local" onChange={(e) => setSelectedFromDate(e.target.value)} />
-                    </div>
+                    </div> */}
                 </div>
                 <div className="d-flex justify-content-between align-items-end">
                     <DebouncedInput

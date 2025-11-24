@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API Calls
 const fetchRolesApi = (filters) => axiosInstance.post('V1/roles/list', filters);
 const addRoleApi = ({ role, resetForm, handleClose }) => axiosInstance.post('V1/roles/create', role);
-const updateRoleApi = ({ role, id, resetForm, handleClose }) => axiosInstance.put(`V1/roles/update/${id}`, role);
-const deleteRoleApi = (id) => axiosInstance.delete(`V1/roles/${id}`);
+const updateRoleApi = ({ role, id, resetForm, handleClose }) => axiosInstance.post(`V1/roles/update/${id}`, role);
+const deleteRoleApi = (id) => axiosInstance.post(`V1/roles/${id}`);
 
 // Sagas
 function* getRolesSaga(action) {
@@ -42,7 +43,7 @@ function* addRoleSaga(action) {
 
     // Reset form and close modal
     action.payload.navigate('/roles');
-    toast.success('Role added successfully!');
+    showSuccess('Role added successfully!');
 
     // Refresh list
     yield put({
@@ -77,7 +78,7 @@ function* updateRoleSaga(action) {
     yield put(updateRoleSuccess(data));
     // Reset form and close modal
     action.payload.navigate('/roles');
-    toast.success('Role updated successfully!');
+    showSuccess('Role updated successfully!');
     // Refresh list
     yield put({
       type: GET_ROLES,
@@ -109,7 +110,7 @@ function* deleteRoleSaga(action) {
   try {
     yield call(deleteRoleApi, action.payload);
     yield put(deleteRoleSuccess(action.payload));
-    toast.success('Role deleted successfully!');
+    showSuccess('Role deleted successfully!');
 
     // Refresh list
     yield put({

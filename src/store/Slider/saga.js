@@ -25,10 +25,10 @@ const fetchSlidersApi = (data) =>
 
 const addSliderApi = ({sliderData}) => axiosInstance.post('V1/sliders/create', sliderData);
 
-const updateSliderApi = ({sliderData,id}) => axiosInstance.put(`V1/sliders/update/${id}`, sliderData);
+const updateSliderApi = ({sliderData,id}) => axiosInstance.post(`V1/sliders/update/${id}`, sliderData);
 
 const deleteSliderApi = (id) =>
-  axiosInstance.delete(`V1/sliders/${id}`);
+  axiosInstance.post(`V1/sliders/${id}`);
 
 // 🚦 Sagas
 

@@ -18,12 +18,13 @@ import {
 } from './actions'
 import axiosInstance from 'pages/Utility/axiosInstance'
 import toast from 'react-hot-toast'
+import { showSuccess } from 'helpers/notification_helper'
 
 // API calls
 const fetchClassificationsApi = (classifications) => axiosInstance.post('V1/classifications/list',classifications )
 const addClassificationApi = ({classification}) => axiosInstance.post('V1/classifications/create', classification)
-const updateClassificationApi = ({classification,id}) => axiosInstance.put(`V1/classifications/update/${id}`, classification)
-const deleteClassificationApi = (id) => axiosInstance.delete(`V1/classifications/${id}`)
+const updateClassificationApi = ({classification,id}) => axiosInstance.post(`V1/classifications/update/${id}`, classification)
+const deleteClassificationApi = (id) => axiosInstance.post(`V1/classifications/${id}`)
 
 // Sagas
 function* getClassificationsSaga(action) {
@@ -43,7 +44,7 @@ function* addClassificationSaga(action) {
     yield put(addClassificationSuccess(data))
     action.payload.resetForm();
     action.payload.handleClose();
-    toast.success('Classification added successfully!')
+    showSuccess('Classification added successfully!')
     yield put({ type: GET_CLASSIFICATIONS,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -71,7 +72,7 @@ function* updateClassificationSaga(action) {
     yield put(updateClassificationSuccess(data))
     action.payload.resetForm();
     action.payload.handleClose();
-    toast.success('Classification updated successfully!')
+    showSuccess('Classification updated successfully!')
     yield put({ type: GET_CLASSIFICATIONS,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -97,7 +98,7 @@ function* deleteClassificationSaga(action) {
   try {
     yield call(deleteClassificationApi, action.payload)
     yield put(deleteClassificationSuccess(action.payload))
-    toast.success('Classification deleted successfully!')
+    showSuccess('Classification deleted successfully!')
     yield put({ type: GET_CLASSIFICATIONS ,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,

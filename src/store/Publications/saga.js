@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API calls
 const fetchPublicationsApi = (publications) => axiosInstance.post('V1/publications/list', publications);
 const addPublicationApi = ({publication}) => axiosInstance.post('V1/publications/create', publication);
-const updatePublicationApi = ({publication,id}) => axiosInstance.put(`V1/publications/update/${id}`, publication);
-const deletePublicationApi = (id) => axiosInstance.delete(`V1/publications/${id}`);
+const updatePublicationApi = ({publication,id}) => axiosInstance.post(`V1/publications/update/${id}`, publication);
+const deletePublicationApi = (id) => axiosInstance.post(`V1/publications/${id}`);
 
 // Sagas
 function* getPublicationsSaga(action) {
@@ -41,7 +42,7 @@ function* addPublicationSaga(action) {
         yield put(addPublicationSuccess(data));
         action.payload.resetForm();
         action.payload.handleClose()
-        toast.success('Publication added successfully!');
+       showSuccess('Publication added successfully!');
         yield put({ type: GET_PUBLICATIONS,payload:{
             "pagesize": 10,
             "currentpage": Number(localStorage.getItem('pageIndex')) + 1,
@@ -73,7 +74,7 @@ function* updatePublicationSaga(action) {
         yield put(updatePublicationSuccess(data));
         action.payload.resetForm();
         action.payload.handleClose()
-        toast.success('Publication updated successfully!');
+       showSuccess('Publication updated successfully!');
         yield put({ type: GET_PUBLICATIONS,payload:{
             "pagesize": 10,
             "currentpage": Number(localStorage.getItem('pageIndex')) + 1,
@@ -103,7 +104,7 @@ function* deletePublicationSaga(action) {
     try {
         yield call(deletePublicationApi, action.payload);
         yield put(deletePublicationSuccess(action.payload));
-        toast.success('Publication deleted successfully!');
+       showSuccess('Publication deleted successfully!');
         yield put({ type: GET_PUBLICATIONS,payload:{
             "pagesize": 10,
             "currentpage": Number(localStorage.getItem('pageIndex')) + 1,

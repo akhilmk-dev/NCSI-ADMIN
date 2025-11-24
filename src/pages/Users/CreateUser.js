@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Switch,Select  } from 'antd';
+import { Modal, Switch, Select } from 'antd';
 const { Option } = Select;
 
 import { useFormik } from 'formik';
@@ -22,7 +22,7 @@ const CreateUser = ({ visible, handleClose, initialData = '', onSubmit }) => {
             phone_number: initialData?.user_phone || '',
             password: '',
             status: initialData?.user_status || 1,
-             role_id: initialData?.role_id || ''
+            user_role: initialData?.user_role || ''
         },
         validationSchema: Yup.object({
             name: Yup.string().required('Name is required'),
@@ -35,7 +35,7 @@ const CreateUser = ({ visible, handleClose, initialData = '', onSubmit }) => {
             password: initialData
                 ? Yup.string()
                 : Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
-                role_id: Yup.string().required('Role is required'),
+            user_role: Yup.string().required('Role is required'),
         }),
         onSubmit: (values, { resetForm }) => {
             const payload = {
@@ -43,13 +43,13 @@ const CreateUser = ({ visible, handleClose, initialData = '', onSubmit }) => {
                 email: values.email,
                 phone_number: values.phone_number,
                 status: values.status,
-                role_id:values.role_id
+                user_role: values.user_role
             };
 
             if (!initialData) {
                 payload.password = values.password;
                 onSubmit(payload, onClose);
-            }else{
+            } else {
                 onSubmit(initialData?.user_id, payload, onClose);
             }
         },
@@ -59,22 +59,22 @@ const CreateUser = ({ visible, handleClose, initialData = '', onSubmit }) => {
         formik.resetForm();
         handleClose();
     };
-    
+
     const handleStatusChange = (checked) => {
         formik.setFieldValue('status', checked ? 1 : 2);
     };
 
     const dispatch = useDispatch();
-const roles = useSelector((state) => state.Role.roles?.data?.roles || []); 
+    const roles = useSelector((state) => state.Role.roles?.data?.roles || []);
 
 
-useEffect(() => {
-    
-    if (visible) {
-      
-        dispatch(getRoles());
-    }
-}, [visible, dispatch]);
+    useEffect(() => {
+
+        if (visible) {
+
+            dispatch(getRoles());
+        }
+    }, [visible, dispatch]);
 
 
     return (
@@ -159,61 +159,62 @@ useEffect(() => {
                                     >
                                         {showPassword ? <EyeOutlined /> : <EyeInvisibleOutlined />}
                                     </span>
-                                    
+
                                 </div>
                                 {formik.touched.password && formik.errors.password && (
                                     <span style={{ color: 'red' }}>{formik.errors.password}</span>
                                 )}
                             </div>
-                            
+
                         )}
 
                         <div className="col-12">
 
-<label className="modal-form">
-  Role <span className="text-danger">*</span>
-</label>
+                            <label className="modal-form">
+                                Role <span className="text-danger">*</span>
+                            </label>
 
-<Select
-  showSearch
-  allowClear 
-  placeholder="Select Role"
-  value={formik.values.role_id || undefined}
-  onChange={(value) => formik.setFieldValue('role_id', value)}
-  onBlur={() => formik.setFieldTouched('role_id', true)}
-  className="w-100"
-  optionFilterProp="children"
-  filterOption={(input, option) =>
-    option.children.toLowerCase().includes(input.toLowerCase())
-  }
->
-  {roles?.map((role) => (
-    <Option key={role.id} value={role.id}>
-      {role.name}
-    </Option>
-  ))}
-</Select>
+                            <Select
+                                showSearch
+                                allowClear
+                                placeholder="Select Role"
+                                value={formik.values.user_role || undefined}
+                                onChange={(value) => formik.setFieldValue('user_role', value)}
+                                onBlur={() => formik.setFieldTouched('user_role', true)}
+                                className="w-100"
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.children.toLowerCase().includes(input.toLowerCase())
+                                }
+                            >
+                                {roles?.map((role) => (
+                                    <Option key={role.id} value={role.id}>
+                                        {role.name}
+                                    </Option>
+                                ))}
+                            </Select>
 
-{formik.touched.role_id && formik.errors.role_id && (
-  <span style={{ color: 'red' }}>{formik.errors.role_id}</span>
-)}
+                            {formik.touched.user_role && formik.errors.user_role && (
+                                <span style={{ color: 'red' }}>{formik.errors.user_role}</span>
+                            )}
 
-    {formik.touched.role_id && formik.errors.role_id && (
-        <span style={{ color: 'red' }}>{formik.errors.role_id}</span>
-    )}
-</div>
+                            {formik.touched.user_role && formik.errors.user_role && (
+                                <span style={{ color: 'red' }}>{formik.errors.user_role}</span>
+                            )}
+                        </div>
 
 
-                        
+
 
                         <div className="col-12 d-flex pt-1 flex-column">
                             <label className="modal-form mb-0">Status</label>
                             <Switch
                                 checked={formik.values.status === 1}
                                 onChange={handleStatusChange}
-                                style={{ width: "50px", marginTop: "11px",
+                                style={{
+                                    width: "50px", marginTop: "11px",
                                     backgroundColor: formik.values.status === 1 ? "#00A895" : "#d9d9d9"
-                                  }}
+                                }}
                             />
                             <span className="text-muted" style={{ fontSize: '12px' }}>
                                 {formik.values.status === 1 ? 'Active' : 'Inactive'}

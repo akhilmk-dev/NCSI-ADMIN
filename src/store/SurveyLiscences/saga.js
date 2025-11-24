@@ -18,6 +18,7 @@ import {
 } from "./actions";
 import axiosInstance from "pages/Utility/axiosInstance";
 import toast from "react-hot-toast";
+import { showSuccess } from "helpers/notification_helper";
 
 // ============================
 // API Calls
@@ -30,10 +31,10 @@ const addSurveyLicenseApi = ({ license }) =>
   axiosInstance.post("V1/liscences/create", license);
 
 const updateSurveyLicenseApi = ({ license, id }) =>
-  axiosInstance.put(`V1/liscences/update/${id}`, license);
+  axiosInstance.post(`V1/liscences/update/${id}`, license);
 
 const deleteSurveyLicenseApi = (id) =>
-  axiosInstance.delete(`V1/liscences/${id}`);
+  axiosInstance.post(`V1/liscences/${id}`);
 
 // ============================
 // Worker Sagas
@@ -43,7 +44,6 @@ const deleteSurveyLicenseApi = (id) =>
 function* getSurveyLicensesSaga(action) {
   try {
     const { data } = yield call(fetchSurveyLicensesApi, action.payload);
-    console.log(" Survey Licenses API Response:", data);
     yield put(getSurveyLicensesSuccess(data));
   } catch (error) {
     yield put(getSurveyLicensesFail(error.response?.data || error.message));
@@ -60,7 +60,7 @@ function* addSurveyLicenseSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success("Survey license added successfully!");
+    showSuccess("Survey license added successfully!");
 
     // Refresh list
     yield put({
@@ -100,7 +100,7 @@ function* updateSurveyLicenseSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success("Survey license updated successfully!");
+    showSuccess("Survey license updated successfully!");
 
     // Refresh list
     yield put({
@@ -136,7 +136,7 @@ function* deleteSurveyLicenseSaga(action) {
     yield call(deleteSurveyLicenseApi, action.payload);
     yield put(deleteSurveyLicenseSuccess(action.payload));
 
-    toast.success("Survey license deleted successfully!");
+    showSuccess("Survey license deleted successfully!");
 
     // Refresh list
     yield put({

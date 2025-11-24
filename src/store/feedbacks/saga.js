@@ -14,7 +14,7 @@ import { DELETE_FEEDBACK, GET_FEEDBACKS } from './actionTypes';
 
 // API calls
 const fetchFeedbacksApi = (payload) => axiosInstance.post('V1/feedback/list', payload);
-const deleteFeedbackApi = (id) => axiosInstance.delete(`V1/feedback/${id}`);
+const deleteFeedbackApi = (id) => axiosInstance.post(`V1/feedback/${id}`);
 
 // Sagas
 function* getFeedbacksSaga(action) {

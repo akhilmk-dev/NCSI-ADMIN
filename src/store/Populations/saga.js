@@ -20,6 +20,7 @@ import {
 
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API calls
 const fetchPopulationApi = (data) =>
@@ -29,10 +30,10 @@ const addPopulationApi = ({data}) =>
   axiosInstance.post('V1/populations/create', data);
 
 const updatePopulationApi = ({data,id}) =>
-  axiosInstance.put(`V1/populations/update/${id}`, data);
+  axiosInstance.post(`V1/populations/update/${id}`, data);
 
 const deletePopulationApi = (id) =>
-  axiosInstance.delete(`V1/populations/${id}`);
+  axiosInstance.post(`V1/populations/${id}`);
 
 // Sagas
 function* getPopulationSaga(action) {
@@ -50,7 +51,7 @@ function* addPopulationSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
     yield put(addPopulationSuccess(data));
-    toast.success('Population record added successfully!');
+    showSuccess('Population record added successfully!');
     yield put({ type: GET_POPULATION,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -68,6 +69,8 @@ function* addPopulationSaga(action) {
   } catch (error) {
     if (error.response?.status === 400 && error.response?.data?.errors) {
       yield put(setPopulationFieldErrors(error.response.data.errors));
+    }if(error.response?.status === 409){
+      yield put(setPopulationFieldErrors({ conflict: true }));
     } else {
       yield put(addPopulationFail(error.response?.data || error.message));
     }
@@ -80,7 +83,7 @@ function* updatePopulationSaga(action) {
     yield put(updatePopulationSuccess(data));
     action.payload.resetForm();
     action.payload.handleClose();
-    toast.success('Population record updated successfully!');
+    showSuccess('Population record updated successfully!');
     yield put({ type: GET_POPULATION ,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -108,7 +111,7 @@ function* deletePopulationSaga(action) {
   try {
     yield call(deletePopulationApi, action.payload);
     yield put(deletePopulationSuccess(action.payload));
-    toast.success('Population record deleted successfully!');
+    showSuccess('Population record deleted successfully!');
     yield put({ type: GET_POPULATION ,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,

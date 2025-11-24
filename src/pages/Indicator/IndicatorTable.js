@@ -12,6 +12,43 @@ import { FaRegEdit } from "react-icons/fa";
 import { FaFilePdf } from "react-icons/fa6";
 import IndicatorDataTable from "components/TableContainers/IndicatorDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
+
+function getNextReleaseDate(indicatorDateStr, nextReleaseDay, releaseType, monthOfQuarter) {
+  if (releaseType === "Monthly") {
+    const indicatorDate = new Date(indicatorDateStr);
+    if (isNaN(indicatorDate)) return null;
+
+    // Add 1 month
+    let year = indicatorDate.getFullYear();
+    let month = indicatorDate.getMonth() + 1; 
+
+    if (month > 11) {
+      month = 0;
+      year += 1;
+    }
+
+    // Construct and return the new date
+    const nextReleaseDate = new Date(year, month, nextReleaseDay);
+    return nextReleaseDate.toLocaleDateString("en-GB"); // dd/mm/yyyy
+  } else if (releaseType === "Quarterly") {
+    const indicatorDate = new Date(indicatorDateStr);
+    if (isNaN(indicatorDate)) return null;
+
+    let indicatorYear = indicatorDate.getFullYear();
+    let indicatorMonth = indicatorDate.getMonth(); // 0-based
+
+    let releaseMonth = monthOfQuarter - 1; // convert to 0-based month
+
+    // If indicator month is after or equal to the release month, use next year
+    let releaseYear = indicatorMonth >= releaseMonth ? indicatorYear + 1 : indicatorYear;
+
+    const nextReleaseDate = new Date(releaseYear, releaseMonth, nextReleaseDay);
+    return nextReleaseDate.toLocaleDateString("en-GB"); // dd/mm/yyyy
+  }
+
+  return null; // Fallback
+}
 
 const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -26,6 +63,11 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("")
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('keyindicators.update');
+  const hasDeletePermission = permissions.includes('keyindicators.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   const handleDelete = (id) => {
     dispatch(deleteIndicator(id));
@@ -65,7 +107,10 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
       {
         header: 'Next Release',
         accessorKey: 'indicator_next_release_date',
-        cell: ({ row }) => new Date(row.original.indicator_next_release_date).toLocaleString("en-GB"),
+        cell: ({ row }) => getNextReleaseDate(row.original.indicator_date,
+          row.original?.indicator_next_release_date,
+          row.original?.release_type,
+          row.original?.month_of_quarter) ,
       },
       {
         header: "PDF",
@@ -73,7 +118,7 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
         cell: ({ row }) => (
           (row.original.file_url || row.original?.pub_file)? (
             <div className="text-center">
-              <a href={row.original.file_url ? row.original.file_url : `https://api.ncsi.gov.om/uploads/pdfs/${row?.original?.pub_file}`} className="text-center" target="_blank" rel="noopener noreferrer">
+              <a href={row.original.file_url ? row.original.file_url : row.original?.pubfile_url} className="text-center" target="_blank" rel="noopener noreferrer">
                 <FaFilePdf size={28} />
               </a>
             </div>
@@ -81,7 +126,7 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
         ),
         showFilter: false
       },
-      {
+      ...(isAdmin || hasEditPermission || hasDeletePermission?[{
         header: 'Actions',
         id: 'actions',
         cell: ({ row }) => {
@@ -93,10 +138,10 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission) &&<Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasDeletePermission) && <Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row?.original?.id);
@@ -104,13 +149,13 @@ const IndicatorTable = ({ List, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    []
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, closeModal) => {

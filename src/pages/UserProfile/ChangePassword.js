@@ -54,7 +54,7 @@ const ChangePassword = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.put('V1/user/me/password', {
+      const response = await axiosInstance.post('V1/user/me/password', {
         current_password: values.currentPassword,
         new_password: values.newPassword
       });

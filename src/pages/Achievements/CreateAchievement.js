@@ -36,7 +36,7 @@ const CreateAchievement = ({
     const formik = useFormik({
         enableReinitialize: true,
         validateOnMount: false,
-        validateOnChange: true,
+        validateOnChange: false,
         validateOnBlur: true,
         initialValues: {
             title_en: initialData?.title_en || "",
@@ -113,24 +113,24 @@ const CreateAchievement = ({
             } else {
                 onSubmit(payload, resetForm, handleClose);
             }
+           
         },
     });
 
     // Handle external field errors
     useEffect(() => {
         if (fieldErrors) {
-
             formik.setErrors(fieldErrors);
         }
     }, [fieldErrors]);
 
     useEffect(() => {
+        console.log(Object.keys(formik.errors),"errors")
         if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-            console.log(formik.errors);
             showError("Validation Error");
             setIsSubmitted(false);
         }
-    }, [formik.errors, isSubmitted]);
+    }, [formik.errors]);
 
     const onClose = () => {
         formik.resetForm();

@@ -18,21 +18,27 @@ import "./assets/scss/theme.scss"
 import { Toaster } from 'react-hot-toast'
 import Pages404 from 'pages/Utility/pages-404'
 import Cookies from 'js-cookie'
+import { showError } from 'helpers/notification_helper';
 
 
 const App = () => {
   const navigate = useNavigate()
-  // const hasPermission = (path) => {
-  //   const userPermissions = localStorage?.getItem("permissions");
+  const hasPermission = () => {
+    const userPermissions = localStorage?.getItem("permissions");
 
-  //   if (!userPermissions) {
-  //     const allCookies = Cookies.get();
-  //     for (const cookieName in allCookies) {
-  //       Cookies.remove(cookieName);
-  //     }
-  //     navigate('/login');
-  //     return false;
-  //   }
+    if (!userPermissions) {
+      const allCookies = Cookies.get();
+      for (const cookieName in allCookies) {
+        Cookies.remove(cookieName);
+      }
+      showError("Session Expired")
+      navigate('/login');
+      return false;
+    }
+    return true
+    
+  }
+
 
   //   const permissions = JSON.parse(userPermissions);
   //   const pageUrls = new Set(permissions.map(p => p.pageUrl));
@@ -67,21 +73,14 @@ const App = () => {
   // }
 
   // Helper to wrap routes with permission check
-  // const ProtectedRoute = ({ path, component }) => {
-  //   const navigate = useNavigate() // Using useNavigate hook
-
-  //   useEffect(() => {
-  //     if (!isDynamicRoute(path) && !hasPermission(path)) {
-  //       navigate('/pages-403') // Redirect to 404 page if permission is denied
-  //     }
-  //   }, [path, navigate])
-
-  //   if (isDynamicRoute(path) || hasPermission(path)) {
-  //     return component
-  //   } else {
-  //     return null // Render nothing while the redirection is happening
-  //   }
-  // }
+  const ProtectedRoute = ({ path, component }) => {
+    const navigate = useNavigate() // Using useNavigate hook
+    if (hasPermission(path)) {
+      return component
+    } else {
+      return null 
+    }
+  }
 
   // Function to check if the route is dynamic
   // const isDynamicRoute = (path) => {
@@ -119,8 +118,8 @@ const App = () => {
               path={route.path}
               element={
                 <Authmiddleware>
-                  {/* <ProtectedRoute key={route.path} path={route.path} component={route.component} /> */}
-                  {route.component}
+                  <ProtectedRoute key={route.path} path={route.path} component={route.component} />
+                  {/* {route.component} */}
                 </Authmiddleware>}
               key={idx}
               exact={true}

@@ -25,7 +25,7 @@ const fileToBase64 = (file) => {
 const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, classifications, fieldErrors, loading }) => {
     const [type, setType] = useState(initialData?.type || "");
     const { t } = useTranslation();
-    const [isSubmitted,setIsSubmitted]= useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const formik = useFormik({
         initialValues: {
@@ -37,7 +37,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
             show_in_home: initialData?.show_in_home || false,
             classification_id: initialData?.classification_id || "",
             type: initialData?.type || "",
-            status:initialData?.status || false
+            status: initialData?.status || false
         },
         validationSchema: Yup.object({
             title_en: Yup.string().required("Title is required"),
@@ -89,7 +89,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                 .test("fileFormat", "Unsupported Format, only PDF allowed", (value) => {
                     if (!value || typeof value === "string") return true;
                     return value.type === SUPPORTED_PDF_FORMAT;
-                }) : Yup.mixed()
+                }).required("Arabic Pdf is required") : Yup.mixed()
                     .nullable()
                     .test("fileSize", "File size is too large, max 5MB", (value) => {
                         if (!value || typeof value === "string") return true;
@@ -98,7 +98,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                     .test("fileFormat", "Unsupported Format, only PDF allowed", (value) => {
                         if (!value || typeof value === "string") return true;
                         return value.type === SUPPORTED_PDF_FORMAT;
-                    }),
+                    }).required("Arabic Pdf  is required"),
             classification_id: Yup.string().required("Select a classification"),
             type: Yup.string(),
         }),
@@ -108,11 +108,11 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                 title_ar: values.title_ar,
                 cover_image: values.cover_image,
                 pdf_file: values.pdf_file,
-                pdf_file_ar:values.pdf_file_ar,
+                pdf_file_ar: values.pdf_file_ar,
                 show_in_home: values.show_in_home,
                 classification_id: values.classification_id,
                 type: values.type,
-                status:values?.status
+                status: values?.status
             }
             if (initialData) {
                 onSubmit(payload, initialData?.id, resetForm, handleClose);
@@ -128,12 +128,12 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
         }
     }, [fieldErrors])
 
-      useEffect(() => {
+    useEffect(() => {
         if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-          showError("Validation Error")
-          setIsSubmitted(false)
+            showError("Validation Error")
+            setIsSubmitted(false)
         }
-      }, [formik.errors, isSubmitted])
+    }, [formik.errors, isSubmitted])
 
     const onClose = () => {
         formik.resetForm();
@@ -192,11 +192,11 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                 title_ar: initialData?.title_ar || "",
                 cover_image: null,
                 pdf_file: null,
-                pdf_file_ar:null,
+                pdf_file_ar: null,
                 show_in_home: initialData?.show_in_home || false,
                 classification_id: initialData?.classification_id || "",
                 type: initialData?.type || "",
-                status:initialData?.status || false,
+                status: initialData?.status || false,
 
             });
             setType(initialData?.type || "");
@@ -295,7 +295,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                         </a>}
                     </div>
                     <div className="col-md-6">
-                        <label className="form-label fs-7">{t('PDF(Ar)')}</label>
+                        <label className="form-label fs-7">{t('PDF(Ar)')}</label> <span className="text-danger">*</span>
                         <input
                             type="file"
                             name="pdf_file_ar"
@@ -339,7 +339,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                     {/* Type Radio Buttons */}
                     <div className="col-md-6">
                         <label className="form-label fs-7">
-                            {t('Type')}
+                            {t('Type')} <span className="text-danger">*</span>
                         </label>
                         <div role="group" aria-labelledby="type-radio-group">
                             <label className="me-3">
@@ -379,35 +379,35 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
 
                     {/* Show in Home Toggle */}
                     <div className="col-md-6 d-flex align-items-center">
-                        <label className="form-label me-3 fs-7">{t('Show in Home')}</label>
+                        <label className="form-label me-3 fs-7">{t("Show in Home")}</label>
                         <Switch
-                            onChange={(checked) => formik.setFieldValue("show_in_home", checked)}
                             checked={formik.values.show_in_home}
+                            onChange={(checked) => formik.setFieldValue("show_in_home", checked)}
                             uncheckedIcon={false}
                             checkedIcon={false}
+                            onColor="#00A895"
+                            offColor="#ccc"
                             height={20}
                             width={40}
                             handleDiameter={20}
-                            style={{
-                                backgroundColor: formik.values.status ? "#00A895" : undefined,
-                              }}
                         />
                     </div>
+
                     <div className="col-md-6 d-flex align-items-center">
-                        <label className="form-label me-3 fs-7">{t('Status')}</label>
+                        <label className="form-label me-3 fs-7">{t("Status")}</label>
                         <Switch
-                            onChange={(checked) => formik.setFieldValue("status", checked)}
                             checked={formik.values.status}
+                            onChange={(checked) => formik.setFieldValue("status", checked)}
                             uncheckedIcon={false}
                             checkedIcon={false}
+                            onColor="#00A895"
+                            offColor="#ccc"
                             height={20}
                             width={40}
                             handleDiameter={20}
-                            style={{
-                                backgroundColor: formik.values.status ? "#00A895" : undefined,
-                              }}
                         />
                     </div>
+
 
                     {/* Optional: you can add conditional input for URL if type==="url" */}
                 </div>
@@ -416,7 +416,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                     <button type="button" className="btn btn-light" onClick={onClose}>
                         {t('Close')}
                     </button>
-                    <button type="submit" onClick={()=>setIsSubmitted(true)} className="btn btn-primary ms-3" style={{ minWidth: "100px" }} disabled={loading}>
+                    <button type="submit" onClick={() => setIsSubmitted(true)} className="btn btn-primary ms-3" style={{ minWidth: "100px" }} disabled={loading}>
                         {loading ? <ClipLoader size={18} color="white" /> : initialData?.title_en ? t("Update") : t("Add")}
                     </button>
                 </div>

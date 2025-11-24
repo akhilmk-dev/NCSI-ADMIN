@@ -9,6 +9,8 @@ import { FaRegEdit } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
 import NewsDataTable from "components/TableContainers/NewsDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
+import { convertToDateOnly } from "helpers/dateFormat_helper";
 
 const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -22,12 +24,16 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const [selectedFromDate, setSelectedFromDate] = useState();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('news.update');
+  const hasDeletePermission = permissions.includes('news.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // DELETE HANDLER
   const handleDelete = (id) => {
@@ -51,7 +57,7 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
         header: "Title (EN)",
         accessorKey: "title_en",
         cell: ({ getValue }) => (
-          <div style={{ whiteSpace: "normal", wordWrap: "break-word", width: "250px" }}>
+          <div style={{ whiteSpace: "normal", wordWrap: "break-word", width: "350px" }}>
             {getValue()}
           </div>
         ),
@@ -60,7 +66,7 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
         header: "Title (AR)",
         accessorKey: "title_ar",
         cell: ({ getValue }) => (
-          <div style={{ whiteSpace: "normal", wordWrap: "break-word", width: "250px" }}>
+          <div style={{ whiteSpace: "normal", wordWrap: "break-word", width: "350px" }}>
             {getValue()}
           </div>
         ),
@@ -90,10 +96,10 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
         accessorKey: "created_at",
         cell: ({ row }) =>
           row.original.created_at
-            ? new Date(row.original.created_at).toLocaleString("en-GB")
+            ? convertToDateOnly(row.original.created_at)
             : "-",
       },
-      {
+      ...(isAdmin || hasEditPermission || hasDeletePermission ?[{
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
@@ -104,10 +110,10 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission )&&<Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasEditPermission) && <Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row.original.id);
@@ -115,13 +121,13 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    [t]
+    [hasEditPermission,hasDeletePermission,t,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {

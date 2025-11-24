@@ -20,14 +20,12 @@ import SparklineChart from "../pages/Charts/SparklineChart";
 //Pages
 import Pages404 from "../pages/Utility/pages-404";
 import Pages500 from "../pages/Utility/pages-500";
-import Notifications from "pages/Notification/Notifications";
 import UserList from "pages/Users/UserList";
 
 import UserProfile from "pages/UserProfile/UserProfile";
 import ChangePassword from "pages/UserProfile/ChangePassword";
 import Profile from "pages/UserProfile/UserProfile"
 import { Navigate } from "react-router-dom";
-import SettingsList from "pages/settings/settingsList";
 import Otp from "pages/Authentication/Otp";
 import Pages403 from "pages/Utility/pages-403";
 import SliderList from "pages/sliders/SliderList";
@@ -64,7 +62,6 @@ const userRoutes = [
   { path: "/e-charts", component: <EChart /> },
   { path: "/sparkline-charts", component: <SparklineChart /> },
   // this route should be at the end of all other routes
-   {path:"/notifications",component:<Notifications />},
    {path:"/users", component :<UserList />},
    {path:"/Sliders",component:<SliderList />},
    {path:"/publications",component:<PublicationList/>},
@@ -87,7 +84,6 @@ const userRoutes = [
    {path:"/createRole",component:<CreateRole />},
   //  {path:"/profile/:id",component:<UserProfile />},
   //  {path:"/changePassword", component:<ChangePassword />},
-   {path:"/settings", component:<SettingsList />},
 ];
 
 const authRoutes = [

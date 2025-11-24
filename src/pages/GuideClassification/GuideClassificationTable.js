@@ -10,6 +10,7 @@ import { deleteGuideClassification, updateGuideClassification } from "store/acti
 import EventDataTable from "components/TableContainers/EventDataTable";
 import GuideClassificationDataTable from "components/TableContainers/GuideClassificationDataTable";
 import CreateGuideClassification from "./GuideClassificationCreate";
+import Cookies from "js-cookie";
 
 const GuideClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -23,10 +24,11 @@ const GuideClassificationTable = ({ List, loading, fieldErrors, totalrows }) => 
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const { t } = useTranslation();
-
-  const permissions = [];
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Guide Classification");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Guide Classification");
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('guideclassifications.update');
+  const hasDeletePermission = permissions.includes('guideclassifications.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   const handleDelete = (id) => {
     dispatch(deleteGuideClassification(id));
@@ -119,7 +121,7 @@ const GuideClassificationTable = ({ List, loading, fieldErrors, totalrows }) => 
         </span>
       ),
     },
-    {
+    ...(isAdmin || hasEditPermission || hasDeletePermission ? [{
       header: t("Actions"),
       id: "actions",
       cell: ({ row }) => {
@@ -130,12 +132,12 @@ const GuideClassificationTable = ({ List, loading, fieldErrors, totalrows }) => 
 
         return (
           <div className="d-flex gap-2 justify-content-center">
-            {(
+            { (isAdmin || hasEditPermission) &&(
               <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
               </Button>
             )}
-            {(
+            {(isAdmin || hasDeletePermission) && (
               <Button
                 color="danger"
                 onClick={() => {
@@ -149,8 +151,8 @@ const GuideClassificationTable = ({ List, loading, fieldErrors, totalrows }) => 
           </div>
         );
       },
-    },
-  ], [hasEditPermission, hasDeletePermission, t]);
+    }]:[]),
+  ], [hasEditPermission, hasDeletePermission, t,isAdmin]);
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {
     dispatch(updateGuideClassification(formData, id, resetForm, handleClose));

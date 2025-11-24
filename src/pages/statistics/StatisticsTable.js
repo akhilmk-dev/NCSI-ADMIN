@@ -8,6 +8,8 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import StatisticsDataTable from "components/TableContainers/StatisticsDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
+import { convertToDateOnly } from "helpers/dateFormat_helper";
 
 const StatisticsTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -27,6 +29,11 @@ const StatisticsTable = ({ list, loading, fieldErrors, totalrows }) => {
   const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('statistics.update');
+  const hasDeletePermission = permissions.includes('statistics.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // DELETE HANDLER
   const handleDelete = (id) => {
@@ -87,10 +94,10 @@ const StatisticsTable = ({ list, loading, fieldErrors, totalrows }) => {
         accessorKey: "created_at",
         cell: ({ row }) =>
           row.original.created_at
-            ? new Date(row.original.created_at).toLocaleString("en-GB")
+            ? convertToDateOnly(row.original.created_at)
             : "-",
       },
-      {
+      ...(isAdmin || hasEditPermission|| hasDeletePermission ?[{
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
@@ -101,10 +108,10 @@ const StatisticsTable = ({ list, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission) && <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasDeletePermission) &&<Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row.original.id);
@@ -112,13 +119,13 @@ const StatisticsTable = ({ list, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    [t]
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {

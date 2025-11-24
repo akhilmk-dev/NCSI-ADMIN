@@ -7,19 +7,30 @@ import CreateEvent from './CreateEvent' // Your modal form for event create/edit
 import EventTable from './EventTable' // Your table component for events
 import Breadcrumb from 'components/Common/Breadcrumb2'
 import { useTranslation } from 'react-i18next'
+import Cookies from 'js-cookie'
 
 const EventList = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const {t}= useTranslation()
-
-//   const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('events.update');
+  const hasDeletePermission = permissions.includes('events.delete')
+  const hasViewPermission = permissions.includes('events.view');
+  const hasCreatePermission = permissions.includes('events.create')
+  const hasListPermission = permissions.includes('events.list');
   const events = useSelector((state) => state.Event.events)
   const loading = useSelector((state) => state.Event.loading)
   const error = useSelector((state) => state.Event.error)
   const fieldErrors = useSelector((state)=>state?.Event?.fieldErrors);
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+
+  useEffect(()=>{
+    if(!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin){
+      navigate('/pages-403')
+    }
+  },[])
 
   const handleSubmit = (data,resetForm,handleClose) => {
     dispatch(addEvent(data,resetForm,handleClose))
@@ -42,7 +53,7 @@ const EventList = () => {
             ]}
           />
           {(
-            <Button
+            (isAdmin || hasCreatePermission)&&<Button
               className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
               onClick={() => setIsOpen(true)}
             >

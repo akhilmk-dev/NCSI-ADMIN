@@ -6,17 +6,31 @@ import CreateMethodology from './CreateMethodology'; // Modal form for Methodolo
 import MethodologyTable from './MethodologyTable'; // Table component for Methodology
 import { addMethodology } from 'store/actions';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const MethodologyList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate()
   const methodologyList = useSelector((state) => state.Methodologies.methodologies);
   const loading = useSelector((state) => state.Methodologies.loading);
   const error = useSelector((state) => state.Methodologies.error);
   const fieldErrors = useSelector((state) => state.Methodologies.fieldErrors);
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('methodologies.update');
+  const hasDeletePermission = permissions.includes('methodologies.delete')
+  const hasViewPermission = permissions.includes('methodologies.view');
+  const hasCreatePermission = permissions.includes('methodologies.create')
+  const hasListPermission = permissions.includes('methodologies.list');
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
+  useEffect(() => {
+    if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+      navigate('/pages-403')
+    }
+  }, [])
 
 
   // Handle Form Submission
@@ -52,12 +66,12 @@ const MethodologyList = () => {
               { title: 'Methodology', link: '#' },
             ]}
           />
-          <Button
+          {(isAdmin ||hasCreatePermission) && <Button
             className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
             onClick={() => setIsOpen(true)}
           >
             <i className="ti-plus"></i> {t('Add New')}
-          </Button>
+          </Button>}
         </div>
 
         {/* Methodology Table */}

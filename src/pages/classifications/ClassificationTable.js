@@ -11,6 +11,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import ClassificationDataTable from "components/TableContainers/ClassificationTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const navigate = useNavigate();
@@ -25,12 +26,11 @@ const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const { t } = useTranslation()
-
-  const permissions = [];
-
-  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Classifications");
-  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Classifications");
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('classifications.update');
+  const hasDeletePermission = permissions.includes('classifications.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
   const handleDelete = (classificationId) => {
     dispatch(deleteClassification(classificationId));
     setDeleteId('');
@@ -56,7 +56,7 @@ const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
         accessorKey: 'created_at',
         cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-GB"),
       },
-      ...([
+      ...(isAdmin || hasEditPermission || hasDeletePermission ?[
         {
           header: 'Actions',
           id: 'actions',
@@ -69,12 +69,12 @@ const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
 
             return (
               <div className="d-flex gap-2">
-                {(
+                {(isAdmin || hasEditPermission) &&(
                   <Button color="primary" onClick={handleEdit} className="mr-2">
                     <FaRegEdit size={18} />
                   </Button>
                 )}
-                {(
+                {(isAdmin ||hasDeletePermission) && (
                   <Button
                     color="danger"
                     onClick={() => { setDeleteId(row?.original?.id); setOpenModal(true); }}
@@ -87,9 +87,9 @@ const ClassificationTable = ({ List, loading, fieldErrors, totalrows }) => {
             );
           },
         },
-      ]),
+      ]:[]),
     ],
-    []
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (data, id, resetForm, handleClose) => {

@@ -20,12 +20,13 @@ import {
 
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API calls
 const fetchIndicatorsApi = (data) => axiosInstance.post('V1/keyindicators/list',data);
 const addIndicatorApi = ({ indicator }) => axiosInstance.post('V1/keyindicators/create', indicator);
-const updateIndicatorApi = ({ indicator, id }) => axiosInstance.put(`V1/keyindicators/update/${id}`, indicator);
-const deleteIndicatorApi = (id) => axiosInstance.delete(`V1/keyindicators/${id}`);
+const updateIndicatorApi = ({ indicator, id }) => axiosInstance.post(`V1/keyindicators/update/${id}`, indicator);
+const deleteIndicatorApi = (id) => axiosInstance.post(`V1/keyindicators/${id}`);
 
 // Sagas
 function* getIndicatorsSaga(action) {
@@ -34,8 +35,6 @@ function* getIndicatorsSaga(action) {
     yield put(getIndicatorsSuccess(data));
   } catch (error) {
     yield put(getIndicatorsFail(error.response?.data || error.message));
-    toast.dismiss();
-    toast.error('Failed to fetch indicators!');
   }
 }
 
@@ -45,7 +44,7 @@ function* addIndicatorSaga(action) {
     yield put(addIndicatorSuccess(data));
     action.payload.resetForm();
     action.payload.handleClose();
-    toast.success('Indicator added successfully!');
+    showSuccess('Indicator added successfully!');
     yield put({ type: GET_INDICATORS ,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -73,7 +72,7 @@ function* updateIndicatorSaga(action) {
     yield put(updateIndicatorSuccess(data));
     action.payload.resetForm();
     action.payload.handleClose();
-    toast.success('Indicator updated successfully!');
+    showSuccess('Indicator updated successfully!');
     yield put({ type: GET_INDICATORS ,payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,
@@ -99,7 +98,7 @@ function* deleteIndicatorSaga(action) {
   try {
     yield call(deleteIndicatorApi, action.payload);
     yield put(deleteIndicatorSuccess(action.payload));
-    toast.success('Indicator deleted successfully!');
+    showSuccess('Indicator deleted successfully!');
     yield put({ type: GET_INDICATORS , payload:{
       "pagesize": 10,
       "currentpage":Number(localStorage.getItem('pageIndex'))+ 1,

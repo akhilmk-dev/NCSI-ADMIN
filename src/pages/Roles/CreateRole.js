@@ -14,62 +14,73 @@ import axios from 'axios';
 import { BASE_URL } from 'constants/config';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import { showError } from 'helpers/notification_helper';
+import Cookies from 'js-cookie';
 
 
 const CreateRole = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch()
-  const [initialData,setInitialData]=useState()
+  const [initialData, setInitialData] = useState()
   const { t } = useTranslation();
-  const [permissions,setPermissions] = useState([])
+  const [permissions, setPermissions] = useState([])
   const { search } = location;
   const roleId = new URLSearchParams(search).get('id');
+  const isAdmin = Cookies.get('isAdmin') == "yes"
 
+  const permissions2 = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions2.includes('roles.update');
+  const hasCreatePermission = permissions2.includes('roles.create')
+
+  useEffect(() => {
+    if (!hasEditPermission  && !hasCreatePermission  && !isAdmin) {
+      navigate('/pages-403')
+    }
+  }, [])
 
   const nameRef = useRef(null);
   const [groups, setGroups] = useState({});
-  const fetchPermissions = async()=>{
+  const fetchPermissions = async () => {
     try {
-        const response = await axiosInstance.get(`V1/permissions`);
-        setPermissions(response.data?.data?.permissions)
+      const response = await axiosInstance.get(`V1/permissions`);
+      setPermissions(response.data?.data?.permissions)
     } catch (error) {
-        console.log(error)
+      console.log(error)
     }
   }
-  const fetchEditData = async()=>{
+  const fetchEditData = async () => {
     try {
-        const response = await axiosInstance.get(`V1/roles/view/${roleId}`);
-        const role = response?.data?.data?.role;
-        setInitialData({
-          name: role.name,
-          permissions: role.permissions || [],
-        });
+      const response = await axiosInstance.get(`V1/roles/view/${roleId}`);
+      const role = response?.data?.data?.role;
+      setInitialData({
+        name: role.name,
+        permissions: role.permissions || [],
+      });
     } catch (error) {
-        console.log(error)
+      console.log(error)
     }
   }
-  useEffect(()=>{
+  useEffect(() => {
     fetchPermissions()
-  },[])
+  }, [])
 
-  useEffect(()=>{
-    if(roleId){
-        fetchEditData()
+  useEffect(() => {
+    if (roleId) {
+      fetchEditData()
     }
-  },[roleId ])
+  }, [roleId])
 
   // Transform JSON permissions into grouped array for rendering
   useEffect(() => {
-    if(permissions?.length > 0){
-        const grouped = permissions.reduce((acc, group) => {
-            acc[group.title] = Object.entries(group.permissions).map(([id, name]) => ({
-              _id: id,
-              permission_name: name
-            }));
-            return acc;
-          }, {});
-          setGroups(grouped);
+    if (permissions?.length > 0) {
+      const grouped = permissions.reduce((acc, group) => {
+        acc[group.title] = Object.entries(group.permissions).map(([id, name]) => ({
+          _id: id,
+          permission_name: name
+        }));
+        return acc;
+      }, {});
+      setGroups(grouped);
     }
   }, [permissions]);
 
@@ -84,7 +95,7 @@ const CreateRole = () => {
       name: Yup.string().trim().required(t("Role Name is required")),
     }),
     onSubmit: (values) => {
-       
+
       if (!values.permissions || values.permissions.length === 0) {
         showError(t("Please select at least one permission"));
         return;

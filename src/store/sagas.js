@@ -6,14 +6,8 @@ import AuthSaga from "./auth/login/saga"
 import ForgetSaga from "./auth/forgetpwd/saga"
 import ProfileSaga from "./auth/profile/saga"
 import LayoutSaga from "./layout/saga"
-import categorySaga from "./Categories/saga"
-import NotificationSaga from "./Notification/saga"
 import UserSaga from "./Users/saga"
-import CustomerSaga from "./Customers/saga"
-import PermissionSaga from "./Permissions/saga"
 import Roles from "./Roles/saga"
-import AddressSaga from "./Address/saga"
-import BranchSaga from "./branch/saga"
 import SliderSaga from "./Slider/saga"
 import EventSaga from "./Events/saga"
 import PublicationSaga from "./Publications/saga"
@@ -39,14 +33,8 @@ export default function* rootSaga() {
     ProfileSaga(),
     ForgetSaga(),
     LayoutSaga(),
-    categorySaga(),
-    NotificationSaga(),
     UserSaga(),
-    CustomerSaga(),
-    PermissionSaga(),
     Roles(),
-    AddressSaga(),
-    BranchSaga(),
     SliderSaga(),
     EventSaga(),
     PublicationSaga(),

@@ -9,18 +9,25 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const UserList = () => {
-    const [isOpen, setIsOpen] = useState(false); 
+    const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
     const users = useSelector((state) => state.User.users);
     const loading = useSelector((state) => state.User.loading);
     const error = useSelector((state) => state.User.error);
     const navigate = useNavigate()
-
-    useEffect(()=>{
-        if(Cookies.get('isAdmin') != "yes"){
-            navigate('/page-404')
+    const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+    const hasEditPermission = permissions.includes('users.update');
+    const hasDeletePermission = permissions.includes('users.delete')
+    const hasViewPermission = permissions.includes('users.view');
+    const hasCreatePermission = permissions.includes('users.create')
+    const hasListPermission = permissions.includes('users.list');
+    const isAdmin = Cookies.get('isAdmin') == "yes"
+    
+    useEffect(() => {
+        if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+            navigate('/pages-403')
         }
-    },[])
+    }, [])
 
     // Fetch users on mount
     useEffect(() => {
@@ -30,13 +37,13 @@ const UserList = () => {
                 "currentpage": 1,
                 "searchstring": "",
                 "sortorder": {
-                  "field": "created_at",
-                  "direction": "desc"
+                    "field": "created_at",
+                    "direction": "desc"
                 },
                 "filter": {
-                  
+
                 }
-              }));
+            }));
         }
     }, [dispatch]);
 
@@ -55,7 +62,6 @@ const UserList = () => {
                 visible={isOpen}
                 onSubmit={handleSubmit}
                 handleClose={handleClose}
-                
             />
 
             <div className="page-content container-fluid">
@@ -69,12 +75,12 @@ const UserList = () => {
                         ]}
                     />
 
-                    <Button
+                    {(isAdmin || permissions?.includes('users.create')) && <Button
                         className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
                         onClick={() => setIsOpen(true)}
                     >
                         <i className="ti-plus"></i> Add New
-                    </Button>
+                    </Button>}
                 </div>
 
                 {/* User list table */}

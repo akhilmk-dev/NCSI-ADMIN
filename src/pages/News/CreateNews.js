@@ -34,8 +34,8 @@ const CreateNews = ({
   const formik = useFormik({
     enableReinitialize: true,
     validateOnMount: false,
-    validateOnChange: true,
-    validateOnBlur: true,
+    validateOnChange: false,
+    validateOnBlur: false,
     initialValues: {
       title_en: initialData?.title_en || "",
       title_ar: initialData?.title_ar || "",
@@ -117,7 +117,7 @@ const CreateNews = ({
       showError("Validation Error");
       setIsSubmitted(false);
     }
-  }, [formik.errors, isSubmitted]);
+  }, [formik.errors]);
 
   const onClose = () => {
     formik.resetForm();

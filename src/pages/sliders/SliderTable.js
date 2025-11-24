@@ -12,6 +12,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { IMG_URL } from "constants/config";
 import SliderDataTable from "components/TableContainers/SliderDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
   const dispatch = useDispatch();
@@ -22,9 +23,11 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
-  const permissions = [];
-  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Sliders");
-  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Sliders");
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions?.includes('sliders.update');
+  const hasDeletePermission = permissions?.includes('sliders.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   const handleDelete = (id) => {
     dispatch(deleteSlider(id));
@@ -69,7 +72,7 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
       accessorKey: "alt_text",
     },
     ...(
-      [
+      isAdmin ||hasEditPermission || hasDeletePermission?[
           {
             header: "Actions",
             id: "actions",
@@ -81,12 +84,12 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
 
               return (
                 <div className="d-flex gap-2">
-                  {(
+                  {(isAdmin || hasEditPermission) && (
                     <Button color="primary" onClick={handleEdit}>
                       <FaRegEdit size={18} />
                     </Button>
                   )}
-                  {(
+                  {(isAdmin || hasDeletePermission) && (
                     <Button
                       color="danger"
                       onClick={() => {
@@ -101,9 +104,9 @@ const SliderTable = ({ List, loading,fieldErrors,totalrows }) => {
               );
             },
           },
-        ]
+        ]:[]
       ),
-  ], []);
+  ], [hasEditPermission,hasDeletePermission,isAdmin]);
 
   const handleSubmit = (formData,id,resetForm,handleClose) => {
     dispatch(updateSlider(formData,id,resetForm,handleClose));

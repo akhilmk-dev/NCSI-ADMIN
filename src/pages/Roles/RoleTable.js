@@ -10,8 +10,9 @@ import { MdDelete } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import TableContainer from "components/Common/DataTableContainer";
 import RolesDataTable from "components/TableContainers/RolesDataTable";
+import Cookies from "js-cookie";
 
-const RolesTable = ({ list, loading,total }) => {
+const RolesTable = ({ list, loading, total }) => {
   console.log(list)
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -26,11 +27,11 @@ const RolesTable = ({ list, loading,total }) => {
     value: "created_at",
     direction: "desc",
   });
-
-  // Permissions from localStorage
-//   const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-//   const hasEditPermission = permissions.some(p => p.permission_name === "Edit Role");
-//   const hasDeletePermission = permissions.some(p => p.permission_name === "Delete Role");
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('roles.update');
+  const hasDeletePermission = permissions.includes('roles.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // Handle delete action
   const handleDelete = (roleId) => {
@@ -53,40 +54,40 @@ const RolesTable = ({ list, loading,total }) => {
       enableColumnFilter: false,
       enableSorting: true,
     },
-          {
-            header: t("Actions"),
-            id: "actions",
-            cell: ({ row }) => {
-              const rowData = row.original;
+    ...(isAdmin || hasEditPermission || hasDeletePermission ? [{
+      header: t("Actions"),
+      id: "actions",
+      cell: ({ row }) => {
+        const rowData = row.original;
 
-              const handleEdit = () => {
-                navigate(`/createRole?id=${rowData?.id}`);
-              };
+        const handleEdit = () => {
+          navigate(`/createRole?id=${rowData?.id}`);
+        };
 
-              return (
-                <div className="d-flex gap-2">
-                  {(
-                    <Button color="primary" onClick={handleEdit} title={t("Edit")}>
-                      <FaRegEdit color="white" size={18} />
-                    </Button>
-                  )}
-                  {(
-                    <Button
-                      color="danger"
-                      onClick={() => {
-                        setDeleteId(rowData?.id);
-                        setOpenModal(true);
-                      }}
-                      title={t("Delete")}
-                    >
-                      <MdDelete color="white" size={18} />
-                    </Button>
-                  )}
-                </div>
-              );
-            },
-          }
-  ], [ t, navigate]);
+        return (
+          <div className="d-flex gap-2">
+            {(isAdmin || hasEditPermission )&& (
+              <Button color="primary" onClick={handleEdit} title={t("Edit")}>
+                <FaRegEdit color="white" size={18} />
+              </Button>
+            )}
+            {(isAdmin || hasDeletePermission )&& (
+              <Button
+                color="danger"
+                onClick={() => {
+                  setDeleteId(rowData?.id);
+                  setOpenModal(true);
+                }}
+                title={t("Delete")}
+              >
+                <MdDelete color="white" size={18} />
+              </Button>
+            )}
+          </div>
+        );
+      },
+    }]:[])
+  ], [t, navigate, hasEditPermission, hasDeletePermission,isAdmin]);
 
   // Meta title
   document.title = "Roles | Your Admin Dashboard";
@@ -108,7 +109,7 @@ const RolesTable = ({ list, loading,total }) => {
       />
 
       <div className="container-fluid">
-         <RolesDataTable
+        <RolesDataTable
           selectedSortData={selectedSortData}
           setSelectedSortData={setSelectedSortData}
           pageIndex={pageIndex}

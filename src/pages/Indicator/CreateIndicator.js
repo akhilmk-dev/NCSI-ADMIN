@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select'
 import { showError } from 'helpers/notification_helper';
 
-const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fieldErrors, loading }) => {
+const CreateIndicator = ({ visible, handleClose, initialData = "", onSubmit, fieldErrors, loading }) => {
     const [fileOption, setFileOption] = React.useState('upload'); // 'upload' or 'publication'
     const [selectedPublication, setSelectedPublication] = React.useState(null);
     const [publicationFiles, setPublicationFiles] = React.useState([]);
@@ -44,7 +44,8 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
         { label: 'November', value: 11 },
         { label: 'December', value: 12 },
     ];
-    const formik = useFormik({
+
+const formik = useFormik({
         initialValues: {
             indicator_value: initialData?.indicator_value || '',
             indicator_value_unit_en: initialData?.indicator_value_unit_en || '',
@@ -58,7 +59,7 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
             release_type: initialData?.release_type || '',
             month_of_quarter: initialData?.month_of_quarter || '',
             file: null,
-            pub_file:null
+            pub_file:initialData?.pub_file || ""
         },
         validationSchema: Yup.object({
             indicator_value: Yup.number().required('Indicator value is required'),
@@ -70,7 +71,7 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
             indicator_sub_title_ar: Yup.string().required('Subtitle (AR) is required'),
             indicator_date: Yup.date().required('Indicator date is required'),
             indicator_next_release_date: Yup.number()
-            .typeError('Next release date must be a number')   // shows error if input is not a number
+            .typeError('Next release date must be a number')   
             .integer('Must be an integer')                     // ensures no decimals
             .min(1, 'Must be at least 1')                      // minimum valid day
             .max(31, 'Cannot be more than 31')                 // maximum valid day
@@ -97,6 +98,31 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
         },
     });
 
+    useEffect(() => {
+        if (initialData && visible) {
+            console.log(initialData)
+            // Update formik values correctly, making sure to handle pub_file
+            formik.setValues({
+                indicator_value: initialData?.indicator_value || '',
+                indicator_value_unit_en: initialData?.indicator_value_unit_en || '',
+                indicator_value_unit_ar: initialData?.indicator_value_unit_ar || '',
+                indicator_title_en: initialData?.indicator_title_en || '',
+                indicator_title_ar: initialData?.indicator_title_ar || '',
+                indicator_sub_title_en: initialData?.indicator_sub_title_en || '',
+                indicator_sub_title_ar: initialData?.indicator_sub_title_ar || '',
+                indicator_date: initialData?.indicator_date
+                    ? new Date(initialData?.indicator_date).toLocaleDateString('en-CA')
+                    : '',
+                pub_file: initialData?.pub_file || null,
+                indicator_next_release_date: initialData?.indicator_next_release_date || '',
+                release_type: initialData?.release_type || '',
+                month_of_quarter: initialData?.month_of_quarter || '',
+                file: null, // Reset file, it might be changed in the UI
+               // Ensure pub_file is correctly passed here
+            });
+        }
+    }, [visible, initialData]);
+
     const onClose = () => {
         formik.resetForm();
         setPublicationFiles([])
@@ -121,26 +147,6 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
     useEffect(()=>{
         dispatch(getPublications())
     },[])
-
-    useEffect(() => {
-        if (initialData && visible) {
-            formik.setValues({
-                indicator_value: initialData?.indicator_value || '',
-                indicator_value_unit_en: initialData?.indicator_value_unit_en || '',
-                indicator_value_unit_ar: initialData?.indicator_value_unit_ar || '',
-                indicator_title_en: initialData?.indicator_title_en || '',
-                indicator_title_ar: initialData?.indicator_title_ar || '',
-                indicator_sub_title_en: initialData?.indicator_sub_title_en || '',
-                indicator_sub_title_ar: initialData?.indicator_sub_title_ar || '',
-                indicator_date: initialData?.indicator_date ? new Date(initialData?.indicator_date).toISOString().split('T')[0] : '',
-                indicator_next_release_date: initialData?.indicator_next_release_date || '',
-                release_type: initialData?.release_type || '',
-                month_of_quarter: initialData?.month_of_quarter || '',
-                file: null,
-                pub_file:null
-            })
-        }
-    }, [visible])
 
     useEffect(()=>{
         if(selectedPublication){
@@ -336,7 +342,7 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
                                         <Radio.Group
                                             onChange={(e) => {
                                                 const fileUrl = e.target.value;
-                                                formik.setFieldValue("pub_file", fileUrl); // treat as value to submit
+                                                formik.setFieldValue("pub_file", fileUrl); 
                                                 
                                             }}
                                         >
@@ -369,7 +375,7 @@ const CreateIndicator = ({ visible, handleClose, initialData = {}, onSubmit, fie
 
                         {(initialData?.file_url || initialData?.pub_file) && (
                             <a
-                                href={initialData?.pub_file ? `https://api.ncsi.gov.om/uploads/pdfs/${initialData?.pub_file}`:initialData?.file_url}
+                                href={initialData?.pub_file ? initialData?.pubfile_url:initialData?.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ color: "#00A895", textDecoration: "underline", display: "block", marginTop: "10px" }}

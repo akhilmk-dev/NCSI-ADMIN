@@ -35,7 +35,8 @@ const SidebarContent = ({ t }) => {
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const user = useSelector(state=>state?.Login.user)
   const path = location.pathname;
-  const permissions = [];
+  const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
+  const isAdmin = Cookies.get('isAdmin') == "yes"
 
   const activateParentDropdown = useCallback((item) => {
     item.classList.add("active");
@@ -168,8 +169,7 @@ const SidebarContent = ({ t }) => {
   }
 
   // Get available paths from permissions
-  // const availablePaths = permissions?.map(permission => permission.pageUrl);
-
+  const availablePaths = permissions
   // Handle menu item click
   const handleMenuItemClick = (itemPath) => {
     setSelectedMenuItem(itemPath);  // Set the active menu item
@@ -192,133 +192,133 @@ const SidebarContent = ({ t }) => {
                 </Link>
               </li>
             )}
-            {/* {availablePaths.includes("/add-form") && ( */}
+            {(isAdmin || availablePaths.includes("events.list") || availablePaths.includes("events.create") || availablePaths.includes("events.update") || availablePaths.includes("events.delete") || availablePaths.includes("events.view"))&& (
               <li>
                 <Link to="/events" className="waves-effect" onClick={() =>{ handleMenuItemClick("/events"); tToggle2();}}>
                   <IoListOutline size={23} className="me-2" />
                   <span>{t("Events")}</span>
                 </Link>
               </li>
-            {/* )} */}
-            {Cookies.get('isAdmin') == "yes"&&<li>
+            )}
+            {((isAdmin || availablePaths.includes("users.list") || availablePaths.includes("users.create") || availablePaths.includes("users.update") || availablePaths.includes("users.delete") || availablePaths.includes("users.view")))&&<li>
                 <Link to="/users" className="waves-effect" onClick={() =>{ handleMenuItemClick("/users"); tToggle2();}}>
                 <CiUser size={22} className="me-2" />
                   <span>{t("Users")}</span>
                 </Link>
               </li>}
-            {/* {availablePaths.includes("/departments") && ( */}
+            {(isAdmin || availablePaths.includes("sliders.list") || availablePaths.includes("sliders.create") || availablePaths.includes("sliders.update") || availablePaths.includes("sliders.delete") || availablePaths.includes("sliders.view")) && (
               <li>
                 <Link to="/Sliders" className="waves-effect" onClick={() =>{handleMenuItemClick("/Sliders"); tToggle2();}}>
                   <TfiLayoutSliderAlt  size={23} className="me-2" />
                   <span>{t("Sliders")}</span>
                 </Link>
               </li>
-            {/* )} */}
+            )}
            
-            <li>
+            {(isAdmin || availablePaths.includes("publications.list") || availablePaths.includes("publications.create") || availablePaths.includes("publications.update") || availablePaths.includes("publications.delete") || availablePaths.includes("publications.view"))&&<li>
                 <Link to="/publications" className="waves-effect" onClick={() =>{handleMenuItemClick("/publications"); tToggle2();}}>
                   <FaLeanpub size={23} className="me-2" />
                   <span>{t("Publications")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("classifications.list") || availablePaths.includes("classifications.create") || availablePaths.includes("classifications.update") || availablePaths.includes("classifications.delete") || availablePaths.includes("classifications.view"))&&<li>
                 <Link to="/classifications" className="waves-effect" onClick={() =>{handleMenuItemClick("/classifications"); tToggle2();}}>
                   <PiNetworkLight size={23} className="me-2" />
                   <span>{t("Classifications")}</span>
                 </Link>
-              </li>
+              </li>}
            
-              <li>
+              {(isAdmin || availablePaths.includes("populations.list") || availablePaths.includes("populations.create") || availablePaths.includes("populations.update") || availablePaths.includes("populations.delete") || availablePaths.includes("populations.view"))&&<li>
                 <Link to="/populations" className="waves-effect" onClick={() =>{handleMenuItemClick("/populations"); tToggle2();}}>
                   <TbChartBarPopular size={23} className="me-2" />
                   <span>{t("Population")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("keyindicators.list") || availablePaths.includes("keyindicators.create") || availablePaths.includes("keyindicators.update") || availablePaths.includes("keyindicators.delete") || availablePaths.includes("keyindicators.view"))&&<li>
                 <Link to="/indicators" className="waves-effect" onClick={() =>{handleMenuItemClick("/indicators"); tToggle2();}}>
                   <GrIndicator  size={21} className="me-2" />
                   <span>{t("Indicators")}</span>
                 </Link>
-              </li>
+              </li>}
            
-              <li>
+              {(isAdmin || availablePaths.includes("surveyrequests.list") || availablePaths.includes("surveyrequests.create") || availablePaths.includes("surveyrequests.update") || availablePaths.includes("surveyrequests.delete") || availablePaths.includes("surveyrequests.view"))&&<li>
                 <Link to="/surveys" className="waves-effect" onClick={() =>{handleMenuItemClick("/surveys"); tToggle2();}}>
                   <RiSurveyLine  size={21} className="me-2" />
                   <span>{t("Surveys")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("feedback.list") || availablePaths.includes("feedback.create") || availablePaths.includes("feedback.update") || availablePaths.includes("feedback.delete") || availablePaths.includes("feedback.view"))&&<li>
                 <Link to="/feedbacks" className="waves-effect" onClick={() =>{handleMenuItemClick("/feedbacks"); tToggle2();}}>
                   <MdOutlineFeedback  size={21} className="me-2" />
                   <span>{t("Feedbacks")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("achievments.list") || availablePaths.includes("achievments.create") || availablePaths.includes("achievments.update") || availablePaths.includes("achievments.delete") || availablePaths.includes("achievments.view")) &&<li>
                 <Link to="/achievements" className="waves-effect" onClick={() =>{handleMenuItemClick("/achievements"); tToggle2();}}>
                   <GiAchievement  size={21} className="me-2" />
                   <span>{t("Achievements")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("statistics.list") || availablePaths.includes("statistics.create") || availablePaths.includes("organizationcharts.update") || availablePaths.includes("organizationcharts.delete") || availablePaths.includes("organizationcharts.view")) && <li>
                 <Link to="/organization-charts" className="waves-effect" onClick={() =>{handleMenuItemClick("/organization-charts"); tToggle2();}}>
                   <RiFolderChartLine  size={21} className="me-2" />
                   <span>{t("Organization charts")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("statistics.list") || availablePaths.includes("statistics.create") || availablePaths.includes("statistics.update") || availablePaths.includes("statistics.delete") || availablePaths.includes("statistics.view")) && <li>
                 <Link to="/statistics" className="waves-effect" onClick={() =>{handleMenuItemClick("/statistics"); tToggle2();}}>
                   <IoMdList  size={21} className="me-2" />
                   <span>{t("Statistics")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("methodologies.list") || availablePaths.includes("methodologies.create") || availablePaths.includes("methodologies.update") || availablePaths.includes("methodologies.delete") || availablePaths.includes("methodologies.view")) &&<li>
                 <Link to="/methodologies" className="waves-effect" onClick={() =>{handleMenuItemClick("/methodologies"); tToggle2();}}>
                   <LiaProjectDiagramSolid  size={21} className="me-2" />
                   <span>{t("Methodologies")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("pages.list") || availablePaths.includes("pages.create") || availablePaths.includes("pages.update") || availablePaths.includes("pages.delete") || availablePaths.includes("pages.view")) &&<li>
                 <Link to="/cms-pages" className="waves-effect" onClick={() =>{handleMenuItemClick("/cms-pages"); tToggle2();}}>
                   <RiPagesLine  size={21} className="me-2" />
                   <span>{t("CMS Pages")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("guideclassifications.list") || availablePaths.includes("guideclassifications.create") || availablePaths.includes("guideclassifications.update") || availablePaths.includes("guideclassifications.delete") || availablePaths.includes("guideclassifications.view")) &&<li>
                 <Link to="/guide-classifications" className="waves-effect" onClick={() =>{handleMenuItemClick("/guide-classifications"); tToggle2();}}>
                   <VscListTree  size={21} className="me-2" />
-                  <span>{t("Guide Classifications")}</span>
+                  <span>{t("Guides & Classifications")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("liscences.list") || availablePaths.includes("liscences.create") || availablePaths.includes("liscences.update") || availablePaths.includes("liscences.delete") || availablePaths.includes("liscences.view")) &&<li>
                 <Link to="/survey-licenses" className="waves-effect" onClick={() =>{handleMenuItemClick("/survey-licenses"); tToggle2();}}>
                   <MdAssignment   size={21} className="me-2" />
-                  <span>{t("Survey Licenses")}</span>
+                  <span>{t("Survey Licence")}</span>
                 </Link>
-              </li>
+              </li>}
 
-              <li>
+              {(isAdmin || availablePaths.includes("news.list") || availablePaths.includes("news.create") || availablePaths.includes("news.update") || availablePaths.includes("news.delete") || availablePaths.includes("news.view")) &&<li>
                 <Link to="/news" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
                   <BiNews  size={21} className="me-2" />
                   <span>{t("News")}</span>
                 </Link>
-              </li>
+              </li>}
 
-                 <li>
-                <Link to="/roles" className="waves-effect" onClick={() =>{handleMenuItemClick("/news"); tToggle2();}}>
+             {(isAdmin || availablePaths.includes("roles.list") || availablePaths.includes("roles.create") || availablePaths.includes("roles.update") || availablePaths.includes("roles.delete") || availablePaths.includes("roles.view")) &&<li>
+                <Link to="/roles" className="waves-effect" onClick={() =>{handleMenuItemClick("/roles"); tToggle2();}}>
                   <RiShieldUserLine   size={21} className="me-2" />
                   <span>{t("Roles")}</span>
                 </Link>
-              </li>
+              </li>}
 
             {/* {availablePaths.includes("/settings") && (
               <li>

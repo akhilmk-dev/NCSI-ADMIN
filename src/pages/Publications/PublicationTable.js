@@ -12,6 +12,7 @@ import { FaRegEdit } from "react-icons/fa";
 import PublicationDataTable from "components/TableContainers/PublicationDataTable";
 import { FaFilePdf } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const PublicationTable = ({ list, loading, classifications, fieldErrors, totalrows }) => {
     const dispatch = useDispatch();
@@ -29,9 +30,11 @@ const PublicationTable = ({ list, loading, classifications, fieldErrors, totalro
     const [openModal, setOpenModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState(false);
 
-    const permissions = [];
-    // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Publications");
-    // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Publications");
+    const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+    const hasEditPermission = permissions.includes('publications.update');
+    const hasDeletePermission = permissions.includes('publications.delete');
+    const isAdmin = Cookies.get('isAdmin') == "yes"
+    
 
     const handleDelete = (id) => {
         dispatch(deletePublication(id));
@@ -113,7 +116,7 @@ const PublicationTable = ({ list, loading, classifications, fieldErrors, totalro
             showFilter: false
         },
 
-        ...([{
+        ...(isAdmin || hasEditPermission || hasDeletePermission?[{
             header: "Actions",
             id: "actions",
             cell: ({ row }) => {
@@ -124,12 +127,12 @@ const PublicationTable = ({ list, loading, classifications, fieldErrors, totalro
 
                 return (
                     <div className="d-flex gap-2">
-                        {(
+                        {(isAdmin || hasEditPermission )&& (
                             <Button color="primary" onClick={handleEdit}>
                                 <FaRegEdit size={18} />
                             </Button>
                         )}
-                        {(
+                        {(isAdmin || hasDeletePermission) && (
                             <Button
                                 color="danger"
                                 onClick={() => {
@@ -143,8 +146,8 @@ const PublicationTable = ({ list, loading, classifications, fieldErrors, totalro
                     </div>
                 );
             },
-        }]),
-    ], []);
+        }]:[]),
+    ], [hasEditPermission,hasDeletePermission,isAdmin]);
 
     const handleSubmit = (formData, id, resetForm, handleClose) => {
         dispatch(updatePublication(formData, id, resetForm, handleClose));

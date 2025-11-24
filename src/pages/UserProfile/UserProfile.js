@@ -18,6 +18,7 @@ import axiosInstance from "pages/Utility/axiosInstance";
 import { useDispatch } from "react-redux";
 import { updateUserRequest } from "store/actions";
 import Breadcrumb from "components/Common/Breadcrumb2";
+import { showSuccess } from "helpers/notification_helper";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -32,8 +33,8 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axiosInstance.get(``,{params:{sp:"usp_GetUserProfile",userId:id}});
-        setUser(response.data?.Data?.[0]);
+        const response = await axiosInstance.get(`V1/user/me`);
+        setUser(response.data?.data);
       } catch (err) {
         setError("Failed to fetch user data.");
       } finally {
@@ -42,7 +43,7 @@ const UserProfile = () => {
     };
 
     fetchUserData();
-  }, [id]);
+  }, []);
 
   // Validation Schema
   const validationSchema = Yup.object().shape({
@@ -57,18 +58,20 @@ const UserProfile = () => {
 
   const handleSubmit = async (values) => {
     try {
-      
-        dispatch(updateUserRequest({
-            "sp": "usp_UpdateUser",
-            "userId":id,
-             
-            "userName": values?.username,
-            
-            "emailId": values?.email,
-            "phoneNo": values?.phoneNumber,
-            "roleId": user?.roleId
-        }))
-      
+      const response = await axiosInstance.post('V1/user/me/update', {
+        "name": values?.username,
+        "email": values?.email,
+        "phone_number": values?.phoneNumber
+      }) 
+      if (response) {
+        setUser({
+          "name": values?.username,
+          "email": values?.email,
+          "phone_number": values?.phoneNumber
+        });
+        showSuccess(response?.data?.message)
+      }
+
     } catch (err) {
       setError("Failed to update user data.");
     }
@@ -84,19 +87,18 @@ const UserProfile = () => {
 
   return (
     <div className="page-content ">
-    <div className="d-flex justify-content-between align-items-center mx-2">
+      <div className="d-flex justify-content-between align-items-center mx-2">
         <Breadcrumb title="User Profile" breadcrumbItems={[{ title: "Dashboard", link: `/dashboard` }, { title: "Profile", link: '#' }]} />
         <Button className='bg-primary text-white d-flex justify-content-center gap-1 align-items-center' onClick={() => navigate('/dashboard')}>
-            Back
+          Back
         </Button>
-    </div>
+      </div>
       {successMessage && <Alert color="success">{successMessage}</Alert>}
       <Formik
         initialValues={{
-          username: user?.userName,
-          email: user?.emailId,
-          phoneNumber: user?.phoneNo,
-          role: user?.roleName,
+          username: user?.user_name,
+          email: user?.user_email,
+          phoneNumber: user?.user_phone
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -149,7 +151,7 @@ const UserProfile = () => {
               />
             </FormGroup>
 
-            <FormGroup>
+            {/* <FormGroup>
               <Label for="role">Role</Label>
               <Field
                 name="role"
@@ -159,10 +161,10 @@ const UserProfile = () => {
                 disabled
                 readOnly
               />
-            </FormGroup>
+            </FormGroup> */}
 
-            <Button color="primary" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <ClipLoader size="sm" /> : "Update"}
+            <Button color="primary" type="submit" disabled={isSubmitting} style={{width:"80px"}}>
+              {isSubmitting ? <ClipLoader size={18} color="white"/> : "Update"}
             </Button>
           </Form>
         )}

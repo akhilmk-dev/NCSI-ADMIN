@@ -8,6 +8,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import OrganizationChartDataTable from "components/TableContainers/OrganizationChartDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -21,12 +22,16 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const [selectedFromDate, setSelectedFromDate] = useState();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('organizationcharts.update');
+  const hasDeletePermission = permissions.includes('organizationcharts.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // DELETE HANDLER
   const handleDelete = (id) => {
@@ -73,7 +78,7 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
         header: t("Designation (EN)"),
         accessorKey: "designation_en",
         cell: ({ getValue }) => (
-          <div style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+          <div style={{ whiteSpace: "normal", wordWrap: "break-word",minWidth:"250px" }}>
             {getValue()}
           </div>
         ),
@@ -86,6 +91,7 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
             style={{
               whiteSpace: "normal",
               wordWrap: "break-word",
+               minWidth:"200px"
             }}
           >
             {getValue()}
@@ -113,9 +119,18 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
           ),
       },
       {
-        header: t("Sort Order"),
+        header: t("Order"),
         accessorKey: "sort_order",
-        cell: ({ getValue }) => getValue() || "-",
+        cell: ({ getValue }) => (
+          <div
+            style={{
+             textAlign:"center"
+              
+            }}
+          >
+            {getValue()|| "-"}
+          </div>
+        ),
       },
       {
         header: t("Status"),
@@ -127,7 +142,7 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
           </span>
         ),
       },
-      {
+      ...(isAdmin || hasEditPermission || hasDeletePermission ?[{
         header: t("Actions"),
         id: "actions",
         cell: ({ row }) => {
@@ -138,10 +153,10 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission) && <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasDeletePermission) && <Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row.original.id);
@@ -149,13 +164,13 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    [t]
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {

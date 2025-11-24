@@ -8,6 +8,7 @@ import TableContainer from '../../components/Common/DataTableContainer';
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import UserDataTable from "components/TableContainers/UserDataTable";
+import Cookies from "js-cookie";
 
 
 const UserTable = ({ users, loading,totalrows }) => {
@@ -22,7 +23,11 @@ const UserTable = ({ users, loading,totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const user = useSelector(state=>state?.Login.user)
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions?.includes('users.update');
+  const hasDeletePermission = permissions?.includes('users.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
   // Handle deletion
   const handleDeleteConfirmed = (id) => {
     dispatch(deleteUserRequest(id));
@@ -41,14 +46,11 @@ const UserTable = ({ users, loading,totalrows }) => {
     if (isNaN(date.getTime())) {
       return "Invalid Date";
     }
-  
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
     const year = date.getUTCFullYear();
-  
     return `${day}/${month}/${year}`;
   }
-  
 
   // Table columns
   const columns = useMemo(() => [
@@ -89,7 +91,7 @@ const UserTable = ({ users, loading,totalrows }) => {
         <span>{row.original.user_status === 1 ? "Active" : "Inactive"}</span>
       ),
     },
-    {
+   ...(isAdmin || hasDeletePermission || hasEditPermission ? [{
       header: "Actions",
       id: "actions",
       cell: ({ row }) => {
@@ -105,17 +107,17 @@ const UserTable = ({ users, loading,totalrows }) => {
 
         return (
           <div className="d-flex gap-2">
-            <Button color="primary" title="Edit" onClick={handleEdit}>
+            {(isAdmin || hasEditPermission )&&<Button color="primary" title="Edit" onClick={handleEdit}>
               <FaRegEdit size={18} />
-            </Button>
-            <Button color="danger" title="Delete" onClick={handleDelete}>
+            </Button>}
+            {(isAdmin || hasDeletePermission )&& <Button color="danger" title="Delete" onClick={handleDelete}>
               <MdDeleteOutline size={18} />
-            </Button>
+            </Button>}
           </div>
         );
       },
-    }
-  ], []);
+    }]:[])
+  ], [hasEditPermission,hasDeletePermission,isAdmin]);
 
   const handleFormSubmit = (id,data, onClose) => {
     dispatch(updateUserRequest(id,data, onClose));

@@ -12,10 +12,11 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API calls
 const fetchSurveysApi = (payload) => axiosInstance.post('V1/surveyrequests/list', payload);
-const deleteSurveyApi = (id) => axiosInstance.delete(`V1/surveyrequests/${id}`);
+const deleteSurveyApi = (id) => axiosInstance.post(`V1/surveyrequests/${id}`);
 
 // Get Surveys Saga
 function* getSurveysSaga(action) {
@@ -32,7 +33,7 @@ function* deleteSurveySaga(action) {
   try {
     yield call(deleteSurveyApi, action.payload);
     yield put(deleteSurveySuccess(action.payload));
-    toast.success('Survey deleted successfully!');
+    showSuccess('Survey deleted successfully!');
     
     // Reload survey list with persisted filters
     yield put({

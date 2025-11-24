@@ -7,21 +7,33 @@ import CreateClassification from './CreateClassification';
 import Breadcrumb from 'components/Common/Breadcrumb2';
 import ClassificationTable from './ClassificationTable';
 import { useTranslation } from 'react-i18next';
+import Cookies from 'js-cookie';
 
 const ClassificationList = () => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
-    const permissions = [];
-
     const dispatch = useDispatch();
     const classifications = useSelector((state) => state.Classification.classifications);
     const loading = useSelector((state) => state.Classification.loading);
     const error = useSelector((state) => state.Classification.error);
     const fieldErrors = useSelector((state) => state.Classification.fieldErrors);
+    const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+    const hasEditPermission = permissions.includes('classifications.update');
+    const hasDeletePermission = permissions.includes('classifications.delete')
+    const hasViewPermission = permissions.includes('classifications.view');
+    const hasCreatePermission = permissions.includes('classifications.create')
+    const hasListPermission = permissions.includes('classifications.list');
+    const isAdmin = Cookies.get('isAdmin') == "yes"
+    
+    useEffect(() => {
+        if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+            navigate('/pages-403')
+        }
+    }, [])
 
-    const handleSubmit = (data,resetForm,handleClose) => {
-        dispatch(addClassification(data,resetForm,handleClose));
+    const handleSubmit = (data, resetForm, handleClose) => {
+        dispatch(addClassification(data, resetForm, handleClose));
     };
 
     const handleClose = () => {
@@ -34,16 +46,16 @@ const ClassificationList = () => {
             <CreateClassification loading={loading} fieldErrors={fieldErrors} visible={isOpen} onSubmit={handleSubmit} handleClose={handleClose} />
             <div className='page-content container-fluid'>
                 <div className='d-flex justify-content-between align-items-center mx-3'>
-                    <Breadcrumb 
-                        title="Classifications" 
+                    <Breadcrumb
+                        title="Classifications"
                         breadcrumbItems={[
-                            { title: "Dashboard", link: `/dashboard` }, 
+                            { title: "Dashboard", link: `/dashboard` },
                             { title: "Classifications", link: '#' }
-                        ]} 
+                        ]}
                     />
-                    { (
-                        <Button 
-                            className='bg-primary text-white d-flex justify-content-center gap-1 align-items-center' 
+                    {(isAdmin || hasCreatePermission) &&(
+                        <Button
+                            className='bg-primary text-white d-flex justify-content-center gap-1 align-items-center'
                             onClick={() => setIsOpen(true)}
                         >
                             <i className='ti-plus'></i> {t('Add New')}

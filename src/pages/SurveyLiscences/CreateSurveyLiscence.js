@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
 import { showError } from "helpers/notification_helper";
 import dayjs from "dayjs";
+import Select from "react-select"
 
 const CreateSurveyLicense = ({
   visible,
@@ -33,22 +34,23 @@ const CreateSurveyLicense = ({
       implementation_period_to: initialData?.implementation_period_to || "",
       objective: initialData?.objective || "",
       status: initialData?.status ?? true,
+      survey_status: initialData?.survey_status
     },
     validationSchema: Yup.object({
       licensenumber: Yup.string().required("License number is required"),
       title: Yup.string().required("Title is required"),
       agency: Yup.string().required("Agency is required"),
-      // sponsor: Yup.string().required("Sponsor is required"),
-      // agency_rep: Yup.string().required("Agency representative is required"),
-      // licencetype: Yup.string().required("License type is required"),
-      // approval_date: Yup.date().required("Approval date is required"),
+      sponsor: Yup.string().required("Sponsor is required"),
+      agency_rep: Yup.string().required("Agency representative is required"),
+      licencetype: Yup.string().required("License type is required"),
+      approval_date: Yup.date().required("Approval date is required"),
       implementation_period_from: Yup.date().required(
         "Implementation start date is required"
       ),
       implementation_period_to: Yup.date().required(
         "Implementation end date is required"
       ),
-      // objective: Yup.string().required("Objective is required"),
+      objective: Yup.string().required("Objective is required"),
     }),
     onSubmit: async (values, { resetForm }) => {
       const payload = {
@@ -62,7 +64,7 @@ const CreateSurveyLicense = ({
         implementation_period_from: values.implementation_period_from,
         implementation_period_to: values.implementation_period_to,
         objective: values.objective,
-        status: values.status,
+        status: values.status
       };
 
       if (initialData) {
@@ -93,7 +95,7 @@ const CreateSurveyLicense = ({
 
   return (
     <Modal
-      title={initialData ? "Edit Survey License" : "Create Survey License"}
+      title={initialData ? "Edit Survey Licence" : "Create Survey Licence"}
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -108,7 +110,7 @@ const CreateSurveyLicense = ({
           {/* License Number */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              License Number <span className="text-danger">*</span>
+              Licence Number <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -162,7 +164,7 @@ const CreateSurveyLicense = ({
           {/* Sponsor */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Sponsor 
+              Sponsor <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -180,7 +182,7 @@ const CreateSurveyLicense = ({
           {/* Agency Representative */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Agency Representative 
+              Agency Representative <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -198,7 +200,7 @@ const CreateSurveyLicense = ({
           {/* License Type */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              License Type 
+              Licence Type <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -216,7 +218,7 @@ const CreateSurveyLicense = ({
           {/* Approval Date */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Approval Date 
+              Approval Date <span className="text-danger">*</span>
             </label>
             <DatePicker
               className="form-control w-100"
@@ -237,7 +239,7 @@ const CreateSurveyLicense = ({
           {/* Implementation Period From */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Implementation Period (From){" "}
+              Licence Period (From) {" "}
               <span className="text-danger">*</span>
             </label>
             <DatePicker
@@ -261,7 +263,7 @@ const CreateSurveyLicense = ({
           {/* Implementation Period To */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Implementation Period (To){" "}
+              Licence Period (To) {" "}
               <span className="text-danger">*</span>
             </label>
             <DatePicker
@@ -285,7 +287,7 @@ const CreateSurveyLicense = ({
           {/* Objective */}
           <div className="col-12">
             <label className="form-label fs-7">
-              Objective 
+              Objective <span className="text-danger">*</span>
             </label>
             <textarea
               name="objective"
@@ -302,13 +304,17 @@ const CreateSurveyLicense = ({
 
           {/* Status */}
           <div className="col-md-6 d-flex align-items-center">
-            <label className="form-label fs-7 me-2 mb-0">Status</label>
+            <label className="form-label fs-7 me-2 mb-0">License Status</label>
             <Switch
               checked={formik.values.status}
               onChange={(checked) => formik.setFieldValue("status", checked)}
+              style={{
+                backgroundColor: formik.values.status ? "#00A895" : undefined,
+              }}
             />
           </div>
         </div>
+
 
         {/* Footer Buttons */}
         <div className="modal-footer mt-4">

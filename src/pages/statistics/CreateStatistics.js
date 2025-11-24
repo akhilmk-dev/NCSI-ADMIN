@@ -19,7 +19,7 @@ const CreateStatistics = ({
     enableReinitialize: true,
     validateOnMount: false,
     validateOnChange: false,
-    validateOnBlur: true,
+    validateOnBlur: false,
     initialValues: {
       indicator_en: initialData?.indicator_en || "",
       indicator_ar: initialData?.indicator_ar || "",
@@ -63,7 +63,7 @@ const CreateStatistics = ({
       showError("Validation Error");
       setIsSubmitted(false);
     }
-  }, [formik.errors, isSubmitted]);
+  }, [formik.errors]);
 
   const onClose = () => {
     formik.resetForm();
@@ -128,7 +128,7 @@ const CreateStatistics = ({
             <textarea
               name="description_en"
               className="form-control"
-              rows={4}
+              rows={7}
               value={formik.values.description_en}
               onChange={formik.handleChange}
               placeholder="Enter description in English"
@@ -146,7 +146,7 @@ const CreateStatistics = ({
             <textarea
               name="description_ar"
               className="form-control"
-              rows={4}
+              rows={7}
               value={formik.values.description_ar}
               onChange={formik.handleChange}
               placeholder="Enter description in Arabic"

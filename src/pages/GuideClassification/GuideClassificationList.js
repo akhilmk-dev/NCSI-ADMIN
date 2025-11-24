@@ -6,16 +6,31 @@ import Breadcrumb from 'components/Common/Breadcrumb2'
 import { addGuideClassification, getGuideClassifications } from 'store/actions'
 import GuideClassificationTable from './GuideClassificationTable'
 import CreateGuideClassification from './GuideClassificationCreate'
+import { useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie'
 
 const GuideClassificationList = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dispatch = useDispatch()
   const { t } = useTranslation()
-
+  const navigate = useNavigate()
   const classifications = useSelector((state) => state.GuideClassification.classifications)
   const loading = useSelector((state) => state.GuideClassification.loading)
   const error = useSelector((state) => state.GuideClassification.error)
   const fieldErrors = useSelector((state) => state.GuideClassification.fieldErrors)
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('guideclassifications.update');
+  const hasDeletePermission = permissions.includes('guideclassifications.delete')
+  const hasViewPermission = permissions.includes('guideclassifications.view');
+  const hasCreatePermission = permissions.includes('guideclassifications.create')
+  const hasListPermission = permissions.includes('guideclassifications.list');
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
+  useEffect(() => {
+    if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+      navigate('/pages-403')
+    }
+  }, [])
 
   const handleSubmit = (data, resetForm, handleClose) => {
     dispatch(addGuideClassification(data, resetForm, handleClose))
@@ -25,7 +40,7 @@ const GuideClassificationList = () => {
     setIsOpen(false)
   }
 
-  document.title = "Guide Classification | NCSI"
+  document.title = "Guidea and Classifications | NCSI"
 
   return (
     <>
@@ -40,18 +55,18 @@ const GuideClassificationList = () => {
       <div className="page-content container-fluid">
         <div className="d-flex justify-content-between align-items-center" style={{ margin: "0 11px" }}>
           <Breadcrumb
-            title="Guide Classification"
+            title="Guides and Classifications"
             breadcrumbItems={[
               { title: 'Dashboard', link: '/dashboard' },
-              { title: 'Guide Classification', link: '#' },
+              { title: 'Guides and Classifications', link: '#' },
             ]}
           />
-          <Button
+          {(isAdmin || hasCreatePermission) &&<Button
             className="bg-primary text-white d-flex justify-content-center gap-1 align-items-center"
             onClick={() => setIsOpen(true)}
           >
             <i className="ti-plus"></i> {t('Add New')}
-          </Button>
+          </Button>}
         </div>
 
         <GuideClassificationTable

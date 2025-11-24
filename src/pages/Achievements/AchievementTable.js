@@ -8,6 +8,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import AchievementDataTable from "components/TableContainers/AchievementDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -21,12 +22,17 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
   const [selectedFromDate, setSelectedFromDate] = useState();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(false); 
+   const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('achievments.update');
+  const hasDeletePermission = permissions.includes('achievments.delete')
+
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   // DELETE HANDLER
   const handleDelete = (id) => {
@@ -50,7 +56,7 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
         header: t("Title (EN)"),
         accessorKey: "title_en",
         cell: ({ getValue }) => (
-          <div style={{ whiteSpace: "normal", wordWrap: "break-word"}}>
+          <div style={{ whiteSpace: "normal", wordWrap: "break-word",minWidth:"300px"}}>
             {getValue()}
           </div>
         ),
@@ -62,7 +68,8 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
           <div
             style={{
               whiteSpace: "normal",
-              wordWrap: "break-word"
+              wordWrap: "break-word",
+              minWidth:"230px"
             }}
           >
             {getValue()}
@@ -107,7 +114,7 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
             <span >{t("Inactive")}</span>
           ),
       },
-      {
+      ...(isAdmin || hasEditPermission || hasDeletePermission ? [{
         header: t("Actions"),
         id: "actions",
         cell: ({ row }) => {
@@ -118,10 +125,10 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              <Button color="primary" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission) && <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
-              <Button
+              </Button>}
+              {(isAdmin || hasDeletePermission )&& <Button
                 color="danger"
                 onClick={() => {
                   setDeleteId(row.original.id);
@@ -129,13 +136,13 @@ const AchievementTable = ({ list, loading, fieldErrors, totalrows }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }]:[]),
     ],
-    [t]
+    [hasEditPermission,hasDeletePermission,isAdmin]
   );
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {

@@ -22,8 +22,8 @@ import toast from 'react-hot-toast';
 // API calls
 const fetchEventsApi = (event) => axiosInstance.post('V1/events/list',event);
 const addEventApi = ({data}) => axiosInstance.post('V1/events/create', data);
-const updateEventApi = ({data,id}) => axiosInstance.put(`V1/events/update/${id}`,data);
-const deleteEventApi = (id) => axiosInstance.delete(`V1/events/${id}`);
+const updateEventApi = ({data,id}) => axiosInstance.post(`V1/events/update/${id}`,data);
+const deleteEventApi = (id) => axiosInstance.post(`V1/events/${id}`);
 
 // Sagas
 function* getEventsSaga(action) {

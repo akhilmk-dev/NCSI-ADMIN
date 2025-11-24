@@ -27,12 +27,12 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
   const [embedUrl, setEmbedUrl] = useState('');
   const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
   const [mapsApiLoaded, setMapsApiLoaded] = useState(false);
-  const [isSubmitted,setIsSubmitted]= useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
- const FILE_SIZE = 20 * 1024 * 1024; // 20MB
- 
+  const FILE_SIZE = 20 * 1024 * 1024; // 20MB
+
   const SUPPORTED_FORMATS = ['application/pdf'];
   const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
 
@@ -42,7 +42,7 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = error => reject(error);
-   });
+    });
 
   const handlePlaceChanged = () => {
     if (autocomplete) {
@@ -60,16 +60,16 @@ const CreateEvent = ({ visible, handleClose, initialData = '', onSubmit, fieldEr
   };
 
   const eventTypeOptionsEN = [
-  { value: "Public Event", label: "Public Event" },
-  { value: "Private Event", label: "Private Event" },
-  { value: "Other", label: "Other" },
-];
+    { value: "Public Event", label: "Public Event" },
+    { value: "Private Event", label: "Private Event" },
+    { value: "Other", label: "Other" },
+  ];
 
-const eventTypeOptionsAR = [
-  { value: "حدث عام", label: "حدث عام" },
-  { value: "حدث خاص", label: "حدث خاص" },
-  { value: "اخرى", label: "اخرى" },
-];
+  const eventTypeOptionsAR = [
+    { value: "حدث عام", label: "حدث عام" },
+    { value: "حدث خاص", label: "حدث خاص" },
+    { value: "اخرى", label: "اخرى" },
+  ];
 
 
   const formik = useFormik({
@@ -99,12 +99,15 @@ const eventTypeOptionsAR = [
       short_description_ar: Yup.string().required('Short description in arabic is required'),
       from_date: Yup.date()
         .required('From Date is required'),
-        // .min(today, 'From Date cannot be in the past'),
+      // .min(today, 'From Date cannot be in the past'),
       to_date: Yup.date()
-        .required('To Date is required'),
-        // .min(Yup.ref('from_date'), 'To Date must be after From Date'),
-      location_en: Yup.string().required('Location is required'),
-      location_ar: Yup.string().required('Location in arabic is required'),
+      .required("To Date is required")
+      .min(
+        Yup.ref("from_date"),
+        "To Date must be after From Date"
+      ),
+      location_en: Yup.string(),
+      location_ar: Yup.string(),
       event_type_en: Yup.string(),
       event_type_ar: Yup.string(),
       event_speaker_en: Yup.string(),
@@ -112,7 +115,7 @@ const eventTypeOptionsAR = [
       event_pdf: initialData ? Yup.mixed().nullable()
         .test(
           'fileSize',
-          'File size is too large, max 5MB',
+          'File size is too large, max 20MB',
           value => !value || (value && value.size <= FILE_SIZE)
         )
         .test(
@@ -122,19 +125,19 @@ const eventTypeOptionsAR = [
         ) : Yup.mixed().nullable()
           .test(
             'fileSize',
-            'File size is too large, max 5MB',
+            'File size is too large, max 20MB',
             value => !value || (value && value.size <= FILE_SIZE)
           )
           .test(
             'fileFormat',
             'Unsupported Format, only PDF allowed',
             value => !value || (value && SUPPORTED_FORMATS.includes(value.type))
-          ).required("Event pdf is required"),
+          ),
 
       event_pdf_ar: Yup.mixed().nullable()
         .test(
           'fileSize',
-          'File size is too large, max 5MB',
+          'File size is too large, max 20MB',
           value => !value || (value && value.size <= FILE_SIZE)
         )
         .test(
@@ -144,7 +147,7 @@ const eventTypeOptionsAR = [
         ),
       event_image: initialData ? Yup.mixed()
         .nullable()
-        .test("fileSize", "File size is too large, max 5MB", (value) => {
+        .test("fileSize", "File size is too large, max 20MB", (value) => {
           if (!value || typeof value === "string") return true;
           return value.size <= FILE_SIZE;
         })
@@ -153,7 +156,7 @@ const eventTypeOptionsAR = [
           return SUPPORTED_IMAGE_FORMATS.includes(value.type);
         }) : Yup.mixed()
           .nullable()
-          .test("fileSize", "File size is too large, max 5MB", (value) => {
+          .test("fileSize", "File size is too large, max 20MB", (value) => {
             if (!value || typeof value === "string") return true;
             return value.size <= FILE_SIZE;
           })
@@ -161,7 +164,7 @@ const eventTypeOptionsAR = [
             if (!value || typeof value === "string") return true;
             return SUPPORTED_IMAGE_FORMATS.includes(value.type);
           }).required("Cover image is required"),
-      location_map: Yup.string().required("Location is required"),
+      location_map: Yup.string(),
       event_status: Yup.string()
     }),
     onSubmit: async (values, { resetForm }) => {
@@ -228,12 +231,12 @@ const eventTypeOptionsAR = [
     });
   };
 
-  useEffect(()=>{
-          if (Object.keys(formik.errors).length !== 0 && isSubmitted){
-              showError("Validation Error")
-              setIsSubmitted(false)
-          }
-      },[formik.errors,isSubmitted])
+  useEffect(() => {
+    if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
+      showError("Validation Error")
+      setIsSubmitted(false)
+    }
+  }, [formik.errors, isSubmitted])
 
   useEffect(() => {
     if (initialData?.location_map) {
@@ -246,12 +249,12 @@ const eventTypeOptionsAR = [
         const location = { lat, lng };
         setMapCenter(location);
         setSelectedPosition(location);
-        if(window.google){
-            reverseGeocode(location.lat, location.lng, setAutocompleteInputValue);
+        if (window.google) {
+          reverseGeocode(location.lat, location.lng, setAutocompleteInputValue);
         }
       }
     }
-  }, [initialData,mapsApiLoaded]);
+  }, [initialData, mapsApiLoaded]);
 
   const onClose = () => {
     formik.resetForm();
@@ -291,6 +294,8 @@ const eventTypeOptionsAR = [
     }
   }, [visible]);
 
+  const notRequired =["event_speaker_en","event_speaker_ar","event_type_en","event_type_ar","location_en","location_ar"]
+
   return (
     <Modal
       title={initialData ? t("Edit Event") : t("Create New Event")}
@@ -321,7 +326,7 @@ const eventTypeOptionsAR = [
           ].map(({ name, label, type = 'text', dir, isTextarea, placeholder }) => (
             <div className="col-md-6" key={name}>
               <label className="form-label fs-7">
-                {t(label)} {(name != "event_speaker_en" && name != "event_speaker_ar" && name != "event_type_en" && name !="event_type_ar") && <span className="text-danger">*</span>}
+                {t(label)} {(!notRequired?.includes(name)) && <span className="text-danger">*</span>}
               </label>
               {isTextarea ? (
                 <textarea
@@ -348,57 +353,55 @@ const eventTypeOptionsAR = [
             </div>
           ))}
 
-   {/* Event Type (English) */}
-<div className="col-md-6">
-  <label className="form-label fs-7">
-    {t("Event Type")} <span className="text-danger">*</span>
-  </label>
-  <Select
-    name="event_type_en"
-    options={eventTypeOptionsEN}
-    isClearable
-    value={eventTypeOptionsEN.find(
-      (option) => option.value === formik.values.event_type_en
-    )}
-    onChange={(option) =>
-      formik.setFieldValue("event_type_en", option ? option.value : "")
-    }
-    placeholder="Select event type"
-  />
-  {formik.touched.event_type_en && (
-    <div className="text-danger">{formik.errors.event_type_en}</div>
-  )}
-</div>
+          {/* Event Type (English) */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">
+              {t("Event Type")}
+            </label>
+            <Select
+              name="event_type_en"
+              options={eventTypeOptionsEN}
+              isClearable
+              value={eventTypeOptionsEN.find(
+                (option) => option.value === formik.values.event_type_en
+              )}
+              onChange={(option) =>
+                formik.setFieldValue("event_type_en", option ? option.value : "")
+              }
+              placeholder="Select event type"
+            />
+            {formik.touched.event_type_en && (
+              <div className="text-danger">{formik.errors.event_type_en}</div>
+            )}
+          </div>
 
-{/* Event Type (Arabic) */}
-<div className="col-md-6">
-  <label className="form-label fs-7">
-    {t("Event Type (Ar)")} <span className="text-danger">*</span>
-  </label>
-  <Select
-    name="event_type_ar"
-    options={eventTypeOptionsAR}
-    isClearable
-    isRtl
-    classNamePrefix="react-select"
-    value={eventTypeOptionsAR.find(
-      (option) => option.value === formik.values.event_type_ar
-    )}
-    onChange={(option) =>
-      formik.setFieldValue("event_type_ar", option ? option.value : "")
-    }
-    placeholder="اختر نوع الحدث"
-  />
-  {formik.touched.event_type_ar && (
-    <div className="text-danger">{formik.errors.event_type_ar}</div>
-  )}
-</div>
-
-
+          {/* Event Type (Arabic) */}
+          <div className="col-md-6">
+            <label className="form-label fs-7">
+              {t("Event Type (Ar)")}
+            </label>
+            <Select
+              name="event_type_ar"
+              options={eventTypeOptionsAR}
+              isClearable
+              isRtl
+              classNamePrefix="react-select"
+              value={eventTypeOptionsAR.find(
+                (option) => option.value === formik.values.event_type_ar
+              )}
+              onChange={(option) =>
+                formik.setFieldValue("event_type_ar", option ? option.value : "")
+              }
+              placeholder="اختر نوع الحدث"
+            />
+            {formik.touched.event_type_ar && (
+              <div className="text-danger">{formik.errors.event_type_ar}</div>
+            )}
+          </div>
 
           {/* PDF Upload */}
           <div className="col-md-6">
-            <label className="form-label fs-7">{t('Event PDF')}</label> {!initialData && <span className="text-danger">*</span>}
+            <label className="form-label fs-7">{t('Event PDF')}</label> 
             <input
               type="file"
               name="event_pdf"
@@ -451,9 +454,9 @@ const eventTypeOptionsAR = [
               }}
             />
 
-              <small className="text-muted d-block mt-1">
-    Recommended image size: <strong>1640 × 561 pixels</strong> for best display quality.
-  </small>
+            <small className="text-muted d-block mt-1">
+              Recommended image size: <strong>1640 × 561 pixels</strong> for best display quality.
+            </small>
 
             {formik.touched.event_image && <div className="text-danger">{formik.errors.event_image || formik.errors.event_image?.[0]}</div>}
             {initialData?.img_url && <a
@@ -485,7 +488,7 @@ const eventTypeOptionsAR = [
               googleMapsApiKey={'AIzaSyAmmm_0QjgFftYMNEkASc1M8fkS30mZUlU'}
               libraries={['places']}
               onLoad={() => setMapsApiLoaded(true)}
-             
+
             >
               <Autocomplete
                 onLoad={setAutocomplete}
@@ -508,28 +511,28 @@ const eventTypeOptionsAR = [
                   const lat = e.latLng.lat();
                   const lng = e.latLng.lng();
                   const position = { lat, lng };
-              
+
                   setSelectedPosition(position);
                   setMapCenter(position); // Optional: recenter map
                   setEmbedUrl(`https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`);
                   reverseGeocode(lat, lng, setAutocompleteInputValue); // Update input field
                 }}
               >
-                {selectedPosition && <Marker position={selectedPosition} 
-                 draggable={true}
-                 onDragEnd={(e) => {
-                  const newLat = e.latLng.lat();
-                  const newLng = e.latLng.lng();
-                  const newPos = { lat: newLat, lng: newLng };
-            
-                  setSelectedPosition(newPos);
-                  setMapCenter(newPos);
-            
-                  const embedString = `https://www.google.com/maps?q=${newLat},${newLng}&z=15&output=embed`;
-                  setEmbedUrl(embedString);
-                  // Reverse geocode to get address
-                  reverseGeocode(newLat, newLng, setAutocompleteInputValue);
-                }}
+                {selectedPosition && <Marker position={selectedPosition}
+                  draggable={true}
+                  onDragEnd={(e) => {
+                    const newLat = e.latLng.lat();
+                    const newLng = e.latLng.lng();
+                    const newPos = { lat: newLat, lng: newLng };
+
+                    setSelectedPosition(newPos);
+                    setMapCenter(newPos);
+
+                    const embedString = `https://www.google.com/maps?q=${newLat},${newLng}&z=15&output=embed`;
+                    setEmbedUrl(embedString);
+                    // Reverse geocode to get address
+                    reverseGeocode(newLat, newLng, setAutocompleteInputValue);
+                  }}
                 />}
               </GoogleMap>
               {formik.touched.location_map && <div className="text-danger">{formik.errors.location_map || formik.errors.location_map?.[0]}</div>}
@@ -541,7 +544,7 @@ const eventTypeOptionsAR = [
           <button type="button" className="btn btn-light" onClick={onClose}>
             {t('Close')}
           </button>
-          <button type="submit" onClick={()=>setIsSubmitted(true)} className="btn btn-primary ms-3" style={{ minWidth: "100px" }} disabled={loading}>
+          <button type="submit" onClick={() => setIsSubmitted(true)} className="btn btn-primary ms-3" style={{ minWidth: "100px" }} disabled={loading}>
             {loading ? <ClipLoader color='white' size={18} /> : initialData ? t('Update') : t('Add')}
           </button>
         </div>

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { showError } from 'helpers/notification_helper';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const axiosInstance = axios.create({
   // Default baseURL (can be overridden in the request itself)
@@ -80,8 +81,10 @@ axiosInstance.interceptors.response.use(
 
     if (error.response && error.response?.status === 401) {
       Cookies.remove('access_token');
+      Cookies.remove('isAdmin');
+      localStorage.clear()
       showError("Session Expired, Please login")
-      navigate('/login')
+      window.location.href = "/login"
     } else if (error.response?.status === 500) {
       if (error.response?.data?.Message?.startsWith("The DELETE statement")) {
         showError("Unable to delete as dependencies found")
@@ -92,8 +95,11 @@ axiosInstance.interceptors.response.use(
       }
     }else if(error.response && error.response?.status === 404){
         showError(error.response?.data?.message);
-        navigate('/pages-404');
-    }
+       window.location.href = "/pages-404"
+    }else if(error.response && error.response?.status === 403){
+      showError(error.response?.data?.message);
+      window.location.href = "/pages-403"
+  }
     if(error.response?.status === 400){
       showError("Validation Error")
     }

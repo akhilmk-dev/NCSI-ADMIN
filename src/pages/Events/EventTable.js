@@ -11,6 +11,7 @@ import { FaRegEdit } from "react-icons/fa";
 import EventDataTable from "components/TableContainers/EventDataTable";
 import { FaFilePdf } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 
 const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
@@ -26,10 +27,11 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("")
   const { t } = useTranslation()
-
-  const permissions = [];
-  const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Events");
-  const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Events");
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('events.update');
+  const hasDeletePermission = permissions.includes('events.delete')
 
   const handleDelete = (id) => {
     dispatch(deleteEvent(id));
@@ -68,6 +70,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
     {
       header: "Location",
       accessorKey: "location_en",
+      showFilter:false,
       cell: ({ getValue }) => (
         <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', width: '220px' }}>
           {getValue()}
@@ -88,7 +91,7 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
       ),
       showFilter: false
     },
-    ...([{
+    ...(isAdmin || hasEditPermission || hasDeletePermission ?[{
       header: "Actions",
       id: "actions",
       cell: ({ row }) => {
@@ -99,12 +102,12 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
 
         return (
           <div className="d-flex gap-2">
-            {(
+            {(isAdmin || hasEditPermission) && (
               <Button color="primary" onClick={handleEdit}>
                 <FaRegEdit size={18} />
               </Button>
             )}
-            {(
+            {(isAdmin || hasDeletePermission )&&(
               <Button
                 color="danger"
                 onClick={() => {
@@ -118,8 +121,8 @@ const EventTable = ({ List, loading, fieldErrors, totalrows }) => {
           </div>
         );
       },
-    }]),
-  ], [hasEditPermission, hasDeletePermission]);
+    }]:[]),
+  ], [hasEditPermission, hasDeletePermission,isAdmin]);
 
   const handleSubmit = (formData, id, resetForm, handleClose) => {
     dispatch(updateEvent(formData, id, resetForm, handleClose));

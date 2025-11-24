@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // ==================== API CALLS ====================
 const fetchGuideClassificationsApi = (payload) => axiosInstance.post('V1/guideclassifications/list', payload);
 const addGuideClassificationApi = ({ data }) => axiosInstance.post('V1/guideclassifications/create', data);
-const updateGuideClassificationApi = ({ id, data }) => axiosInstance.put(`V1/guideclassifications/update/${id}`, data);
-const deleteGuideClassificationApi = (id) => axiosInstance.delete(`V1/guideclassifications/${id}`);
+const updateGuideClassificationApi = ({ id, data }) => axiosInstance.post(`V1/guideclassifications/update/${id}`, data);
+const deleteGuideClassificationApi = (id) => axiosInstance.post(`V1/guideclassifications/${id}`);
 
 // ==================== SAGAS ====================
 
@@ -44,7 +45,7 @@ function* addGuideClassificationSaga(action) {
         yield put(addGuideClassificationSuccess(data));
         action.payload.resetForm();
         action.payload.handleClose();
-        toast.success('Guide Classification added successfully!');
+        showSuccess('Guides and Classification added successfully!');
         yield put({
             type: GET_GUIDE_CLASSIFICATIONS,
             payload: {
@@ -83,7 +84,7 @@ function* updateGuideClassificationSaga(action) {
         yield put(updateGuideClassificationSuccess(data));
         action.payload.resetForm();
         action.payload.handleClose();
-        toast.success('Guide Classification updated successfully!');
+        showSuccess('Guides and Classification updated successfully!');
         yield put({
             type: GET_GUIDE_CLASSIFICATIONS,
             payload: {
@@ -120,7 +121,7 @@ function* deleteGuideClassificationSaga(action) {
     try {
         yield call(deleteGuideClassificationApi, action.payload);
         yield put(deleteGuideClassificationSuccess(action.payload));
-        toast.success('Guide Classification deleted successfully!');
+        showSuccess('Guides and Classification deleted successfully!');
         yield put({
             type: GET_GUIDE_CLASSIFICATIONS,
             payload: {

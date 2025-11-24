@@ -18,6 +18,7 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API Calls
 const fetchOrganizationChartApi = (payload) =>
@@ -27,10 +28,10 @@ const addOrganizationChartApi = ({ chart }) =>
   axiosInstance.post('V1/organizationcharts/create', chart);
 
 const updateOrganizationChartApi = ({ chart, id }) =>
-  axiosInstance.put(`V1/organizationcharts/update/${id}`, chart);
+  axiosInstance.post(`V1/organizationcharts/update/${id}`, chart);
 
 const deleteOrganizationChartApi = (id) =>
-  axiosInstance.delete(`V1/organizationcharts/${id}`);
+  axiosInstance.post(`V1/organizationcharts/${id}`);
 
 // Sagas
 
@@ -54,7 +55,7 @@ function* addOrganizationChartSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success('Organization Chart added successfully!');
+    showSuccess('Organization Chart added successfully!');
 
     // Refresh List
     yield put({
@@ -92,7 +93,7 @@ function* updateOrganizationChartSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success('Organization Chart updated successfully!');
+    showSuccess('Organization Chart updated successfully!');
 
     yield put({
       type: GET_ORGANIZATION_CHART,
@@ -125,7 +126,7 @@ function* deleteOrganizationChartSaga(action) {
   try {
     yield call(deleteOrganizationChartApi, action.payload);
     yield put(deleteOrganizationChartSuccess(action.payload));
-    toast.success('Organization Chart deleted successfully!');
+    showSuccess('Organization Chart deleted successfully!');
 
     yield put({
       type: GET_ORGANIZATION_CHART,

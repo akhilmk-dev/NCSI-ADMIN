@@ -7,7 +7,7 @@ import { showError } from "helpers/notification_helper";
 
 
 const SUPPORTED_IMAGE_FORMATS = ["image/jpg", "image/jpeg", "image/png"];
-const FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const FILE_SIZE = 20 * 1024 * 1024; // 5MB
 
 // Convert file to base64
 const fileToBase64 = (file) => {
@@ -42,6 +42,7 @@ const CreateOrganizationChart = ({
       photo: "",
       sort_order: initialData?.sort_order || "",
       status: initialData?.status ?? true,
+      parent_id:initialData?.parent_id || null
     },
     validationSchema: Yup.object({
       title_en: Yup.string().required("English title is required"),
@@ -53,7 +54,7 @@ const CreateOrganizationChart = ({
           .nullable()
           .test(
             "fileSize",
-            "File size too large (max 5MB)",
+            "File size too large (max 20MB)",
             (value) =>
               !value || typeof value === "string" || value.size <= FILE_SIZE
           )
@@ -66,8 +67,7 @@ const CreateOrganizationChart = ({
               SUPPORTED_IMAGE_FORMATS.includes(value.type)
           )
         : Yup.mixed()
-          .nullable()
-          .required("Organization image is required"),
+          .nullable(),
       sort_order: Yup.number()
         .typeError("Sort order must be a number")
         .required("Sort order is required")
@@ -84,6 +84,7 @@ const CreateOrganizationChart = ({
         photo: values.photo,
         sort_order: values.sort_order,
         status: values.status,
+        parent_id: values?.parent_id
       };
 
       if (initialData) {
@@ -103,7 +104,6 @@ const CreateOrganizationChart = ({
 
   useEffect(() => {
     if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-      console.log(formik.errors);
       showError("Validation Error");
       setIsSubmitted(false);
     }
@@ -221,7 +221,7 @@ const CreateOrganizationChart = ({
           {/* Photo Upload */}
           <div className="col-md-6">
             <label className="form-label fs-7">
-              Photo <span className="text-danger">*</span>
+              Photo 
             </label>
             <input
               type="file"

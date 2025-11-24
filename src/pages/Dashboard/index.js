@@ -54,8 +54,8 @@ const Dashboard = props => {
   const dispatch = useDispatch();
   const [data, setData] = useState()
   // const id = JSON.parse(Cookies.get('authUser'))?.userId
-  const permissions = [];
-
+  const permissions = JSON.parse(localStorage.getItem('permissions'));
+  const isAdmin = Cookies.get('isAdmin') == "yes"
   // Selectors to access Redux state
   const workOrders = [];
 
@@ -65,7 +65,7 @@ const Dashboard = props => {
 
   const fetchDashboardDetails = async () => {
     try {
-      const response = await axiosInstance('V1/dashboard/summary');
+      const response = await axiosInstance.get('V1/dashboard/summary');
       setDashboardDetails(response?.data?.data);
     } catch (error) {
       console.log(error)
@@ -132,7 +132,9 @@ const Dashboard = props => {
     cursor:"default"
   }
 
-
+  // useEffect(()=>{
+    
+  // },[])
 
   document.title = "Dashboard | NCSI";
   return (
@@ -157,7 +159,7 @@ const Dashboard = props => {
             <div className='pb-4' style={{ backgroundColor: "#fff", borderRadius: "8px" }}>
               <div className="d-flex px-3 pt-2 justify-content-between align-items-center" style={{marginBottom:"-8px"}}>
                 <h5 >Latest Publications</h5>
-                <span style={{color:"rgb(89 136 247)",cursor:"pointer"}} onClick={()=>navigate('/publications')}>View All</span>
+                {(isAdmin || permissions?.includes('publications.delete') || permissions?.includes('publications.update') || permissions?.includes('publications.list') || permissions?.includes('publications.view'))&&<span style={{color:"rgb(89 136 247)",cursor:"pointer"}} onClick={()=>navigate('/publications')}>View All</span>}
               </div>
               <hr style={{ height: '1px', padding:0,border: 'none', backgroundColor: '#ccc' }} />
               <div className='p-2'>
@@ -198,7 +200,7 @@ const Dashboard = props => {
           <div className='pb-4' style={{ backgroundColor: "#fff", borderRadius: "8px" }}>
               <div className="d-flex px-3 pt-2 justify-content-between align-items-center" style={{marginBottom:"-8px"}}>
                 <h5 >Events</h5>
-                <span style={{color:"rgb(89 136 247)",cursor:"pointer"}} onClick={()=>navigate('/events')}>View All</span>
+                {(isAdmin || permissions?.includes('events.delete') || permissions?.includes('events.update') || permissions?.includes('events.list') || permissions?.includes('events.view'))&&<span style={{color:"rgb(89 136 247)",cursor:"pointer"}} onClick={()=>navigate('/events')}>View All</span>}
               </div>
               <hr style={{ height: '1px', padding:0,border: 'none', backgroundColor: '#ccc' }} />
               <div className='px-3 py-2'>
@@ -207,8 +209,8 @@ const Dashboard = props => {
                     style={{
                       width: '100%',
                       border: '1px solid rgb(241 241 241)',
-                      borderCollapse: 'separate', // 👈 important
-                      borderSpacing: 0,           // 👈 no spacing
+                      borderCollapse: 'separate', // important
+                      borderSpacing: 0,           // no spacing
                       borderRadius: '8px',
                       overflow: 'hidden'
                     }}

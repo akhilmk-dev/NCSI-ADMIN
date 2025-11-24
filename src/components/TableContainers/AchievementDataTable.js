@@ -88,13 +88,19 @@ const AchievementDataTable = ({
         getSortedRowModel: getSortedRowModel(),
     });
 
+
     const serialNumberColumn = {
         header: "#",
         id: "serial",
-        cell: ({ row }) => (pageIndex * pageSize) + row.index + 1,
         enableSorting: false,
         enableColumnFilter: false,
-    };
+        cell: ({ row }) => (
+          <div style={{ maxwidth: "60px"}}>
+            {(pageIndex * pageSize) + row.index + 1}
+          </div>
+        ),
+      };
+      
 
     // Finally, set the columns with serial number prepended
     table.setOptions((prev) => ({

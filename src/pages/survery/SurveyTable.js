@@ -12,6 +12,8 @@ import SurveyDataTable from "components/TableContainers/SurveyDataTable";
 import { Modal } from "antd";
 import axiosInstance from "pages/Utility/axiosInstance";
 import { IoEyeOutline } from "react-icons/io5";
+import Cookies from "js-cookie";
+import { convertToDateOnly } from "helpers/dateFormat_helper";
 
 const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
     const dispatch = useDispatch();
@@ -29,9 +31,11 @@ const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
     const [pageSize, setPageSize] = useState(10);
     const [searchString, setSearchString] = useState("");
     const [editId, setEditId] = useState();
-    const permissions = [];
-    const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Surveys");
-
+    const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+    const hasViewPermission = permissions.includes('surveyrequests.view');
+    const hasDeletePermission = permissions.includes('surveyrequests.delete')
+    const isAdmin = Cookies.get('isAdmin') == "yes"
+    
     const handleDelete = (id) => {
         dispatch(deleteSurvey(id));
         setPageIndex(0)
@@ -57,9 +61,9 @@ const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
         {
             header: "Created At",
             accessorKey: "created_at",
-            cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-GB")
+            cell: ({ row }) => convertToDateOnly(row.original.created_at)
         },
-        {
+        ...(isAdmin || hasViewPermission || hasDeletePermission ?[{
             header: "Actions",
             id: "actions",
             cell: ({ row }) => {
@@ -69,10 +73,10 @@ const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
 
                 return (
                     <div className="d-flex gap-2">
-                        <Button color="info" title="View" style={{ backgroundColor: "#00A895" }} className="cursor-pointer" onClick={handleView}>
+                        {(isAdmin || hasViewPermission )&& <Button color="info" title="View" style={{ backgroundColor: "#00A895" }} className="cursor-pointer" onClick={handleView}>
                             <IoEyeOutline size={18} color="white" />
-                        </Button>
-                        <Button
+                        </Button>}
+                        {(isAdmin || hasDeletePermission) && <Button
                             color="danger"
                             className="cursor-pointer"
                             title="Delete"
@@ -82,12 +86,12 @@ const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
                             }}
                         >
                             <MdDeleteOutline size={18} />
-                        </Button>
+                        </Button>}
                     </div>
                 );
             },
-        },
-    ], [hasDeletePermission]);
+        }]:[]),
+    ], [hasDeletePermission,hasViewPermission,isAdmin]);
 
     const fetchShowData = async () => {
         try {
@@ -134,7 +138,7 @@ const SurveyTable = ({ List, loading, fieldErrors, totalrows }) => {
                             ["Email", selectedSurvey.email],
                             ["Telephone", selectedSurvey.telephone],
                             ["Title", selectedSurvey.title],
-                            ["Duration", `${selectedSurvey.duration_from} to ${selectedSurvey.duration_to}`],
+                            ["Duration", `${new Date(selectedSurvey.duration_from).toLocaleDateString("en-GB")} to ${new Date(selectedSurvey.duration_to).toLocaleDateString("en-GB")}`],
                             ["Coverage", selectedSurvey.coverage],
                             ["Sample Size", selectedSurvey.sample_size],
                             ["Sample Frame", selectedSurvey.sample_frame],

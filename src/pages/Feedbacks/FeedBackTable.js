@@ -7,11 +7,11 @@ import { FaRegEdit } from "react-icons/fa";
 import { deleteFeedback } from "store/actions"; // Define these actions
 import { useTranslation } from "react-i18next";
 import FeedbackDataTable from "components/TableContainers/FeedbackDataTable";
+import Cookies from "js-cookie";
 
 const FeedbackTable = ({ feedbackList, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -21,6 +21,10 @@ const FeedbackTable = ({ feedbackList, loading, fieldErrors, totalrows }) => {
   const [selectedSortData, setSelectedSortData] = useState({ value: "created_at", direction: "desc" });
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasDeletePermission = permissions.includes('feedback.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   useEffect(() => {
     if (deleteId && confirmAction) {
@@ -63,21 +67,21 @@ const FeedbackTable = ({ feedbackList, loading, fieldErrors, totalrows }) => {
       accessorKey: 'created_at',
       cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-GB"),
     },
-    {
+    ...(isAdmin || hasDeletePermission ? [{
       header: 'Actions',
       id: 'actions',
       cell: ({ row }) => (
         <div className="d-flex gap-2">
-          <Button
+          {(isAdmin || hasDeletePermission) && <Button
             color="danger"
             onClick={() => { setDeleteId(row.original.id); setOpenModal(true); }}
           >
             <MdDeleteOutline size={18} />
-          </Button>
+          </Button>}
         </div>
       ),
-    },
-  ], []);
+    }]:[]),
+  ], [hasDeletePermission,isAdmin]);
 
   document.title = "Feedback List";
 

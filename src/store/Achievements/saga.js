@@ -18,14 +18,15 @@ import {
 } from "./actions";
 import axiosInstance from "pages/Utility/axiosInstance";
 import toast from "react-hot-toast";
+import { showSuccess } from "helpers/notification_helper";
 
 // API Calls
 const fetchAchievementsApi = (payload) => axiosInstance.post("V1/achievments/list", payload);
 const addAchievementApi = ({ achievement }) =>
   axiosInstance.post("V1/achievments/create", achievement);
 const updateAchievementApi = ({ achievement, id }) =>
-  axiosInstance.put(`V1/achievments/update/${id}`, achievement);
-const deleteAchievementApi = (id) => axiosInstance.delete(`V1/achievments/${id}`);
+  axiosInstance.post(`V1/achievments/update/${id}`, achievement);
+const deleteAchievementApi = (id) => axiosInstance.post(`V1/achievments/${id}`);
 
 // Get Achievements
 function* getAchievementsSaga(action) {
@@ -47,7 +48,7 @@ function* addAchievementSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success("Achievement added successfully!");
+    showSuccess("Achievement added successfully!");
 
     // Refresh list
     yield put({
@@ -85,7 +86,7 @@ function* updateAchievementSaga(action) {
     action.payload.resetForm();
     action.payload.handleClose();
 
-    toast.success("Achievement updated successfully!");
+    showSuccess("Achievement updated successfully!");
 
     // Refresh list
     yield put({
@@ -120,7 +121,7 @@ function* deleteAchievementSaga(action) {
     yield call(deleteAchievementApi, action.payload);
     yield put(deleteAchievementSuccess(action.payload));
 
-    toast.success("Achievement deleted successfully!");
+    showSuccess("Achievement deleted successfully!");
 
     // Refresh list
     yield put({

@@ -117,7 +117,7 @@ const CreateGuideClassification = ({
             showError("Validation Error");
             setIsSubmitted(false);
         }
-    }, [formik.errors, isSubmitted]);
+    }, [formik.errors]);
 
     useEffect(() => {
         if (fieldErrors) {
@@ -132,7 +132,7 @@ const CreateGuideClassification = ({
 
     return (
         <Modal
-            title={initialData ? t("Edit Guide Classification") : t("Create Guide Classification")}
+            title={initialData ? t("Edit Guides and Classifications") : t("Create Guides and Classifications")}
             visible={visible}
             onCancel={onClose}
             footer={null}

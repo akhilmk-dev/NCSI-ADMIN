@@ -10,6 +10,7 @@ import TableContainer from "components/Common/DataTableContainer";
 import { deletePopulation, updatePopulation } from "store/actions";
 import PopulationDataTable from "components/TableContainers/PopulationDataTable";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
@@ -24,10 +25,11 @@ const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("")
-
-  const permissions = [];
-  // const hasEditPermission = permissions.some(item => item?.permissionName === "Edit Population");
-  // const hasDeletePermission = permissions.some(item => item?.permissionName === "Delete Population");
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('populations.update');
+  const hasDeletePermission = permissions.includes('populations.delete')
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+  
 
   const handleDelete = (populationId) => {
     dispatch(deletePopulation(populationId));
@@ -59,7 +61,7 @@ const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
       accessorKey: 'expatriates',
       showFilter: false
     },
-    ...([
+    ...(isAdmin || hasEditPermission || hasDeletePermission ?[
       {
         header: 'Actions',
         id: 'actions',
@@ -71,12 +73,12 @@ const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
 
           return (
             <div className="d-flex gap-2">
-              {(
+              {(isAdmin || hasEditPermission) &&(
                 <Button color="primary" onClick={handleEdit}>
                   <FaRegEdit size={18} />
                 </Button>
               )}
-              {(
+              {(isAdmin || hasDeletePermission )&& (
                 <Button
                   color="danger"
                   onClick={() => {
@@ -91,8 +93,8 @@ const PopulationTable = ({ List, loading, fieldErrors, totalrows }) => {
           );
         }
       }
-    ])
-  ], []);
+    ]:[])
+  ], [hasEditPermission,hasDeletePermission,isAdmin]);
 
   const handleSubmit = (data, id, resetForm, handleClose) => {
     dispatch(updatePopulation(data, id, resetForm, handleClose));

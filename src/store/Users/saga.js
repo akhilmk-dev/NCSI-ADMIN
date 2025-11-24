@@ -31,11 +31,11 @@ const addUserApi = async (user) => {
 }
 
 const updateUserApi = async ({id,user}) => {
-  return await axiosInstance.put(`V1/user/update/${id}`, user)
+  return await axiosInstance.post(`V1/user/update/${id}`, user)
 }
 
 const deleteUserApi = async (userId) => {
-  return await axiosInstance.delete(`V1/user/${userId}`)
+  return await axiosInstance.post(`V1/user/${userId}`)
 }
 
 // Fetch users

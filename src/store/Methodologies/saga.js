@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // ==================== API CALLS ====================
 const fetchMethodologiesApi = (payload) => axiosInstance.post('V1/methodologies/list', payload);
 const addMethodologyApi = ({ data }) => axiosInstance.post('V1/methodologies/create', data);
-const updateMethodologyApi = ({ id, data }) => axiosInstance.put(`V1/methodologies/update/${id}`, data);
-const deleteMethodologyApi = (id) => axiosInstance.delete(`V1/methodologies/${id}`);
+const updateMethodologyApi = ({ id, data }) => axiosInstance.post(`V1/methodologies/update/${id}`, data);
+const deleteMethodologyApi = (id) => axiosInstance.post(`V1/methodologies/${id}`);
 
 // ==================== SAGAS ====================
 
@@ -44,7 +45,7 @@ function* addMethodologySaga(action) {
         yield put(addMethodologySuccess(data));
         action.payload.resetForm();
         action.payload.handleClose();
-        toast.success('Methodology added successfully!');
+        showSuccess('Methodology added successfully!');
         yield put({
             type: GET_METHODOLOGIES,
             payload: {
@@ -85,7 +86,7 @@ function* updateMethodologySaga(action) {
         yield put(updateMethodologySuccess(data));
         action.payload.resetForm();
         action.payload.handleClose();
-        toast.success('Methodology updated successfully!');
+        showSuccess('Methodology updated successfully!');
         yield put({
             type: GET_METHODOLOGIES,
             payload: {
@@ -122,7 +123,7 @@ function* deleteMethodologySaga(action) {
     try {
         yield call(deleteMethodologyApi, action.payload);
         yield put(deleteMethodologySuccess(action.payload));
-        toast.success('Methodology deleted successfully!');
+        showSuccess('Methodology deleted successfully!');
         yield put({
             type: GET_METHODOLOGIES,
             payload: {

@@ -8,21 +8,33 @@ import CreateSlider from './CreateSlider';
 import SliderTable from './SliderTable';
 import Breadcrumb from 'components/Common/Breadcrumb2';
 import { useTranslation } from 'react-i18next';
+import Cookies from 'js-cookie';
 
 const SliderList = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  //   const permissions = JSON.parse(localStorage?.getItem('permissions'));
-
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('sliders.update');
+  const hasDeletePermission = permissions.includes('sliders.delete')
+  const hasViewPermission = permissions.includes('sliders.view');
+  const hasCreatePermission = permissions.includes('sliders.create')
+  const hasListPermission = permissions.includes('sliders.list');
+    const isAdmin = Cookies.get('isAdmin') == "yes"
+  
+  useEffect(() => {
+    if (!hasEditPermission && !hasDeletePermission && !hasCreatePermission && !hasListPermission && !isAdmin) {
+      navigate('/pages-403')
+    }
+  }, [])
   const dispatch = useDispatch();
   const sliders = useSelector((state) => state.Slider.sliders);
   const loading = useSelector((state) => state.Slider.loading);
   const error = useSelector((state) => state.Slider.error);
   const fieldErrors = useSelector((state) => state.Slider.fieldErrors);
 
-  const handleSubmit = (formData,resetForm,handleClose) => {
-    dispatch(addSlider(formData,resetForm,handleClose));
+  const handleSubmit = (formData, resetForm, handleClose) => {
+    dispatch(addSlider(formData, resetForm, handleClose));
   };
 
   const handleClose = () => {
@@ -43,7 +55,7 @@ const SliderList = () => {
               { title: 'Sliders', link: '#' },
             ]}
           />
-          {(
+          {(isAdmin || hasCreatePermission )&& (
             <Button
               className='bg-primary text-white d-flex justify-content-center gap-1 align-items-center'
               onClick={() => setIsOpen(true)}

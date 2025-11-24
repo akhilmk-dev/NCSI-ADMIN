@@ -18,12 +18,13 @@ import {
 } from './actions';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import toast from 'react-hot-toast';
+import { showSuccess } from 'helpers/notification_helper';
 
 // API Calls
 const fetchStatisticsApi = (statistics) => axiosInstance.post('V1/statistics/list', statistics);
 const addStatisticsApi = ({ statistic }) => axiosInstance.post('V1/statistics/create', statistic);
-const updateStatisticsApi = ({ statistic, id }) => axiosInstance.put(`V1/statistics/update/${id}`, statistic);
-const deleteStatisticsApi = (id) => axiosInstance.delete(`V1/statistics/${id}`);
+const updateStatisticsApi = ({ statistic, id }) => axiosInstance.post(`V1/statistics/update/${id}`, statistic);
+const deleteStatisticsApi = (id) => axiosInstance.post(`V1/statistics/${id}`);
 
 // Sagas
 function* getStatisticsSaga(action) {
@@ -44,7 +45,7 @@ function* addStatisticsSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
 
-        toast.success('Statistics added successfully!');
+        showSuccess('Statistics added successfully!');
 
         // Refresh list
         yield put({
@@ -82,7 +83,7 @@ function* updateStatisticsSaga(action) {
         action.payload.resetForm();
         action.payload.handleClose();
 
-        toast.success('Statistics updated successfully!');
+        showSuccess('Statistics updated successfully!');
 
         // Refresh list
         yield put({
@@ -115,7 +116,7 @@ function* deleteStatisticsSaga(action) {
     try {
         yield call(deleteStatisticsApi, action.payload);
         yield put(deleteStatisticsSuccess(action.payload));
-        toast.success('Statistics deleted successfully!');
+        showSuccess('Statistics deleted successfully!');
 
         // Refresh list
         yield put({

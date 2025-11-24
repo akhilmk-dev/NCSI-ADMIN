@@ -58,7 +58,6 @@ const CreateClassification = ({ visible, handleClose, initialData = '', onSubmit
 
     useEffect(() => {
         if (Object.keys(formik.errors).length !== 0 && isSubmitted) {
-            console.log(formik.errors)
             showError("Validation Error")
             setIsSubmitted(false)
         }

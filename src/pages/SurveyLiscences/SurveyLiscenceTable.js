@@ -4,13 +4,15 @@ import { MdDeleteOutline } from "react-icons/md";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { deleteSurveyLicense, updateSurveyLicense } from "store/actions"; 
+import { deleteSurveyLicense, updateSurveyLicense } from "store/actions";
 import ConfirmationModal from "components/Modals/ConfirmationModal";
 import { Modal } from "antd";
 import axiosInstance from "pages/Utility/axiosInstance";
 import { useTranslation } from "react-i18next";
 import SurveyLicenseDataTable from "components/TableContainers/SurveyLicenseDataTable";
 import CreateSurveyLicense from "./CreateSurveyLiscence";
+import Cookies from "js-cookie";
+import { convertToDateOnly } from "helpers/dateFormat_helper";
 
 
 const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
@@ -36,6 +38,12 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
     value: "created_at",
     direction: "desc",
   });
+  const permissions = JSON.parse(localStorage?.getItem('permissions')) || []
+  const hasEditPermission = permissions.includes('liscences.update');
+  const hasDeletePermission = permissions.includes('liscences.delete');
+  const hasViewPermission = permissions.includes('liscences.view');
+  const isAdmin = Cookies.get('isAdmin') == "yes"
+
 
   // === FETCH SINGLE LICENSE DETAILS FOR VIEW ===
   const fetchLicenseDetails = async () => {
@@ -79,12 +87,39 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
   // === TABLE COLUMNS ===
   const columns = useMemo(
     () => [
-      { header: "License Number", accessorKey: "licensenumber",cell: ({ getValue }) => getValue() || "N/A", },
-      { header: "Title", accessorKey: "title",cell: ({ getValue }) => getValue() || "N/A", },
-      { header: "Agency", accessorKey: "agency",cell: ({ getValue }) => getValue() || "N/A", },
-      { header: "Sponsor", accessorKey: "sponsor",cell: ({ getValue }) => getValue() || "N/A", },
-      { header: "Approval Date", accessorKey: "approval_date",cell: ({ getValue }) => getValue() || "N/A", },
+      { header: "Licence Number", accessorKey: "licensenumber", cell: ({ getValue }) => getValue() || "N/A", },
       {
+        header: "Title",
+        accessorKey: "title",
+        cell: ({ getValue }) => {
+          const value = getValue() || "N/A";
+          return (
+            <div
+              title={value} 
+              style={{
+               whiteSpace: "normal", minWidth:"400px",wordWrap: "break-word"
+              }}
+            >
+              {value}
+            </div>
+          );
+        },
+      },
+      { header: "Agency", accessorKey: "agency", cell: ({ getValue }) => {
+        const value = getValue() || "N/A";
+        return (
+          <div
+            title={value} 
+            style={{
+             whiteSpace: "normal", minWidth:"300px",wordWrap: "break-word"
+            }}
+          >
+            {value}
+          </div>
+        );
+      }},
+      { header: "Survey Status", accessorKey: "survey_status",showFilter:false, cell: ({ getValue }) => getValue() || "N/A", },
+      ...(isAdmin || hasEditPermission || hasDeletePermission || hasViewPermission ? [{
         header: "Actions",
         id: "actions",
         cell: ({ row }) => {
@@ -96,22 +131,22 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
 
           return (
             <div className="d-flex gap-2">
-             
-              <Button
+
+              {(isAdmin || hasViewPermission) && <Button
                 color="info"
                 title="View"
                 style={{ backgroundColor: "#00A895" }}
                 onClick={handleView}
               >
                 <IoEyeOutline size={18} color="white" />
-              </Button>
+              </Button>}
 
               {/*  Edit Button */}
-              <Button color="primary" title="Edit" onClick={handleEdit}>
+              {(isAdmin || hasEditPermission) && <Button color="primary" title="Edit" onClick={handleEdit}>
                 <FaRegEdit size={18} />
-              </Button>
+              </Button>}
               {/* Delete Button */}
-              <Button
+              {(isAdmin || hasDeletePermission) && <Button
                 color="danger"
                 title="Delete"
                 onClick={() => {
@@ -120,13 +155,13 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
                 }}
               >
                 <MdDeleteOutline size={18} />
-              </Button>
+              </Button>}
             </div>
           );
         },
-      },
+      }] : []),
     ],
-    []
+    [hasViewPermission, hasEditPermission, hasDeletePermission, isAdmin]
   );
 
   return (
@@ -143,7 +178,7 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
 
       {/* === View Modal === */}
       <Modal
-        title="License Details"
+        title="Licence Details"
         visible={showViewModal}
         onCancel={() => {
           setShowViewModal(false);
@@ -158,21 +193,21 @@ const SurveyLicenseTable = ({ list = [], totalrows, loading, fieldErrors }) => {
         {selectedLicense && (
           <div className="p-3">
             {[
-              ["License Number", selectedLicense.licensenumber],
+              ["Licence Number", selectedLicense.licensenumber],
               ["Title", selectedLicense.title],
               ["Agency", selectedLicense.agency],
               ["Sponsor", selectedLicense.sponsor],
               ["Agency Representative", selectedLicense.agency_rep],
-              ["License Type", selectedLicense.licencetype],
-              ["Approval Date", selectedLicense.approval_date],
+              ["Licence Type", selectedLicense.licencetype],
+              ["Approval Date", selectedLicense.approval_date ?convertToDateOnly(selectedLicense.approval_date):'N/A'],
               [
-                "Implementation Period",
-                `${selectedLicense.implementation_period_from} → ${selectedLicense.implementation_period_to}`,
+                "Licence Period",
+                `${convertToDateOnly(selectedLicense.implementation_period_from)} → ${convertToDateOnly(selectedLicense.implementation_period_to)}`,
               ],
               ["Objective", selectedLicense.objective],
               ["Status", selectedLicense.status === 1 ? "Active" : "Inactive"],
-              ["Created At", selectedLicense.created_at],
-              ["Updated At", selectedLicense.updated_at],
+              ["Created At", convertToDateOnly(selectedLicense.created_at)],
+              ["Updated At", convertToDateOnly(selectedLicense.updated_at)],
             ].map(([label, value], idx) => (
               <div key={idx} className="row mb-2">
                 <div className="col-4 fw-bold">{label}:</div>

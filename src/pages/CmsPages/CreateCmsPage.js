@@ -17,21 +17,78 @@ import axiosInstance from "pages/Utility/axiosInstance";
 import Breadcrumb from "components/Common/Breadcrumb2";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmationModal from "components/Modals/ConfirmationModal";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { showError } from "helpers/notification_helper";
 
+const isQuillEmpty = (value) => {
+  if (!value) return true;
+  const stripped = value.replace(/<(.|\n)*?>/g, "").trim();
+  return stripped.length === 0;
+};
 // Validation Schema
 const validationSchema = Yup.object().shape({
-  ceo_message_en: Yup.string().required("CEO Message (EN) is required"),
-  ceo_message_ar: Yup.string().required("CEO Message (AR) is required"),
-  vision_en: Yup.string().required("Vision (EN) is required"),
-  vision_ar: Yup.string().required("Vision (AR) is required"),
-  mission_en: Yup.string().required("Mission (EN) is required"),
-  mission_ar: Yup.string().required("Mission (AR) is required"),
-  goals_en: Yup.string().required("Goals (EN) is required"),
-  goals_ar: Yup.string().required("Goals (AR) is required"),
-  values_en: Yup.string().required("Values (EN) is required"),
-  values_ar: Yup.string().required("Values (AR) is required"),
-  arabic_1: Yup.string().required("Arabic-1 is required"),
-  arabic_2: Yup.string().required("Arabic-2 is required"),
+  ceo_message_en: Yup.string().test(
+    "required",
+    "CEO Message (EN) is required",
+    (value) => !isQuillEmpty(value) // returns true if not empty
+  ),
+  ceo_message_ar: Yup.string().test(
+    "required",
+    "CEO Message (AR) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  vision_en: Yup.string().test(
+    "required",
+    "Vision (EN) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  vision_ar: Yup.string().test(
+    "required",
+    "Vision (AR) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  mission_en: Yup.string().test(
+    "required",
+    "Mission (EN) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  mission_ar: Yup.string().test(
+    "required",
+    "Mission (AR) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  goals_en: Yup.string().test(
+    "required",
+    "Goals (EN) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  goals_ar: Yup.string().test(
+    "required",
+    "Goals (AR) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  values_en: Yup.string().test(
+    "required",
+    "Values (EN) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  values_ar: Yup.string().test(
+    "required",
+    "Values (AR) is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  arabic_1: Yup.string().test(
+    "required",
+    "Arabic-1 is required",
+    (value) => !isQuillEmpty(value)
+  ),
+  arabic_2: Yup.string().test(
+    "required",
+    "Arabic-2 is required",
+    (value) => !isQuillEmpty(value)
+  ),
+
 
   decrees_laws_decisions: Yup.array().of(
     Yup.object().shape({
@@ -77,19 +134,43 @@ const CreateCmsPage = () => {
   const [baseUrl, setBaseUrl] = useState();
   const [openModal, setOpenModal] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
-
+  const permissions = JSON.parse(localStorage?.getItem("permissions")) || [];
+  const hasEditPermission = permissions.includes("pages.update");
+  const hasCreatePermission = permissions.includes("pages.create");
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Upload PDF
-  const uploadPdfAndGetUrl = async (file) => {
+  // Suppress Quill's deprecated DOMNodeInserted usage
+  if (typeof window !== 'undefined') {
+    const originalAddEventListener = Element.prototype.addEventListener;
+    Element.prototype.addEventListener = function (type, listener, options) {
+      if (type === 'DOMNodeInserted') return; // ignore this event
+      return originalAddEventListener.call(this, type, listener, options);
+    };
+  }
+
+  useEffect(() => {
+    if (!hasEditPermission && !hasCreatePermission) {
+      navigate("/pages-403");
+    }
+  }, []);
+
+  // Upload PDF with a custom name based on the English title
+  const uploadPdfAndGetUrl = async (file, customFileName) => {
     try {
       const base64Data = await fileToBase64(file);
-      const payload = { media: base64Data };
-      const response = await axiosInstance.post("V1/pages/upload-media-pdf", payload);
+      const payload = {
+        media: base64Data,
+        file_name: customFileName, // send filename to backend
+      };
+
+      const response = await axiosInstance.post(
+        "V1/pages/upload-media-pdf",
+        payload
+      );
 
       if (response.data?.data?.file) {
-        toast.success("PDF uploaded successfully");
+        toast.success(`${customFileName} uploaded successfully`);
         return response.data.data.file;
       } else {
         toast.error("Failed to get PDF URL from server");
@@ -102,20 +183,68 @@ const CreateCmsPage = () => {
     }
   };
 
-  const handleFileChange = async (event, index, fieldName, setFieldValue) => {
-    const file = event.target.files[0];
-    if (file) {
-      toast.loading("Uploading PDF...");
-      const pdfUrl = await uploadPdfAndGetUrl(file);
-      toast.dismiss();
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // Headings (paragraph / H1–H6)
+      [{ size: ["small", false, "large", "huge"] }], // Font size
+      ["bold", "italic", "underline"], // Inline styles
+      [{ align: [] }], // Alignment (includes RTL)
+      [{ direction: "rtl" }], // Explicit RTL/LTR control
+      [{ list: "ordered" }, { list: "bullet" }], // Lists
+      ["link", "image"], // Media
+      ["clean"], // Clear formatting
+    ],
+  };
 
-      if (pdfUrl) {
-        setPdfFiles((prev) => ({
-          ...prev,
-          [`${fieldName}_${index}`]: pdfUrl,
-        }));
-        setFieldValue(`decrees_laws_decisions[${index}].${fieldName}`, pdfUrl);
-      }
+  // Define allowed formats
+  const formats = [
+    "header",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "color",
+    "background",
+    "script",
+    "align",
+    "direction",
+    "list",
+    "link",
+    "image"
+  ];
+
+  //  Handle File Change with Title-based File Name
+  const handleFileChange = async (
+    event,
+    index,
+    fieldName,
+    setFieldValue,
+    values
+  ) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const englishTitle = values.decrees_laws_decisions[index]?.title_en?.trim();
+    if (!englishTitle) {
+      toast.error("Please enter the English title before uploading the PDF.");
+      event.target.value = ""; // Reset the input
+      return;
+    }
+
+    // 🧹 Sanitize filename
+    const safeTitle = englishTitle.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    const customFileName = `${safeTitle}_${fieldName}`;
+
+    toast.loading("Uploading PDF...");
+    const pdfUrl = await uploadPdfAndGetUrl(file, customFileName);
+    toast.dismiss();
+
+    if (pdfUrl) {
+      setPdfFiles((prev) => ({
+        ...prev,
+        [`${fieldName}_${index}`]: pdfUrl,
+      }));
+      setFieldValue(`decrees_laws_decisions[${index}].${fieldName}`, pdfUrl);
     }
   };
 
@@ -151,17 +280,32 @@ const CreateCmsPage = () => {
     values_ar: initialData.values_ar || "",
     arabic_1: initialData.arabic_1 || "",
     arabic_2: initialData.arabic_2 || "",
-
     decrees_laws_decisions:
       initialData.decrees_laws_decisions?.length > 0
         ? initialData.decrees_laws_decisions
         : [{ title_en: "", title_ar: "", pdf_en: "", pdf_ar: "", order: "" }],
   };
 
+  const RichTextField = ({ field, form }) => {
+    const handleChange = (value) => {
+      form.setFieldValue(field.name, value);
+    };
+    return (
+      <ReactQuill
+        value={field.value || ""}
+        onChange={handleChange}
+        modules={modules}
+        formats={formats}
+        theme="snow"
+        style={{ height: "180px", marginBottom: "60px" }}
+      />
+    );
+  };
+
   const handleUpdatePage = async (formValues) => {
     try {
       const payload = { page_key: "hierarchy", data: formValues };
-      const response = await axiosInstance.put("/V1/pages/update", payload);
+      const response = await axiosInstance.post("/V1/pages/update", payload);
       if (response.status === 200) {
         toast.success("Hierarchy updated successfully!");
       } else {
@@ -172,6 +316,7 @@ const CreateCmsPage = () => {
       toast.error("An error occurred while updating the page.");
     }
   };
+
 
   return (
     <div className="page-content my-3">
@@ -204,13 +349,20 @@ const CreateCmsPage = () => {
           navigate("/cms-pages");
         }}
       >
-        {({ values, isSubmitting, setFieldValue }) => (
-          <Form>
+        {({ values, isSubmitting, setFieldValue, handleSubmit, validateForm }) => (
+          <Form onSubmit={async (e) => {
+            e.preventDefault();
+            const errors = await validateForm();
+            if (Object.keys(errors).length > 0) {
+              showError("Validation error!");
+            }
+            handleSubmit(e); // now it will run onSubmit
+          }}>
             {/* Page Details */}
             <Card className="mb-4 shadow-sm">
               <CardHeader className="bg-light fw-bold">Hierarchy Details</CardHeader>
               <CardBody>
-                <Row>
+                <Row className="g-3 g-md-5 g-xl-3">
                   {[
                     ["CEO Message (EN)", "ceo_message_en"],
                     ["CEO Message (AR)", "ceo_message_ar"],
@@ -222,18 +374,12 @@ const CreateCmsPage = () => {
                     ["Goals (AR)", "goals_ar"],
                     ["Values (EN)", "values_en"],
                     ["Values (AR)", "values_ar"],
-                    ["Arabic-1", "arabic_1"],
-                    ["Arabic-2", "arabic_2"],
                   ].map(([label, name], i) => (
                     <Col md="6" key={i}>
                       <FormGroup>
                         <Label>{label}</Label>
                         <span style={{ color: "red" }}>*</span>
-                        <Field
-                          name={name}
-                          as={Input}
-                          placeholder={`Enter ${label}`}
-                        />
+                        <Field name={name} component={RichTextField} />
                         <ErrorMessage
                           name={name}
                           component="div"
@@ -242,6 +388,36 @@ const CreateCmsPage = () => {
                       </FormGroup>
                     </Col>
                   ))}
+
+                  <Col md="6"></Col>
+
+                  <Col md="6">
+                    <FormGroup>
+                      <Label>Quality Policy</Label>
+                      <span style={{ color: "red" }}>*</span>
+                      <Field name="arabic_1" component={RichTextField} />
+                      <ErrorMessage
+                        name="arabic_1"
+                        component="div"
+                        className="text-danger small mt-1"
+                      />
+                    </FormGroup>
+                  </Col>
+
+                  <Col md="6"></Col>
+
+                  <Col md="6">
+                    <FormGroup>
+                      <Label>The General Policy of the National Centre for Statistics and Information</Label>
+                      <span style={{ color: "red" }}>*</span>
+                      <Field name="arabic_2" component={RichTextField} />
+                      <ErrorMessage
+                        name="arabic_2"
+                        component="div"
+                        className="text-danger small mt-1"
+                      />
+                    </FormGroup>
+                  </Col>
                 </Row>
               </CardBody>
             </Card>
@@ -269,6 +445,7 @@ const CreateCmsPage = () => {
                       </CardHeader>
                       <CardBody>
                         <Row>
+                          {/* English Title */}
                           <Col md="6">
                             <FormGroup>
                               <Label>Title (EN)</Label>
@@ -276,7 +453,7 @@ const CreateCmsPage = () => {
                               <Field
                                 name={`decrees_laws_decisions[${index}].title_en`}
                                 as={Input}
-                                placeholder="Enter Title(en)"
+                                placeholder="Enter Title (EN)"
                               />
                               <ErrorMessage
                                 name={`decrees_laws_decisions[${index}].title_en`}
@@ -286,6 +463,7 @@ const CreateCmsPage = () => {
                             </FormGroup>
                           </Col>
 
+                          {/* Arabic Title */}
                           <Col md="6">
                             <FormGroup>
                               <Label>Title (AR)</Label>
@@ -293,7 +471,7 @@ const CreateCmsPage = () => {
                               <Field
                                 name={`decrees_laws_decisions[${index}].title_ar`}
                                 as={Input}
-                                placeholder="Enter Title(ar)"
+                                placeholder="Enter Title (AR)"
                               />
                               <ErrorMessage
                                 name={`decrees_laws_decisions[${index}].title_ar`}
@@ -303,6 +481,7 @@ const CreateCmsPage = () => {
                             </FormGroup>
                           </Col>
 
+                          {/* PDF EN */}
                           <Col md="6">
                             <FormGroup>
                               <Label>PDF (EN)</Label>
@@ -315,7 +494,8 @@ const CreateCmsPage = () => {
                                     e,
                                     index,
                                     "pdf_en",
-                                    setFieldValue
+                                    setFieldValue,
+                                    values
                                   )
                                 }
                               />
@@ -337,6 +517,7 @@ const CreateCmsPage = () => {
                             </FormGroup>
                           </Col>
 
+                          {/* PDF AR */}
                           <Col md="6">
                             <FormGroup>
                               <Label>PDF (AR)</Label>
@@ -349,7 +530,8 @@ const CreateCmsPage = () => {
                                     e,
                                     index,
                                     "pdf_ar",
-                                    setFieldValue
+                                    setFieldValue,
+                                    values
                                   )
                                 }
                               />
@@ -371,6 +553,7 @@ const CreateCmsPage = () => {
                             </FormGroup>
                           </Col>
 
+                          {/* Order */}
                           <Col md="6">
                             <FormGroup>
                               <Label>Order</Label>
@@ -411,7 +594,7 @@ const CreateCmsPage = () => {
               )}
             </FieldArray>
 
-            {/* Confirmation Modal */}
+            {/* Delete Confirmation */}
             <ConfirmationModal
               okText="Confirm"
               isVisible={openModal}
