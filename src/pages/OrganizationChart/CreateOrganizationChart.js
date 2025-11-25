@@ -131,11 +131,30 @@ const CreateOrganizationChart = ({
     }
   };
 
-  const parentOptions=(list || [])
-  .slice(0,4).map((item)=>({
-    value:item.id,
-    label:`${item.title_en} (${item.designation_en})`,
-  }))
+  const topParent = list.length > 0 ? list.filter(item=>item?.id==1)[0] : null;
+  console.log("topParent:",topParent)
+
+  const secondRowParents = list.filter(
+  (item) => item.parent_id === 1
+);
+console.log("secondRowParents:",secondRowParents)
+
+const parentOptions = [
+  ...(topParent
+    ? [{
+        value: topParent.id,
+        label: `${topParent.title_en} (${topParent.designation_en})`,
+      }]
+    : []
+  ),
+  ...secondRowParents.map((item) => ({
+    value: item.id,
+    label: `${item.title_en} (${item.designation_en})`,
+  })),
+];
+
+console.log("parentOptions:",parentOptions)
+
   return (
     <Modal
       title={initialData ? "Edit Organization Chart" : "Create Organization Chart"}
