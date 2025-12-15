@@ -33,7 +33,6 @@ const OrganizationChartTable = ({ list, loading, fieldErrors, totalrows }) => {
   const hasDeletePermission = permissions.includes('organizationcharts.delete')
   const isAdmin = Cookies.get('isAdmin') == "yes"
   const [fullList, setFullList] = useState([]);
-
   
 
   // DELETE HANDLER

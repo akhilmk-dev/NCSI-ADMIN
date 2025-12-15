@@ -89,7 +89,7 @@ const CreatePublication = ({ visible, handleClose, initialData = "", onSubmit, c
                 .test("fileFormat", "Unsupported Format, only PDF allowed", (value) => {
                     if (!value || typeof value === "string") return true;
                     return value.type === SUPPORTED_PDF_FORMAT;
-                }).required("Arabic Pdf is required") : Yup.mixed()
+                }): Yup.mixed()
                     .nullable()
                     .test("fileSize", "File size is too large, max 5MB", (value) => {
                         if (!value || typeof value === "string") return true;

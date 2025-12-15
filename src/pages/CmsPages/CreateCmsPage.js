@@ -20,6 +20,7 @@ import ConfirmationModal from "components/Modals/ConfirmationModal";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { showError } from "helpers/notification_helper";
+import Cookies from "js-cookie";
 
 const isQuillEmpty = (value) => {
   if (!value) return true;
@@ -137,6 +138,7 @@ const CreateCmsPage = () => {
   const permissions = JSON.parse(localStorage?.getItem("permissions")) || [];
   const hasEditPermission = permissions.includes("pages.update");
   const hasCreatePermission = permissions.includes("pages.create");
+  const isAdmin = Cookies.get('isAdmin') == "yes"
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -150,7 +152,7 @@ const CreateCmsPage = () => {
   }
 
   useEffect(() => {
-    if (!hasEditPermission && !hasCreatePermission) {
+    if (!hasEditPermission && !hasCreatePermission && !isAdmin) {
       navigate("/pages-403");
     }
   }, []);

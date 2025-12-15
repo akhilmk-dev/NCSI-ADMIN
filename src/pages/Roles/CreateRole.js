@@ -11,7 +11,6 @@ import { Button } from 'reactstrap';
 import { ClipLoader } from 'react-spinners';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import { BASE_URL } from 'constants/config';
 import axiosInstance from 'pages/Utility/axiosInstance';
 import { showError } from 'helpers/notification_helper';
 import Cookies from 'js-cookie';
