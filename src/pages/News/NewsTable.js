@@ -16,10 +16,11 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const [selectedSortData, setSelectedSortData] = useState({
-    value: "created_at",
-    direction: "desc",
-  });
+const [selectedSortData, setSelectedSortData] = useState({
+  value: "news_date",
+  direction: "desc",
+});
+
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [searchString, setSearchString] = useState("");
@@ -91,14 +92,15 @@ const NewsTable = ({ list, loading, fieldErrors, totalrows }) => {
             "No Image"
           ),
       },
-      {
-        header: "Created At",
-        accessorKey: "created_at",
-        cell: ({ row }) =>
-          row.original.created_at
-            ? convertToDateOnly(row.original.created_at)
-            : "-",
-      },
+{
+  header: "News Date",
+  accessorKey: "news_date",
+  cell: ({ row }) =>
+    row.original.news_date
+      ? convertToDateOnly(row.original.news_date)
+      : "-",
+},
+
       ...(isAdmin || hasEditPermission || hasDeletePermission ?[{
         header: "Actions",
         id: "actions",

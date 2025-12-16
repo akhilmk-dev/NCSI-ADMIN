@@ -42,10 +42,14 @@ const CreateNews = ({
       content_en: initialData?.content_en || "",
       content_ar: initialData?.content_ar || "",
       news_image: "",
+      news_date:initialData?.news_date || ""
     },
     validationSchema: Yup.object({
       title_en: Yup.string().required("English title is required"),
       title_ar: Yup.string().required("Arabic title is required"),
+        news_date: Yup.date()
+    .required("News date is required")
+    .nullable(),
       content_en: Yup.string()
       .test(
         "not-empty-html",
@@ -97,6 +101,7 @@ const CreateNews = ({
         content_en: values.content_en,
         content_ar: values.content_ar,
         news_image: values.news_image,
+        news_date:values.news_date
       };
 
       if (initialData) {
@@ -211,6 +216,24 @@ const CreateNews = ({
               <div className="text-danger">{formik.errors.title_ar}</div>
             )}
           </div>
+
+          {/* News Date */}
+ <div className="col-md-6">
+  <label className="form-label fs-7">
+    News Date <span className="text-danger">*</span>
+  </label>
+  <input
+    type="date"
+    name="news_date"
+    className="form-control"
+    value={formik.values.news_date}
+    onChange={formik.handleChange}
+  />
+  {formik.errors.news_date && (
+    <div className="text-danger">{formik.errors.news_date}</div>
+  )}
+</div> 
+
 
           {/* Content EN */}
           <div className="col-12">
